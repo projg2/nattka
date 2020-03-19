@@ -123,3 +123,47 @@ class KeywordAdderTest(BaseRepoTestCase):
                     self.assertEqual(e1.keywords, ('alpha', '~amd64', 'hppa'))
                     self.assertEqual(e2.keywords, ('amd64',))
                     self.assertEqual(e3.keywords, ('alpha', 'amd64', '~hppa'))
+
+
+class DependencyCheckerTest(BaseRepoTestCase):
+    def test_amd64_good(self):
+        self.assertEqual(
+            nattka.package.check_dependencies(self.repo,
+                [('=test/amd64-testing-deps-1', ('amd64',))]),
+            (True, []))
+
+    def test_amd64_bad(self):
+        self.assertEqual(
+            nattka.package.check_dependencies(self.repo,
+                    [('=test/amd64-stable-deps-1', ('amd64',))]),
+            (False, [
+                {'__class__': 'NonsolvableDepsInStable',
+                 'attr': 'rdepend',
+                 'category': 'test',
+                 'deps': ['test/amd64-testing'],
+                 'keyword': 'amd64',
+                 'num_profiles': 1,
+                 'package': 'amd64-stable-deps',
+                 'profile': 'amd64',
+                 'profile_deprecated': False,
+                 'profile_status': 'stable',
+                 'version': '1'},
+            ]))
+
+    def test_alpha_bad(self):
+        self.assertEqual(
+            nattka.package.check_dependencies(self.repo,
+                    [('=test/alpha-testing-deps-1', ('alpha',))]),
+            (False, [
+                {'__class__': 'NonsolvableDepsInStable',
+                 'attr': 'rdepend',
+                 'category': 'test',
+                 'deps': ['test/amd64-testing'],
+                 'keyword': '~alpha',
+                 'num_profiles': 1,
+                 'package': 'alpha-testing-deps',
+                 'profile': 'alpha',
+                 'profile_deprecated': False,
+                 'profile_status': 'stable',
+                 'version': '1'},
+            ]))

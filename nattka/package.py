@@ -1,5 +1,9 @@
 """ Package processing support. """
 
+import itertools
+import json
+import subprocess
+
 from gentoolkit.ekeyword import ekeyword
 from pkgcore.util import parserestrict
 
@@ -30,3 +34,30 @@ def add_keywords(tuples, stable):
         ebuild = p.path
         ops = [ekeyword.Op(None if stable else '~', k, None) for k in keywords]
         ekeyword.process_ebuild(ebuild, ops, quiet=2)
+
+
+def check_dependencies(repo, tuples):
+    """
+    Check whether dependencies are satisfied for package-arch @tuples,
+    in @repo.  Returns a pair of (boolean status, error list).
+    """
+
+    errors = []
+    ret = True
+
+    for keywords, packages in itertools.groupby(tuples, lambda x: x[1]):
+        packages = list((x[0] for x in packages))
+        args = ['pkgcheck', 'scan', '-c', 'VisibilityCheck',
+                '-R', 'JsonStream', '-a', ','.join(keywords)] + packages
+        sp = subprocess.Popen(args,
+                              cwd=repo.location,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
+        sout, serr = sp.communicate()
+        for l in sout.splitlines():
+            j = json.loads(l)
+            if j['__class__'].startswith('NonsolvableDeps'):
+                ret = False
+                errors.append(j)
+
+    return ret, errors
