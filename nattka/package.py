@@ -5,7 +5,19 @@ import json
 import subprocess
 
 from gentoolkit.ekeyword import ekeyword
+from pkgcore.config import load_config
 from pkgcore.util import parserestrict
+
+
+def find_repository(path, conf_path=None):
+    """
+    Find an ebuild repository in specified @path, and return initiated
+    repo object for it.  If @conf_path is specified, it overrides
+    config location.
+    """
+    c = load_config(location=conf_path)
+    domain = c.get_default('domain')
+    return domain.find_repo(path, config=c, configure=False)
 
 
 def match_package_list(repo, package_list):
