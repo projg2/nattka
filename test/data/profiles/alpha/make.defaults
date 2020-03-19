@@ -1,0 +1,2 @@
+ARCH="alpha"
+ACCEPT_KEYWORDS="alpha ~alpha"

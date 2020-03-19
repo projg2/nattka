@@ -1,0 +1,2 @@
+ARCH="amd64"
+ACCEPT_KEYWORDS="amd64 ~amd64"

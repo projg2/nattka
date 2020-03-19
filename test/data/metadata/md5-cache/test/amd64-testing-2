@@ -1,0 +1,8 @@
+DEFINED_PHASES=-
+DESCRIPTION=Test ebuild
+EAPI=7
+HOMEPAGE=https://github.com/mgorny/nattka/
+KEYWORDS=~amd64
+LICENSE=none
+SLOT=0
+_md5_=fab81ca996dba0e3a06deab088de8866
