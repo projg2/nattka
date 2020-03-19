@@ -6,7 +6,8 @@ import pkgcore.config
 
 
 def get_test_repo():
+    conf_path = os.path.join(*__path__, 'conf')
     data_path = os.path.join(*__path__, 'data')
-    c = pkgcore.config.load_config()
+    c = pkgcore.config.load_config(location=conf_path)
     domain = c.get_default('domain')
     return domain.find_repo(data_path, config=c, configure=False)
