@@ -29,11 +29,14 @@ class NattkaCommands(object):
         repo = find_repository(self.args.repo)
 
         bz = NattkaBugzilla(self.get_api_key())
-        for b in bz.fetch_package_list(self.args.bug):
+        for i, b in enumerate(bz.fetch_package_list(self.args.bug)):
+            log.info('Bug {} ({})'.format(self.args.bug[i],
+                                          b.category.name))
             plist = dict(match_package_list(repo, b.atoms))
             for p, keywords in plist.items():
                 if not keywords:
                     plist[p] = cced
+                log.info('Package {}: {}'.format(p.cpvstr, plist[p]))
             add_keywords(plist.items(), b.category == BugCategory.STABLEREQ)
 
 
@@ -59,4 +62,5 @@ def main(argv):
 
 
 if __name__ == '__main__':
+    log.setLevel(logging.INFO)
     sys.exit(main(sys.argv[1:]))
