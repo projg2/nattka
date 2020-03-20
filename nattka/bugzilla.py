@@ -103,5 +103,9 @@ class NattkaBugzilla(object):
 
         ret = {}
         for b in self.bz.query(query):
+            # skip empty bugs (likely security issues that are not
+            # stabilization requests)
+            if not b.cf_stabilisation_atoms:
+                continue
             ret[b.id] = make_bug_info(b)
         return ret

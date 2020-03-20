@@ -77,3 +77,20 @@ class BugzillaTests(unittest.TestCase):
                       [],
                       [481462])
             })
+
+    @rec.use_cassette()
+    def test_find_stablereqs(self):
+        """ Test finding stablereqs. """
+        self.assertEqual(self.bz.find_bugs(BugCategory.STABLEREQ, limit=10),
+                         {522930: (BugCategory.STABLEREQ,
+                                   '=sys-kernel/gentoo-sources-3.4.113\r\n',
+                                   set(),
+                                   [],
+                                   [469854, 512526, 524848, 568212,
+                                    464546, 579076]),
+                          543310: (BugCategory.STABLEREQ,
+                                   '=dev-util/diffball-1.0.1-r2\r\n',
+                                   set(),
+                                   [],
+                                   [])
+                         })
