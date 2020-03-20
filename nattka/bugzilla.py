@@ -1,5 +1,6 @@
 """ Bugzilla support. """
 
+import collections
 import enum
 
 import bugzilla
@@ -42,6 +43,10 @@ class BugCategory(enum.Enum):
             return None
 
 
+BugInfo = collections.namedtuple('BugInfo',
+    ('category', 'atoms', 'arches_cc', 'depends', 'blocks'))
+
+
 class NattkaBugzilla(object):
     def __init__(self, api_key, url=BUGZILLA_URL):
         self.bz = bugzilla.Bugzilla(url, api_key=api_key)
@@ -49,16 +54,14 @@ class NattkaBugzilla(object):
     def fetch_package_list(self, bugs):
         """
         Fetch specified @bugs (list of bug numberss).  Returns
-        an iterator over tuples of (category, package_list,
-        cced_arches).
+        an iterator over BugInfo tuples.
         """
 
         for b in self.bz.getbugs(bugs):
             bcat = BugCategory.from_component(b.component)
-            assert bcat
             atoms = b.cf_stabilisation_atoms + '\r\n'
             cced = set()
             for e in b.cc:
                 if e in KNOWN_ARCHES:
                     cced.add(e.split('@')[0])
-            yield bcat, atoms, cced
+            yield BugInfo(bcat, atoms, cced, b.depends_on, b.blocks)

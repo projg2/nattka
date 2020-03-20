@@ -1,5 +1,6 @@
 """ Package processing support. """
 
+import collections
 import itertools
 import json
 import subprocess
@@ -7,6 +8,13 @@ import subprocess
 from gentoolkit.ekeyword import ekeyword
 from pkgcore.config import load_config
 from pkgcore.util import parserestrict
+
+
+PackageKeywords = collections.namedtuple('PackageKeyword',
+    ('package', 'keywords'))
+
+CheckResult = collections.namedtuple('CheckResult',
+    ('success', 'output'))
 
 
 def find_repository(path, conf_path=None):
@@ -23,8 +31,8 @@ def find_repository(path, conf_path=None):
 def match_package_list(repo, package_list):
     """
     Match @package_list against packages in @repo.  Returns an iterator
-    over pairs of (package object, keywords).  If any of the items fails
-    to match, raises an exception.
+    over pairs of PackageKeywords.  If any of the items fails to match,
+    raises an exception.
     """
 
     for l in package_list.splitlines():
@@ -33,7 +41,7 @@ def match_package_list(repo, package_list):
             continue
         keywords = [x.strip().lstrip('~') for x in sl[1:]]
         for m in repo.itermatch(parserestrict.parse_match('=' + sl[0].strip())):
-            yield m, keywords
+            yield PackageKeywords(m, keywords)
 
 
 def add_keywords(tuples, stable):
@@ -72,4 +80,4 @@ def check_dependencies(repo, tuples):
                 ret = False
                 errors.append(j)
 
-    return ret, errors
+    return CheckResult(ret, errors)

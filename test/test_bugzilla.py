@@ -6,7 +6,7 @@ import unittest
 
 import vcr
 
-from nattka.bugzilla import NattkaBugzilla, BugCategory
+from nattka.bugzilla import NattkaBugzilla, BugCategory, BugInfo
 
 
 # API key should be needed only for the initial recording
@@ -39,14 +39,20 @@ class BugzillaTests(unittest.TestCase):
             [(BugCategory.KEYWORDREQ,
               'dev-python/unittest-mixins-1.6\r\n'
               'dev-python/coverage-4.5.4\r\n',
-              {'x86', 'sh', 'm68k', 'hppa', 's390'}),
+              {'x86', 'sh', 'm68k', 'hppa', 's390'},
+              [701196],
+              []),
              (BugCategory.KEYWORDREQ,
               'dev-python/urllib3-1.25.8\r\n'
               'dev-python/trustme-0.6.0\r\n'
               'dev-python/brotlipy-0.7.0\r\n',
               {'ppc', 'sh', 'ppc64', 'sparc', 'm68k', 'hppa', 'mips',
-               's390'}),
+               's390'},
+              [],
+              []),
              (BugCategory.STABLEREQ,
               'dev-python/mako-1.1.0\r\n',
-              {'sh', 'm68k'}),
+              {'sh', 'm68k'},
+              [],
+              []),
             ])
