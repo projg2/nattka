@@ -38,6 +38,28 @@ interactions:
 
       <member>
 
+      <name>include_fields</name>
+
+      <value><array><data>
+
+      <value><string>component</string></value>
+
+      <value><string>cf_stabilisation_atoms</string></value>
+
+      <value><string>cc</string></value>
+
+      <value><string>depends_on</string></value>
+
+      <value><string>blocks</string></value>
+
+      <value><string>id</string></value>
+
+      </data></array></value>
+
+      </member>
+
+      <member>
+
       <name>Bugzilla_api_key</name>
 
       <value><string><!-- API key stripped --></string></value>
@@ -61,11 +83,11 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '525'
+      - '866'
       Content-Type:
       - text/xml
       Cookie:
-      - Bugzilla_login_request_cookie=lyksd30D6B
+      - Bugzilla_login_request_cookie=jFTIspU7rf
       User-Agent:
       - Python/Bugzilla
     method: POST
@@ -73,55 +95,36 @@ interactions:
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAA+1c3XLaOBS+36dgsjN7s2OwjH+ApXTTTdIkTRPakP7deIQR4MW2XFlOoZf7SvsI
-        O/teKxOYbcHYki0S6DCTmfBjDtLR0Tnf+fSZ9vOp71XuEYlcHDw7AlX1qIICBw/cYPTs6K53pjSO
-        nnfaPqJjPHiLohAHEeq0Q0igHy3+d9r30IvZqxElsUOTq/0+Ip12AH3UGcLYo1G7Nn+yvBISAmed
-        9gBSWKl12rXF89ri7drSwneW+vEow072KCIKabz6aXYlm2bnj5vrs4u3r09P2rXFKzkDgQ6NoWdT
-        10crFgc47nuoo1ZVtV1bPMkx5ka2QxCkmNjQcVAUuexDK2b7GHsIBh3Qri0fclh1ZBp0sM/WHgU0
-        3Yev0OwLJknU8DpxMel0c/4Ik2D2+4h9H8ZVTLitjgiOQynRxtw3QBS6XtGQcwcrn3QD2gFABWa7
-        ljzM+X7mHs9OHqV76LzbPa50MaFs6/I6Z7O1cRjCAt5G/rp/hC3Wlt5bviPsVEMzLV2GU32zMalQ
-        BP3yHk1MyfUov0Uhj2Z8Y0jQ0J0WmMVmtxQ2mbNyL+cGK925eV6bqcFkaibYGExCns0ZclRvqkLB
-        lp5QTM2wuGI/Y6GToUhdZn6D5Xe/1tAsKSl1EUO3cYjIubzcGo3l5gFeezJjdeGaE3SPPMzcE1WG
-        mFToGFWmDbNyTJyxSxFDRQSVDWYTlA1mNiKpscxtb83htQeQwIk3hjYDqX3XcyNIGRi3GTryNyDW
-        AbpXwhmD5EEtDlxKUUQV3526QaSAqvnLz9PBbz99c42DGcCHI6ToVaOqCwG0ZCBpOBdS1GMvV90I
-        N0wVdDQVNAEAZk9VW6DR0sB88t9fk/N9FJIRorbvemw6DGqmT11RFN4J4NCOZhs8eOUGMXedgAxD
-        jwI0sCneUNXmfi4QdRFCNvSiVbOFAKsHI2o7YxiMEOeSaSr7M3pavWWwVSuwZKzLYNkgKN1cRCyv
-        EJfO0r2LAjYpB/nz5oPPr3GYTIWt12RtdAsDwGjoZsNSjYYCbPLl8hSeWoFuXDjXJ5/e3Z3UP3xQ
-        jHdnr0/f9O0XQ/P9m5jA+uiOH62w/BSwCyU1iY7D14VwIW9BWCkM4AShgFB1E0zNIgk49CBlVc1P
-        j5djz+MOPpJemeZbOXsfxL4PyYZtkJ30W5XJQwtO0GfegYbExZu33TXzBeSe9GdoOzig0EknCPLn
-        3vewM5HTuS/olNT2vQj6ee2ytPrvX5WX//xNglkphGPowKiXRTiF2ZGMdlXA5DrO2QRoSBwk+c9O
-        YjVJhiw2Y5egVceIl/ZvKrLAMme1ukUreEarW9RkTjR253YrC0jeK9tANoy6wd3ubsojeBBv2PjL
-        1kEIcA09WJzq9fHAHbrOA3ZNYAA/dm22VMDgqzgQyuj+IMvVM8UZI2cijLzFRg+S0Wu6+OizyPFf
-        eQdNZyGy0xkVrnwXIVbSNtDBSWPkIaWPaYHtlN5pNvU6P8sjhCMWhynpM4mDKEQOi88kCfKN/0vS
-        W/cxJOlpM7+yOl6SLpdbIn1cd8HyKv6BpTrWUlk88pGxC8AipeYTFGEv3ji/fCclFcpn+2YgCbFD
-        z4VSZjZArMMasEZrdWZpCfFhBQBoru05kQhODo9wMHSJv1aquXo7IeZp74sH66LrqtVTrZaqtXRz
-        z4rHcvRGUjz0pyoe6cQug8p8mWSXas9uFY/0HA2AZWpcntlW7Shd1EonfJnVZ6+LB7+1snWhOEV3
-        cx55X0+opw6Dt9Ouenz1wnv/Sb+8Ht+MP15Pz27qPr3Xm8PbSf/4QNH5bhiJMHqhY+pi1+8I/ReF
-        kGSP5YclAInnuf26AqqaUW0U4f7k0W2lmT+ZNKQ49yeHE9s6dVeSTZTFcO4t97cFnm4bdKIwRbc1
-        5pBzpQ+ntk9waltP6D6jZbA/rUDHJvu0VdoxsEyR7p7oaqVqiQ8iXVG+Z3OyfEpJbH5JeGwdsRCl
-        lwGpnlAVywGnHlNHLMujec2euEeLWUz1aNOyVCn49KJ7KztK0/eVpTekYK15V12B3ygjJQnL89t1
-        cbTKb7K8h3WgyQGz3T/kaXTzOI0iLn0sh/IrwGUL0rNNSVY9b0dRLkFnzeuSIua2qVgXF9PLVJTf
-        JtydlCHX681G6Rsg8plE0eXmt/g0uvHvGMQ1yTgbUUR9pKhVs6quvdsnmHpuOGNvW1V1S4Ly5cmk
-        3tKbvOpkoQjdg3ZT+p2mj3lP6O1DWH5dHB0eOs4d6Tz2oFfbwr1Lj1UkdxxelCw2wilc00APWK26
-        1dINcaqyYHHz4QSzygb4a9OBxn4KGlvV58KjegsUEB79GDcf/Tm9tXX/wpo1r5CtgEhpnn/8cH/5
-        5uXk1eVN078g77+a7xzl+GrMj7MElAiC0oK8LCOSS2QLMPbo+P7//NSqPOjLBE7ud+q8XeJdO1s8
-        Mj6oAnZCFXA4uS+6Ets4ud8t4fUuSXg5OgCgmXz9mhR5tLimew67G0WhVUabUUCRXkxTLzyDvRBe
-        qzrgOxDb2bt+Dnft7J/wWnhrrH9g8Ut/teUv/9VWfhLwP5/cc5RJUAAA
+        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
     headers:
       Connection:
       - Keep-Alive
       Content-Encoding:
       - gzip
       Content-Length:
-      - '1923'
+      - '852'
       Content-Security-Policy:
       - frame-ancestors 'self'
       Content-Type:
       - text/xml
       Date:
-      - Fri, 20 Mar 2020 06:50:56 GMT
+      - Fri, 20 Mar 2020 10:52:28 GMT
       ETag:
-      - /z+K9JprHCALXVUkKuSCiQ
+      - gyiCzNEV2DqOMm3OfW4UBw
       Keep-Alive:
       - timeout=15, max=100
       SOAPServer:

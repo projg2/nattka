@@ -8,6 +8,13 @@ import bugzilla
 
 BUGZILLA_URL = 'https://bugs.gentoo.org'
 
+INCLUDE_BUG_FIELDS = (
+    'component',
+    'cf_stabilisation_atoms',
+    'cc',
+    'depends_on',
+    'blocks',
+)
 
 # TODO: get it from repo?
 KNOWN_ARCHES = (
@@ -57,7 +64,7 @@ class NattkaBugzilla(object):
         an iterator over BugInfo tuples.
         """
 
-        for b in self.bz.getbugs(bugs):
+        for b in self.bz.getbugs(bugs, include_fields=list(INCLUDE_BUG_FIELDS)):
             bcat = BugCategory.from_component(b.component)
             atoms = b.cf_stabilisation_atoms + '\r\n'
             cced = set()
