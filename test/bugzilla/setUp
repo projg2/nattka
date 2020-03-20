@@ -1,0 +1,177 @@
+interactions:
+- request:
+    body: '<?xml version=''1.0''?>
+
+      <methodCall>
+
+      <methodName>Bugzilla.version</methodName>
+
+      <params>
+
+      <param>
+
+      <value><struct>
+
+      <member>
+
+      <name>Bugzilla_api_key</name>
+
+      <value><string><!-- API key stripped --></string></value>
+
+      </member>
+
+      </struct></value>
+
+      </param>
+
+      </params>
+
+      </methodCall>
+
+      '
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '283'
+      Content-Type:
+      - text/xml
+      User-Agent:
+      - Python/Bugzilla
+    method: POST
+    uri: https://bugs.gentoo.org/xmlrpc.cgi
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA12OQQ7CMAwEv1LlTlwOIA6ue+MBFTwgtBZUapwqSSueT0EOQpys9a5mF9unn6qV
+        YxqDNGZva1Ox9GEY5d6Y6+W8O5mW0HN+hKHjNAdJTDi76HzSS7i6adm+Kcelz++0v3EkFOeZlI3w
+        UT/RrYEOtrZHBFUI6kIhQEF+HW2EsgD+pr0AW+cjvtEAAAA=
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Encoding:
+      - gzip
+      Content-Length:
+      - '149'
+      Content-Security-Policy:
+      - frame-ancestors 'self'
+      Content-Type:
+      - text/xml
+      Date:
+      - Fri, 20 Mar 2020 06:50:53 GMT
+      ETag:
+      - CxYyIqC7tBhtYqITPiDaAQ
+      Keep-Alive:
+      - timeout=15, max=100
+      SOAPServer:
+      - SOAP::Lite/Perl/1.26
+      Server:
+      - Apache
+      Set-Cookie:
+      - Bugzilla_login_request_cookie=lyksd30D6B; path=/; secure; HttpOnly
+      Strict-Transport-Security:
+      - max-age=15768000; includeSubDomains
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '<?xml version=''1.0''?>
+
+      <methodCall>
+
+      <methodName>Bugzilla.extensions</methodName>
+
+      <params>
+
+      <param>
+
+      <value><struct>
+
+      <member>
+
+      <name>Bugzilla_api_key</name>
+
+      <value><string><!-- API key stripped --></string></value>
+
+      </member>
+
+      </struct></value>
+
+      </param>
+
+      </params>
+
+      </methodCall>
+
+      '
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '286'
+      Content-Type:
+      - text/xml
+      Cookie:
+      - Bugzilla_login_request_cookie=lyksd30D6B
+      User-Agent:
+      - Python/Bugzilla
+    method: POST
+    uri: https://bugs.gentoo.org/xmlrpc.cgi
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA62SPw+CMBDFvwphl+KgcSglcfDP4GLEHeGCTegdaQvBby+YMiiJUXFqc+/dyy+X
+        x+NWlV4D2kjCyJ8Hoe8BZpRLLCI/OW1mKz8WXIG9Un4EUxEaELxKdaqMewVv0rLupsbqOrO9W11A
+        C46pAgGtBezTDWePwVv3gTSs6yLR5Sduxz22dvQi5Mz9OHMKG7bZEDdSnvK3gJZoMkl31ekseywl
+        wk4aS/r2B6TldKQz2W5/MssiCH+k+UZxVWVDddlLp+/TaSDzCgMAAA==
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Encoding:
+      - gzip
+      Content-Length:
+      - '211'
+      Content-Security-Policy:
+      - frame-ancestors 'self'
+      Content-Type:
+      - text/xml
+      Date:
+      - Fri, 20 Mar 2020 06:50:54 GMT
+      ETag:
+      - izrIl55CeO91dMGXb6Yz7Q
+      Keep-Alive:
+      - timeout=15, max=99
+      SOAPServer:
+      - SOAP::Lite/Perl/1.26
+      Server:
+      - Apache
+      Strict-Transport-Security:
+      - max-age=15768000; includeSubDomains
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
