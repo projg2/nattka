@@ -56,3 +56,24 @@ class BugzillaTests(unittest.TestCase):
               [],
               []),
             ])
+
+    @rec.use_cassette()
+    def test_find_keywordreqs(self):
+        """ Test finding keywordreqs. """
+        self.assertEqual(self.bz.find_bugs(BugCategory.KEYWORDREQ, limit=3),
+            {254398: (BugCategory.KEYWORDREQ,
+                      'app-dicts/aspell-de-alt-2.1.1-r1\r\n',
+                      {'m68k'},
+                      [],
+                      []),
+             468854: (BugCategory.KEYWORDREQ,
+                      'app-arch/lrzip-0.631-r1\r\n',
+                      {'sh', 's390'},
+                      [],
+                      [465684, 458184]),
+             481722: (BugCategory.KEYWORDREQ,
+                      'dev-libs/mathjax-2.7.4\r\n',
+                      set(),
+                      [],
+                      [481462])
+            })
