@@ -6,7 +6,11 @@ import shutil
 import tempfile
 import unittest
 
-import nattka.package
+from pkgcore.util import parserestrict
+
+from nattka.package import (find_repository, match_package_list,
+                            add_keywords, check_dependencies,
+                            fill_keywords)
 
 from test import get_test_repo
 
@@ -27,7 +31,7 @@ class PackageMatcherTests(BaseRepoTestCase):
     def test_versioned_package_list(self):
         """ Test versioned package lists. """
         self.assertEqual(
-            list(((p.path, k) for p, k in nattka.package.match_package_list(
+            list(((p.path, k) for p, k in match_package_list(
                 self.repo, '''
                     test/amd64-testing-1
                     test/amd64-testing-2
@@ -41,7 +45,7 @@ class PackageMatcherTests(BaseRepoTestCase):
     def test_versioned_package_list_with_keywords(self):
         """ Test versioned package lists with keywords. """
         self.assertEqual(
-            list(((p.path, k) for p, k in nattka.package.match_package_list(
+            list(((p.path, k) for p, k in match_package_list(
                 self.repo, '''
                     test/amd64-testing-1 amd64 hppa
                     test/amd64-testing-2 ~hppa ~alpha
@@ -96,7 +100,7 @@ class KeywordAdderTest(BaseRepoTestCase):
                     'test', 'amd64-testing', '2')) as e2:
                 with DuplicatedEbuild(self.ebuild_path(
                         'test', 'amd64-stable-hppa-testing', '1')) as e3:
-                    nattka.package.add_keywords([
+                    add_keywords([
                         (e1, ['alpha', 'hppa']),
                         (e2, ['amd64']),
                         (e3, ['amd64', 'alpha']),
@@ -114,7 +118,7 @@ class KeywordAdderTest(BaseRepoTestCase):
                     'test', 'amd64-testing', '2')) as e2:
                 with DuplicatedEbuild(self.ebuild_path(
                         'test', 'amd64-stable-hppa-testing', '1')) as e3:
-                    nattka.package.add_keywords([
+                    add_keywords([
                         (e1, ['alpha', 'hppa']),
                         (e2, ['amd64']),
                         (e3, ['amd64', 'alpha']),
@@ -128,13 +132,13 @@ class KeywordAdderTest(BaseRepoTestCase):
 class DependencyCheckerTest(BaseRepoTestCase):
     def test_amd64_good(self):
         self.assertEqual(
-            nattka.package.check_dependencies(self.repo,
+            check_dependencies(self.repo,
                 [('=test/amd64-testing-deps-1', ('amd64',))]),
             (True, []))
 
     def test_amd64_bad(self):
         self.assertEqual(
-            nattka.package.check_dependencies(self.repo,
+            check_dependencies(self.repo,
                     [('=test/amd64-stable-deps-1', ('amd64',))]),
             (False, [
                 {'__class__': 'NonsolvableDepsInStable',
@@ -152,7 +156,7 @@ class DependencyCheckerTest(BaseRepoTestCase):
 
     def test_alpha_bad(self):
         self.assertEqual(
-            nattka.package.check_dependencies(self.repo,
+            check_dependencies(self.repo,
                     [('=test/alpha-testing-deps-1', ('alpha',))]),
             (False, [
                 {'__class__': 'NonsolvableDepsInStable',
@@ -167,3 +171,20 @@ class DependencyCheckerTest(BaseRepoTestCase):
                  'profile_status': 'stable',
                  'version': '1'},
             ]))
+
+
+class KeywordFillerTest(BaseRepoTestCase):
+    def test_fill_keywords_cc(self):
+        pkgs = self.repo.match(
+            parserestrict.parse_match('test/amd64-testing'))
+        inp = [
+            (pkgs[0], ['alpha']),
+            (pkgs[1], []),
+        ]
+        self.assertEqual(list(fill_keywords(self.repo, inp,
+                                            [f'{x}@gentoo.org'
+                                             for x in ('alpha', 'hppa')])),
+                         [
+                             (pkgs[0], ['alpha']),
+                             (pkgs[1], ['alpha', 'hppa']),
+                         ])

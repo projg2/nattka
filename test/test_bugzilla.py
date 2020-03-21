@@ -27,6 +27,8 @@ rec = vcr.VCR(
 
 
 class BugzillaTests(unittest.TestCase):
+    maxDiff = None
+
     @rec.use_cassette()
     def setUp(self):
         self.bz = NattkaBugzilla(API_KEY)
@@ -39,20 +41,32 @@ class BugzillaTests(unittest.TestCase):
             [(BugCategory.KEYWORDREQ,
               'dev-python/unittest-mixins-1.6\r\n'
               'dev-python/coverage-4.5.4\r\n',
-              {'x86', 'sh', 'm68k', 'hppa', 's390'},
+              [f'{x}@gentoo.org' for x in ('hppa',
+                                           'm68k',
+                                           'prefix',
+                                           's390',
+                                           'sh',
+                                           'x86')],
               [701196],
               []),
              (BugCategory.KEYWORDREQ,
               'dev-python/urllib3-1.25.8\r\n'
               'dev-python/trustme-0.6.0\r\n'
               'dev-python/brotlipy-0.7.0\r\n',
-              {'ppc', 'sh', 'ppc64', 'sparc', 'm68k', 'hppa', 'mips',
-               's390'},
+              [f'{x}@gentoo.org' for x in ('hppa',
+                                           'm68k',
+                                           'mips',
+                                           'ppc64',
+                                           'ppc',
+                                           's390',
+                                           'sh',
+                                           'sparc')],
               [],
               []),
              (BugCategory.STABLEREQ,
               'dev-python/mako-1.1.0\r\n',
-              {'sh', 'm68k'},
+              [f'{x}@gentoo.org' for x in ('m68k',
+                                           'sh')],
               [],
               []),
             ])
@@ -63,17 +77,21 @@ class BugzillaTests(unittest.TestCase):
         self.assertEqual(self.bz.find_bugs(BugCategory.KEYWORDREQ, limit=3),
             {254398: (BugCategory.KEYWORDREQ,
                       'app-dicts/aspell-de-alt-2.1.1-r1\r\n',
-                      {'m68k'},
+                      [f'{x}@gentoo.org' for x in ('app-dicts+disabled',
+                                                   'm68k')],
                       [],
                       []),
              468854: (BugCategory.KEYWORDREQ,
                       'app-arch/lrzip-0.631-r1\r\n',
-                      {'sh', 's390'},
+                      [f'{x}@gentoo.org' for x in ('mgorny',
+                                                   'proxy-maint',
+                                                   's390',
+                                                   'sh')],
                       [],
                       [465684, 458184]),
              481722: (BugCategory.KEYWORDREQ,
                       'dev-libs/mathjax-2.7.4\r\n',
-                      set(),
+                      [f'{x}@gentoo.org' for x in ('prefix',)],
                       [],
                       [481462])
             })
@@ -84,13 +102,20 @@ class BugzillaTests(unittest.TestCase):
         self.assertEqual(self.bz.find_bugs(BugCategory.STABLEREQ, limit=10),
                          {522930: (BugCategory.STABLEREQ,
                                    '=sys-kernel/gentoo-sources-3.4.113\r\n',
-                                   set(),
+                                   [f'{x}@gentoo.org' for x in ('chutzpah',
+                                                                'cluster',
+                                                                'dlan',
+                                                                'kernel',
+                                                                'pacho',
+                                                                'security-kernel')],
                                    [],
                                    [469854, 512526, 524848, 568212,
                                     464546, 579076]),
                           543310: (BugCategory.STABLEREQ,
                                    '=dev-util/diffball-1.0.1-r2\r\n',
-                                   set(),
+                                   [f'{x}@gentoo.org' for x in ('dev-portage',
+                                                                'ferringb',
+                                                                'mgorny')],
                                    [],
                                    [])
                          })

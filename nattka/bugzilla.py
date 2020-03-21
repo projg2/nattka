@@ -16,25 +16,6 @@ INCLUDE_BUG_FIELDS = (
     'blocks',
 )
 
-# TODO: get it from repo?
-KNOWN_ARCHES = (
-    'alpha@gentoo.org',
-    'amd64@gentoo.org',
-    'arm64@gentoo.org',
-    'arm@gentoo.org',
-    'hppa@gentoo.org',
-    'ia64@gentoo.org',
-    'm68k@gentoo.org',
-    'mips@gentoo.org',
-    'ppc64@gentoo.org',
-    'ppc@gentoo.org',
-    'riscv@gentoo.org',
-    's390@gentoo.org',
-    'sh@gentoo.org',
-    'sparc@gentoo.org',
-    'x86@gentoo.org',
-)
-
 
 class BugCategory(enum.Enum):
     KEYWORDREQ = enum.auto()
@@ -60,17 +41,13 @@ class BugCategory(enum.Enum):
 
 
 BugInfo = collections.namedtuple('BugInfo',
-    ('category', 'atoms', 'arches_cc', 'depends', 'blocks'))
+    ('category', 'atoms', 'cc', 'depends', 'blocks'))
 
 
 def make_bug_info(bug):
     bcat = BugCategory.from_component(bug.component)
     atoms = bug.cf_stabilisation_atoms + '\r\n'
-    cced = set()
-    for e in bug.cc:
-        if e in KNOWN_ARCHES:
-            cced.add(e.split('@')[0])
-    return BugInfo(bcat, atoms, cced, bug.depends_on, bug.blocks)
+    return BugInfo(bcat, atoms, bug.cc, bug.depends_on, bug.blocks)
 
 
 class NattkaBugzilla(object):

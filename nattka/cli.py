@@ -7,7 +7,7 @@ import sys
 
 from nattka.bugzilla import NattkaBugzilla, BugCategory
 from nattka.package import (find_repository, match_package_list,
-                            add_keywords)
+                            add_keywords, fill_keywords)
 
 
 log = logging.getLogger('nattka')
@@ -32,10 +32,10 @@ class NattkaCommands(object):
         for i, b in enumerate(bz.fetch_package_list(self.args.bug)):
             log.info('Bug {} ({})'.format(self.args.bug[i],
                                           b.category.name))
-            plist = dict(match_package_list(repo, b.atoms))
+            plist = dict(fill_keywords(repo,
+                                       match_package_list(repo, b.atoms),
+                                       b.cc))
             for p, keywords in plist.items():
-                if not keywords:
-                    plist[p] = cced
                 log.info('Package {}: {}'.format(p.cpvstr, plist[p]))
             add_keywords(plist.items(), b.category == BugCategory.STABLEREQ)
 

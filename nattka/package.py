@@ -81,3 +81,16 @@ def check_dependencies(repo, tuples):
                 errors.append(j)
 
     return CheckResult(ret, errors)
+
+
+def fill_keywords(repo, tuples, cc):
+    """
+    Fill missing keywords in @tuples based on @cc list.  @repo is used
+    to determine valid arches.  Returns an iterator over updated tuples.
+    """
+
+    arches = frozenset(f'{x}@gentoo.org' for x in repo.known_arches)
+    for p, keywords in tuples:
+        if not keywords:
+            keywords = [x.split('@')[0] for x in arches.intersection(cc)]
+        yield p, keywords
