@@ -25,7 +25,7 @@ class NattkaCommands(object):
         log.error('Please pass --api-key or put it in ~/.bugz_token')
         raise SystemExit(1)
 
-    def process_bug(self):
+    def apply(self):
         repo = find_repository(self.args.repo)
 
         bz = NattkaBugzilla(self.get_api_key())
@@ -39,6 +39,9 @@ class NattkaCommands(object):
                 log.info('Package {}: {}'.format(p.cpvstr, plist[p]))
             add_keywords(plist.items(), b.category == BugCategory.STABLEREQ)
 
+    def process_bugs(self):
+        pass
+
 
 def main(argv):
     argp = argparse.ArgumentParser()
@@ -50,10 +53,10 @@ def main(argv):
     subp = argp.add_subparsers(title='commands', dest='command',
                                required=True)
 
-    bugp = subp.add_parser('process-bug',
+    appp = subp.add_parser('apply',
                            help='Keyword/stabilize packages according '
                                 'to a bug')
-    bugp.add_argument('bug', nargs='+', type=int,
+    appp.add_argument('bug', nargs='+', type=int,
                       help='Bug(s) to process')
 
     args = argp.parse_args(argv)
