@@ -66,7 +66,7 @@ def check_dependencies(repo, tuples):
     ret = True
 
     for keywords, packages in itertools.groupby(tuples, lambda x: x[1]):
-        packages = list((x[0] for x in packages))
+        packages = list((str(x[0].versioned_atom) for x in packages))
         args = ['pkgcheck', 'scan', '-c', 'VisibilityCheck',
                 '-R', 'JsonStream', '-a', ','.join(keywords)] + packages
         sp = subprocess.Popen(args,

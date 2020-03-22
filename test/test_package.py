@@ -8,9 +8,8 @@ import unittest
 
 from pkgcore.util import parserestrict
 
-from nattka.package import (find_repository, match_package_list,
-                            add_keywords, check_dependencies,
-                            fill_keywords)
+from nattka.package import (match_package_list, add_keywords,
+                            check_dependencies, fill_keywords)
 
 from test import get_test_repo
 
@@ -21,6 +20,11 @@ KEYWORDS_RE = re.compile(r'^KEYWORDS="(.*)"$')
 class BaseRepoTestCase(unittest.TestCase):
     def setUp(self):
         self.repo = get_test_repo()
+
+    def get_package(self, atom):
+        pkg = self.repo.match(parserestrict.parse_match(atom))
+        assert len(pkg) == 1
+        return pkg[0]
 
     def ebuild_path(self, cat, pkg, ver):
         return os.path.join(self.repo.location, cat, pkg,
@@ -133,13 +137,15 @@ class DependencyCheckerTest(BaseRepoTestCase):
     def test_amd64_good(self):
         self.assertEqual(
             check_dependencies(self.repo,
-                [('=test/amd64-testing-deps-1', ('amd64',))]),
+                [(self.get_package('=test/amd64-testing-deps-1'),
+                  ['amd64'])]),
             (True, []))
 
     def test_amd64_bad(self):
         self.assertEqual(
             check_dependencies(self.repo,
-                    [('=test/amd64-stable-deps-1', ('amd64',))]),
+                    [(self.get_package('=test/amd64-stable-deps-1'),
+                     ['amd64'])]),
             (False, [
                 {'__class__': 'NonsolvableDepsInStable',
                  'attr': 'rdepend',
@@ -157,7 +163,8 @@ class DependencyCheckerTest(BaseRepoTestCase):
     def test_alpha_bad(self):
         self.assertEqual(
             check_dependencies(self.repo,
-                    [('=test/alpha-testing-deps-1', ('alpha',))]),
+                    [(self.get_package('=test/alpha-testing-deps-1'),
+                      ['alpha'])]),
             (False, [
                 {'__class__': 'NonsolvableDepsInStable',
                  'attr': 'rdepend',
