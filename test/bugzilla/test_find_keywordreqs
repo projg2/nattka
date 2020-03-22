@@ -1,92 +1,6 @@
 interactions:
 - request:
-    body: '<?xml version=''1.0''?>
-
-      <methodCall>
-
-      <methodName>Bug.search</methodName>
-
-      <params>
-
-      <param>
-
-      <value><struct>
-
-      <member>
-
-      <name>component</name>
-
-      <value><array><data>
-
-      <value><string>keywording</string></value>
-
-      </data></array></value>
-
-      </member>
-
-      <member>
-
-      <name>bug_status</name>
-
-      <value><array><data>
-
-      <value><string>UNCONFIRMED</string></value>
-
-      <value><string>CONFIRMED</string></value>
-
-      <value><string>IN_PROGRESS</string></value>
-
-      </data></array></value>
-
-      </member>
-
-      <member>
-
-      <name>include_fields</name>
-
-      <value><array><data>
-
-      <value><string>component</string></value>
-
-      <value><string>cf_stabilisation_atoms</string></value>
-
-      <value><string>cc</string></value>
-
-      <value><string>depends_on</string></value>
-
-      <value><string>blocks</string></value>
-
-      <value><string>id</string></value>
-
-      </data></array></value>
-
-      </member>
-
-      <member>
-
-      <name>limit</name>
-
-      <value><int>3</int></value>
-
-      </member>
-
-      <member>
-
-      <name>Bugzilla_api_key</name>
-
-      <value><string><!-- API key stripped --></string></value>
-
-      </member>
-
-      </struct></value>
-
-      </param>
-
-      </params>
-
-      </methodCall>
-
-      '
+    body: null
     headers:
       Accept:
       - '*/*'
@@ -94,62 +8,47 @@ interactions:
       - gzip, deflate
       Connection:
       - keep-alive
-      Content-Length:
-      - '1032'
-      Content-Type:
-      - text/xml
-      Cookie:
-      - Bugzilla_login_request_cookie=jFTIspU7rf
       User-Agent:
-      - Python/Bugzilla
-    method: POST
-    uri: https://bugs.gentoo.org/xmlrpc.cgi
+      - python-requests/2.23.0
+    method: GET
+    uri: https://bugs.gentoo.org/rest/bug?component=keywording&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=id&limit=3&resolution=---
   response:
     body:
-      string: !!binary |
-        H4sIAAAAAAAAA8VY3W6bMBR+FStXmybiQAKhEqXTpK6TtqrV0l1Hju0mXgxGttMlu+wr7RGmvddM
-        l0gbScEGql2EALaPz993zmeSi23GwQOVion8fOAPRwNAcywIy5fngy937714cJEmGdUrQT5TVYhc
-        0TQpkESZ2v+nyQPiG/NWabnBupydLahMkxxlNF1sliqBT7eHeUhKtEsTgjSqX4tFZjakua4IMJON
-        fulHuvsmZKlqAvevErifAg+C/lWGC7yuUQdAs3L/XC8J4zmhGjHe1rbyctosVBQeYVirN4QptOCU
-        vF0aHwgxFNLaUkkRnz+/x6ygnAO8onhtHsFGM840owqgnIByc5MOSJYvPA9IypGmBJShBK9u3s1u
-        Pl3eXb62VYWRig4s16k/CuIggeVtw3KaHXu5o6fgISKHkbpANXgyi+I10BRltu6oF9Ui1Cf9GwbR
-        dNLVv/YKHXkU/kGAHZhOWhCEk/FZbGUCxnYobJEzrg5xMRvfz5VGCwM9hUrAzZEWWbU6VdWGSJXY
-        9Qj1ENdeMPSHvid922QhtKA5UXORt6yCTtg5GdhJFMehXW6+YJXNlkLmu/4r6zXDK/TrEVz9/GHk
-        d8PwxA/HnTHsYKdTbGv2LKTY7jwznuu+6lk88v2plS8a4nNb6gauS93MzxCf7nXb2dw++48an416
-        6j+lqBbxqkmElhJPM4YoCJ/NgO5VydCRadQVbGrVwtqagLQR15AvV08CwWxTUPkB3Aqp6zHQrbM3
-        Ee5KYwijuNoY/h4PY/9o3K3j9n2g6NxOOxECJPEKcvmdFd5oGI1deIALZbJoIe0KomOxcANHQ144
-        VQyXwBD64HG2UDBDevUVbQ1Fmw4nLxGXQtJ7tu2Pj/abzG7Qj/1JdHQe/K/QPs1dY38a2J1bO3NX
-        u0J++5QEfZCY5mSy91MURH7n46eLSs5tqocF+69f8PA1DFY+k/0GCDLQLF0TAAA=
+      string: "{\"bugs\":[{\"cc_detail\":[{\"id\":10282,\"email\":\"app-dicts+disabled@gentoo.org\",\"real_name\":\"Spell
+        checking utilities and dictionaries -- related bugs (OBSOLETE)\",\"name\":\"app-dicts+disabled@gentoo.org\"},{\"email\":\"m68k@gentoo.org\",\"id\":52674,\"real_name\":\"m68k
+        team\",\"name\":\"m68k@gentoo.org\"}],\"blocks\":[],\"id\":254398,\"component\":\"Keywording\",\"cf_stabilisation_atoms\":\"app-dicts/aspell-de-alt-2.1.1-r1\",\"cc\":[\"app-dicts+disabled@gentoo.org\",\"m68k@gentoo.org\"],\"depends_on\":[]},{\"cf_stabilisation_atoms\":\"app-arch/lrzip-0.631-r1\",\"cc\":[\"mgorny@gentoo.org\",\"proxy-maint@gentoo.org\",\"s390@gentoo.org\",\"sh@gentoo.org\"],\"depends_on\":[],\"cc_detail\":[{\"name\":\"mgorny@gentoo.org\",\"real_name\":\"Micha\u0142
+        G\xF3rny\",\"email\":\"mgorny@gentoo.org\",\"id\":54153},{\"name\":\"proxy-maint@gentoo.org\",\"id\":80117,\"email\":\"proxy-maint@gentoo.org\",\"real_name\":\"Proxy
+        Maintainers\"},{\"real_name\":\"s390 team\",\"id\":16257,\"email\":\"s390@gentoo.org\",\"name\":\"s390@gentoo.org\"},{\"real_name\":\"Gentoo
+        SuperH Porters\",\"id\":28276,\"email\":\"sh@gentoo.org\",\"name\":\"sh@gentoo.org\"}],\"blocks\":[465684,458184],\"component\":\"Keywording\",\"id\":468854},{\"component\":\"Keywording\",\"blocks\":[481462],\"cc\":[\"prefix@gentoo.org\"],\"id\":481722,\"cc_detail\":[{\"email\":\"prefix@gentoo.org\",\"id\":62614,\"real_name\":\"Gentoo
+        Prefix\",\"name\":\"prefix@gentoo.org\"}],\"depends_on\":[],\"cf_stabilisation_atoms\":\"dev-libs/mathjax-2.7.4\"}]}"
     headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
       Connection:
       - Keep-Alive
-      Content-Encoding:
-      - gzip
-      Content-Length:
-      - '731'
-      Content-Security-Policy:
-      - frame-ancestors 'self'
       Content-Type:
-      - text/xml
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
       Date:
-      - Fri, 20 Mar 2020 12:35:00 GMT
-      ETag:
-      - k8BI6rds2Z46KydXipJ3xA
+      - Sun, 22 Mar 2020 12:05:40 GMT
+      Etag:
+      - DSRfPnBYtBoUQwGm7YtB1A
       Keep-Alive:
       - timeout=15, max=100
-      SOAPServer:
-      - SOAP::Lite/Perl/1.26
       Server:
       - Apache
-      Strict-Transport-Security:
+      Strict-transport-security:
       - max-age=15768000; includeSubDomains
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
       - nosniff
-      X-Frame-Options:
+      X-frame-options:
       - SAMEORIGIN
-      X-Xss-Protection:
+      X-xss-protection:
       - 1; mode=block
     status:
       code: 200

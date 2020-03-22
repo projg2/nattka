@@ -13,23 +13,16 @@ from nattka.bugzilla import NattkaBugzilla, BugCategory, BugInfo
 API_KEY = os.environ.get('TEST_API_KEY', 'no-api-key')
 
 
-def strip_api_key(request):
-    request.body = request.body.replace(API_KEY.encode(),
-                                        b'<!-- API key stripped -->')
-    return request
-
-
 rec = vcr.VCR(
-    before_record_request=strip_api_key,
     cassette_library_dir=os.path.join(os.path.dirname(__file__),
                                       'bugzilla'),
+    filter_query_parameters=['Bugzilla_api_key'],
 )
 
 
 class BugzillaTests(unittest.TestCase):
     maxDiff = None
 
-    @rec.use_cassette()
     def setUp(self):
         self.bz = NattkaBugzilla(API_KEY)
 

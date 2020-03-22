@@ -1,80 +1,6 @@
 interactions:
 - request:
-    body: '<?xml version=''1.0''?>
-
-      <methodCall>
-
-      <methodName>Bug.get</methodName>
-
-      <params>
-
-      <param>
-
-      <value><struct>
-
-      <member>
-
-      <name>ids</name>
-
-      <value><array><data>
-
-      <value><int>700194</int></value>
-
-      <value><int>711762</int></value>
-
-      <value><int>710410</int></value>
-
-      </data></array></value>
-
-      </member>
-
-      <member>
-
-      <name>permissive</name>
-
-      <value><int>1</int></value>
-
-      </member>
-
-      <member>
-
-      <name>include_fields</name>
-
-      <value><array><data>
-
-      <value><string>component</string></value>
-
-      <value><string>cf_stabilisation_atoms</string></value>
-
-      <value><string>cc</string></value>
-
-      <value><string>depends_on</string></value>
-
-      <value><string>blocks</string></value>
-
-      <value><string>id</string></value>
-
-      </data></array></value>
-
-      </member>
-
-      <member>
-
-      <name>Bugzilla_api_key</name>
-
-      <value><string><!-- API key stripped --></string></value>
-
-      </member>
-
-      </struct></value>
-
-      </param>
-
-      </params>
-
-      </methodCall>
-
-      '
+    body: null
     headers:
       Accept:
       - '*/*'
@@ -82,64 +8,53 @@ interactions:
       - gzip, deflate
       Connection:
       - keep-alive
-      Content-Length:
-      - '866'
-      Content-Type:
-      - text/xml
-      Cookie:
-      - Bugzilla_login_request_cookie=jFTIspU7rf
       User-Agent:
-      - Python/Bugzilla
-    method: POST
-    uri: https://bugs.gentoo.org/xmlrpc.cgi
+      - python-requests/2.23.0
+    method: GET
+    uri: https://bugs.gentoo.org/rest/bug?id=700194%2C711762%2C710410&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=id
   response:
     body:
-      string: !!binary |
-        H4sIAAAAAAAAA+1aXW/aMBR936+ImLQ3kjhAAlqartq0dZomobE9I5MYsJrEkW0Y7NfXoUHrICV2
-        uP2Y1CcCcU7uPb6+OcckvNxkqbUmXFCWX3SQ7XYskscsofniovPr5+fusHMZhRmRS5b8IKJguSBR
-        WGCOM1F9RuEapyv1q5B8FctydDYjPApznJFojlepFKGz+7IfiTnH2yhMsMSWE4VO9d2pTjt7hH+Q
-        ZqvFCZzTUcQsU6GTXB4AqMEq0+gb2f5mvEw6dKqfGoJJSEHyRExZrhESzWUUuAiN/NApj/9i3w3T
-        zD9l8Q0Ik3E8TYjENG1LJyc4nZZH9XRej8dX1phxqepKl1CaHGCVRCHkoiPOai8n2XE61Y2XRYE/
-        LNTcM2Yzrj3DD6enD+js2dufOUXqwzfM/OFNiwxOcNISsXaSBp4f9LUmqaFsyqAsSXAGxWhtuL7n
-        I5Bwv+zos8aczOnm/Koqdjiw02yCeT6zyPcGAQSzojdymwpBk9USCpZTfUSg1S+WwAm0waudcG/o
-        BXrtWW8pTVYF4dcaTw4gZjdDH5badoAPLSYfAXL7iaxJyhS/wpozbsklsVS01hWPl1SSWK44MSHc
-        SLnUJhi4LhrpNeJ4PhUSz2hKBZZKqE6xZNmhEqpiT8i6W2yVXM2dVU6lJEJ2M7qhuegi23/3dpO8
-        f3NvTMyU+MUL0u3bA7uvO2NxrKectNSC4ZPZuMMbti+jZmFY/g1FY7Ssn0XS62vs+ppHKPA9rZp/
-        QWr/TGn+CGYBQpvD2wej8oUX5+D+AUCun+keoPwTLQSwf2qHWMvAKAhciIX0/et4Aq2d6pd+0B8O
-        ICIuitjvW/ieBAFS/TtgYCulD3k+w33kgRA8Hn+Ea62KAXBKn7axtjSD4O4S2v6au/FXa/oirOkp
-        KgrVF2GLtSViA0GTEhZkt7fXGw21C9bIgL4cv9YoHEyfOmYt9em8oEa1Gc1gyy0AnqZ01lPW3xvY
-        wyP3r2pKyIx0Xdu33aOzM85kSoutOh3YLtSab5lJhm+YSgOdDKR10RtWcVOf/k//1nr+vzce19CB
-        eM5X6fBk0gFgkxW5faTnLmG3vxp25yZ3HfDPrgNCUnJ8QfWOgrN/Z8E5eJnhFqEHPvwDIQAA
+      string: '{"bugs":[{"cc":["hppa@gentoo.org","m68k@gentoo.org","prefix@gentoo.org","s390@gentoo.org","sh@gentoo.org","x86@gentoo.org"],"cc_detail":[{"id":11016,"email":"hppa@gentoo.org","name":"hppa@gentoo.org","real_name":"HPPA
+        Porters"},{"id":52674,"real_name":"m68k team","name":"m68k@gentoo.org","email":"m68k@gentoo.org"},{"id":62614,"email":"prefix@gentoo.org","name":"prefix@gentoo.org","real_name":"Gentoo
+        Prefix"},{"id":16257,"real_name":"s390 team","name":"s390@gentoo.org","email":"s390@gentoo.org"},{"name":"sh@gentoo.org","email":"sh@gentoo.org","real_name":"Gentoo
+        SuperH Porters","id":28276},{"name":"x86@gentoo.org","email":"x86@gentoo.org","real_name":"Gentoo
+        Developers for the x86 Architecture","id":16261}],"depends_on":[701196],"component":"Keywording","id":700194,"blocks":[],"cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4"},{"id":710410,"blocks":[],"cf_stabilisation_atoms":"dev-python/mako-1.1.0","depends_on":[],"component":"Stabilization","cc_detail":[{"email":"m68k@gentoo.org","name":"m68k@gentoo.org","real_name":"m68k
+        team","id":52674},{"id":28276,"real_name":"Gentoo SuperH Porters","email":"sh@gentoo.org","name":"sh@gentoo.org"}],"cc":["m68k@gentoo.org","sh@gentoo.org"]},{"blocks":[],"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","id":711762,"cc":["hppa@gentoo.org","m68k@gentoo.org","mips@gentoo.org","ppc64@gentoo.org","ppc@gentoo.org","s390@gentoo.org","sh@gentoo.org","sparc@gentoo.org"],"cc_detail":[{"name":"hppa@gentoo.org","email":"hppa@gentoo.org","real_name":"HPPA
+        Porters","id":11016},{"real_name":"m68k team","email":"m68k@gentoo.org","name":"m68k@gentoo.org","id":52674},{"id":9770,"name":"mips@gentoo.org","email":"mips@gentoo.org","real_name":"MIPS
+        Porters"},{"email":"ppc64@gentoo.org","name":"ppc64@gentoo.org","real_name":"ppc64
+        architecture team","id":17485},{"id":4125,"name":"ppc@gentoo.org","email":"ppc@gentoo.org","real_name":"PPC
+        Porters"},{"id":16257,"name":"s390@gentoo.org","email":"s390@gentoo.org","real_name":"s390
+        team"},{"email":"sh@gentoo.org","name":"sh@gentoo.org","real_name":"Gentoo
+        SuperH Porters","id":28276},{"name":"sparc@gentoo.org","email":"sparc@gentoo.org","real_name":"Sparc
+        Porters","id":3398}],"component":"Keywording","depends_on":[]}]}'
     headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
       Connection:
       - Keep-Alive
-      Content-Encoding:
-      - gzip
-      Content-Length:
-      - '852'
-      Content-Security-Policy:
-      - frame-ancestors 'self'
       Content-Type:
-      - text/xml
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
       Date:
-      - Fri, 20 Mar 2020 10:52:28 GMT
-      ETag:
-      - gyiCzNEV2DqOMm3OfW4UBw
+      - Sun, 22 Mar 2020 12:05:38 GMT
+      Etag:
+      - mEHyBS3E45tkDcKtrXQ1Ow
       Keep-Alive:
       - timeout=15, max=100
-      SOAPServer:
-      - SOAP::Lite/Perl/1.26
       Server:
       - Apache
-      Strict-Transport-Security:
+      Strict-transport-security:
       - max-age=15768000; includeSubDomains
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
       - nosniff
-      X-Frame-Options:
+      X-frame-options:
       - SAMEORIGIN
-      X-Xss-Protection:
+      X-xss-protection:
       - 1; mode=block
     status:
       code: 200

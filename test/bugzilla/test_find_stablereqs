@@ -1,94 +1,6 @@
 interactions:
 - request:
-    body: '<?xml version=''1.0''?>
-
-      <methodCall>
-
-      <methodName>Bug.search</methodName>
-
-      <params>
-
-      <param>
-
-      <value><struct>
-
-      <member>
-
-      <name>component</name>
-
-      <value><array><data>
-
-      <value><string>Stabilization</string></value>
-
-      <value><string>Vulnerabilities</string></value>
-
-      </data></array></value>
-
-      </member>
-
-      <member>
-
-      <name>bug_status</name>
-
-      <value><array><data>
-
-      <value><string>UNCONFIRMED</string></value>
-
-      <value><string>CONFIRMED</string></value>
-
-      <value><string>IN_PROGRESS</string></value>
-
-      </data></array></value>
-
-      </member>
-
-      <member>
-
-      <name>include_fields</name>
-
-      <value><array><data>
-
-      <value><string>component</string></value>
-
-      <value><string>cf_stabilisation_atoms</string></value>
-
-      <value><string>cc</string></value>
-
-      <value><string>depends_on</string></value>
-
-      <value><string>blocks</string></value>
-
-      <value><string>id</string></value>
-
-      </data></array></value>
-
-      </member>
-
-      <member>
-
-      <name>limit</name>
-
-      <value><int>10</int></value>
-
-      </member>
-
-      <member>
-
-      <name>Bugzilla_api_key</name>
-
-      <value><string><!-- API key stripped --></string></value>
-
-      </member>
-
-      </struct></value>
-
-      </param>
-
-      </params>
-
-      </methodCall>
-
-      '
+    body: null
     headers:
       Accept:
       - '*/*'
@@ -96,82 +8,70 @@ interactions:
       - gzip, deflate
       Connection:
       - keep-alive
-      Content-Length:
-      - '1084'
-      Content-Type:
-      - text/xml
-      Cookie:
-      - Bugzilla_login_request_cookie=jFTIspU7rf
       User-Agent:
-      - Python/Bugzilla
-    method: POST
-    uri: https://bugs.gentoo.org/xmlrpc.cgi
+      - python-requests/2.23.0
+    method: GET
+    uri: https://bugs.gentoo.org/rest/bug?component=Stabilization&component=Vulnerabilities&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=id&limit=10&resolution=---
   response:
     body:
-      string: !!binary |
-        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
+      string: "{\"bugs\":[{\"id\":376589,\"cc\":[\"games@gentoo.org\",\"holgersson@posteo.de\",\"jaak@ristioja.ee\",\"redblade7@runbox.com\"],\"blocks\":[],\"cc_detail\":[{\"email\":\"games@gentoo.org\",\"name\":\"games@gentoo.org\",\"real_name\":\"Gentoo
+        Games\",\"id\":4120},{\"id\":84722,\"real_name\":\"Nils Freydank\",\"name\":\"holgersson@posteo.de\",\"email\":\"holgersson@posteo.de\"},{\"name\":\"jaak@ristioja.ee\",\"real_name\":\"Jaak
+        Ristioja\",\"email\":\"jaak@ristioja.ee\",\"id\":19868},{\"email\":\"redblade7@runbox.com\",\"real_name\":\"Red\",\"name\":\"redblade7@runbox.com\",\"id\":98388}],\"component\":\"Vulnerabilities\",\"cf_stabilisation_atoms\":\"\",\"depends_on\":[420783,606694,606696,606698,606702]},{\"cf_stabilisation_atoms\":\"\",\"cc_detail\":[{\"id\":74905,\"email\":\"cluster@gentoo.org\",\"real_name\":\"Gentoo
+        Cluster Team\",\"name\":\"cluster@gentoo.org\"},{\"id\":54153,\"email\":\"mgorny@gentoo.org\",\"name\":\"mgorny@gentoo.org\",\"real_name\":\"Micha\u0142
+        G\xF3rny\"},{\"id\":41660,\"email\":\"treecleaner@gentoo.org\",\"real_name\":\"Gentoo
+        TreeCleaner Project\",\"name\":\"treecleaner@gentoo.org\"}],\"component\":\"Vulnerabilities\",\"cc\":[\"cluster@gentoo.org\",\"mgorny@gentoo.org\",\"treecleaner@gentoo.org\"],\"blocks\":[],\"id\":463338,\"depends_on\":[]},{\"depends_on\":[],\"id\":522930,\"cc\":[\"chutzpah@gentoo.org\",\"cluster@gentoo.org\",\"dlan@gentoo.org\",\"kernel@gentoo.org\",\"pacho@gentoo.org\",\"security-kernel@gentoo.org\"],\"blocks\":[469854,512526,524848,568212,464546,579076],\"component\":\"Vulnerabilities\",\"cc_detail\":[{\"email\":\"chutzpah@gentoo.org\",\"real_name\":\"Patrick
+        McLean\",\"name\":\"chutzpah@gentoo.org\",\"id\":6318},{\"id\":74905,\"email\":\"cluster@gentoo.org\",\"name\":\"cluster@gentoo.org\",\"real_name\":\"Gentoo
+        Cluster Team\"},{\"real_name\":\"Yixun Lan\",\"name\":\"dlan@gentoo.org\",\"email\":\"dlan@gentoo.org\",\"id\":40698},{\"real_name\":\"Gentoo
+        Kernel Bug Wranglers and Kernel Maintainers\",\"name\":\"kernel@gentoo.org\",\"email\":\"kernel@gentoo.org\",\"id\":14888},{\"email\":\"pacho@gentoo.org\",\"real_name\":\"Pacho
+        Ramos\",\"name\":\"pacho@gentoo.org\",\"id\":32293},{\"id\":25934,\"name\":\"security-kernel@gentoo.org\",\"real_name\":\"Gentoo
+        Kernel Security\",\"email\":\"security-kernel@gentoo.org\"}],\"cf_stabilisation_atoms\":\"=sys-kernel/gentoo-sources-3.4.113\"},{\"depends_on\":[522930],\"id\":524848,\"cc_detail\":[{\"email\":\"kernel@gentoo.org\",\"real_name\":\"Gentoo
+        Kernel Bug Wranglers and Kernel Maintainers\",\"name\":\"kernel@gentoo.org\",\"id\":14888}],\"component\":\"Vulnerabilities\",\"cf_stabilisation_atoms\":\"\",\"blocks\":[],\"cc\":[\"kernel@gentoo.org\"]},{\"depends_on\":[],\"cc\":[\"candrews@gentoo.org\",\"proxy-maint@gentoo.org\",\"vapier@gentoo.org\",\"xbox@gentoo.org\"],\"blocks\":[],\"cf_stabilisation_atoms\":\"\",\"cc_detail\":[{\"email\":\"candrews@gentoo.org\",\"name\":\"candrews@gentoo.org\",\"real_name\":\"Craig
+        Andrews\",\"id\":38910},{\"id\":80117,\"real_name\":\"Proxy Maintainers\",\"name\":\"proxy-maint@gentoo.org\",\"email\":\"proxy-maint@gentoo.org\"},{\"id\":900,\"email\":\"vapier@gentoo.org\",\"real_name\":\"SpanKY\",\"name\":\"vapier@gentoo.org\"},{\"email\":\"xbox@gentoo.org\",\"name\":\"xbox@gentoo.org\",\"real_name\":\"Xbox
+        herd\",\"id\":71879}],\"component\":\"Vulnerabilities\",\"id\":536366},{\"component\":\"Vulnerabilities\",\"cc_detail\":[{\"name\":\"alexander@tsoy.me\",\"real_name\":\"Alexander
+        Tsoy\",\"email\":\"alexander@tsoy.me\",\"id\":63186},{\"real_name\":\"TeX
+        project\",\"name\":\"tex@gentoo.org\",\"email\":\"tex@gentoo.org\",\"id\":48184}],\"cf_stabilisation_atoms\":\"\",\"blocks\":[],\"cc\":[\"alexander@tsoy.me\",\"tex@gentoo.org\"],\"id\":536720,\"depends_on\":[]},{\"id\":543310,\"cc_detail\":[{\"email\":\"dev-portage@gentoo.org\",\"real_name\":\"Portage
+        team\",\"name\":\"dev-portage@gentoo.org\",\"id\":8876},{\"id\":6387,\"name\":\"ferringb@gentoo.org\",\"real_name\":\"Brian
+        Harring\",\"email\":\"ferringb@gentoo.org\"},{\"id\":54153,\"name\":\"mgorny@gentoo.org\",\"real_name\":\"Micha\u0142
+        G\xF3rny\",\"email\":\"mgorny@gentoo.org\"}],\"component\":\"Vulnerabilities\",\"cf_stabilisation_atoms\":\"=dev-util/diffball-1.0.1-r2\",\"cc\":[\"dev-portage@gentoo.org\",\"ferringb@gentoo.org\",\"mgorny@gentoo.org\"],\"blocks\":[],\"depends_on\":[]},{\"cf_stabilisation_atoms\":\"\",\"cc_detail\":[{\"id\":27011,\"name\":\"dev-zero@gentoo.org\",\"real_name\":\"Tiziano
+        M\xFCller\",\"email\":\"dev-zero@gentoo.org\"},{\"email\":\"maintainer-needed@gentoo.org\",\"real_name\":\"No
+        maintainer - Look at https://wiki.gentoo.org/wiki/Project:Proxy_Maintainers
+        if you want to take care of it\",\"name\":\"maintainer-needed@gentoo.org\",\"id\":31762},{\"name\":\"mgorny@gentoo.org\",\"real_name\":\"Micha\u0142
+        G\xF3rny\",\"email\":\"mgorny@gentoo.org\",\"id\":54153},{\"email\":\"python@gentoo.org\",\"name\":\"python@gentoo.org\",\"real_name\":\"Python
+        Gentoo Team\",\"id\":8535}],\"component\":\"Vulnerabilities\",\"blocks\":[],\"cc\":[\"dev-zero@gentoo.org\",\"maintainer-needed@gentoo.org\",\"mgorny@gentoo.org\",\"python@gentoo.org\"],\"id\":544228,\"depends_on\":[]},{\"depends_on\":[625626],\"id\":548132,\"cf_stabilisation_atoms\":\"\",\"cc_detail\":[{\"real_name\":\"cyberbat\",\"name\":\"cyberbat83@gmail.com\",\"email\":\"cyberbat83@gmail.com\",\"id\":76800},{\"name\":\"mysql-bugs@gentoo.org\",\"real_name\":\"Gentoo
+        Linux MySQL bugs team\",\"email\":\"mysql-bugs@gentoo.org\",\"id\":6124}],\"component\":\"Vulnerabilities\",\"blocks\":[],\"cc\":[\"cyberbat83@gmail.com\",\"mysql-bugs@gentoo.org\"]},{\"depends_on\":[522930],\"cf_stabilisation_atoms\":\"\",\"component\":\"Vulnerabilities\",\"cc_detail\":[{\"name\":\"blueness@gentoo.org\",\"real_name\":\"Anthony
+        Basile\",\"email\":\"blueness@gentoo.org\",\"id\":66374},{\"real_name\":\"Florian
+        Schmaus\",\"name\":\"flo@geekplace.eu\",\"email\":\"flo@geekplace.eu\",\"id\":44075},{\"name\":\"hydrapolic@gmail.com\",\"real_name\":\"Tom\xE1\u0161
+        M\xF3zes\",\"email\":\"hydrapolic@gmail.com\",\"id\":82755},{\"email\":\"kernel@gentoo.org\",\"real_name\":\"Gentoo
+        Kernel Bug Wranglers and Kernel Maintainers\",\"name\":\"kernel@gentoo.org\",\"id\":14888},{\"name\":\"mpagano@gentoo.org\",\"real_name\":\"Mike
+        Pagano\",\"email\":\"mpagano@gentoo.org\",\"id\":30078}],\"blocks\":[567962],\"cc\":[\"blueness@gentoo.org\",\"flo@geekplace.eu\",\"hydrapolic@gmail.com\",\"kernel@gentoo.org\",\"mpagano@gentoo.org\"],\"id\":568212}]}"
     headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
       Connection:
       - Keep-Alive
-      Content-Encoding:
-      - gzip
-      Content-Length:
-      - '1871'
-      Content-Security-Policy:
-      - frame-ancestors 'self'
       Content-Type:
-      - text/xml
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
       Date:
-      - Fri, 20 Mar 2020 16:37:04 GMT
-      ETag:
-      - a6dkldGvhhxGSsLuzRSmXw
+      - Sun, 22 Mar 2020 12:05:43 GMT
+      Etag:
+      - bUbHDTLhlAqHRAUsIayTbw
       Keep-Alive:
       - timeout=15, max=100
-      SOAPServer:
-      - SOAP::Lite/Perl/1.26
       Server:
       - Apache
-      Strict-Transport-Security:
+      Strict-transport-security:
       - max-age=15768000; includeSubDomains
-      Vary:
-      - Accept-Encoding
-      X-Content-Type-Options:
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
       - nosniff
-      X-Frame-Options:
+      X-frame-options:
       - SAMEORIGIN
-      X-Xss-Protection:
+      X-xss-protection:
       - 1; mode=block
     status:
       code: 200

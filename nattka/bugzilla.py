@@ -3,12 +3,13 @@
 import collections
 import enum
 
-import bugzilla
+import requests
 
 
-BUGZILLA_URL = 'https://bugs.gentoo.org'
+BUGZILLA_API_URL = 'https://bugs.gentoo.org/rest'
 
 INCLUDE_BUG_FIELDS = (
+    'id',
     'component',
     'cf_stabilisation_atoms',
     'cc',
@@ -45,14 +46,25 @@ BugInfo = collections.namedtuple('BugInfo',
 
 
 def make_bug_info(bug):
-    bcat = BugCategory.from_component(bug.component)
-    atoms = bug.cf_stabilisation_atoms + '\r\n'
-    return BugInfo(bcat, atoms, bug.cc, bug.depends_on, bug.blocks)
+    bcat = BugCategory.from_component(bug['component'])
+    atoms = bug['cf_stabilisation_atoms'] + '\r\n'
+    return BugInfo(bcat, atoms, bug['cc'], bug['depends_on'], bug['blocks'])
 
 
 class NattkaBugzilla(object):
-    def __init__(self, api_key, url=BUGZILLA_URL):
-        self.bz = bugzilla.Bugzilla(url, api_key=api_key)
+    def __init__(self, api_key, api_url=BUGZILLA_API_URL):
+        self.api_key = api_key
+        self.api_url = api_url
+        self.session = requests.Session()
+
+    def _request(self, endpoint, params):
+        params = dict(params)
+        params['Bugzilla_api_key'] = self.api_key
+        params['include_fields'] = INCLUDE_BUG_FIELDS
+        ret = self.session.get(self.api_url + '/' + endpoint,
+                               params=params)
+        ret.raise_for_status()
+        return ret
 
     def fetch_package_list(self, bugs):
         """
@@ -60,11 +72,15 @@ class NattkaBugzilla(object):
         of {bugno: buginfo}.
         """
 
-        ret = {}
-        for b in self.bz.getbugs(bugs, include_fields=list(INCLUDE_BUG_FIELDS)):
-            ret[b.id] = make_bug_info(b)
-        return ret
+        resp = self._request('bug',
+                             params={
+                                 'id': ','.join(str(x) for x in bugs)
+                             }).json()
 
+        ret = {}
+        for b in resp['bugs']:
+            ret[b['id']] = make_bug_info(b)
+        return ret
 
     def find_bugs(self, category, limit=None):
         """
@@ -72,19 +88,22 @@ class NattkaBugzilla(object):
         (None = no limit).
         """
 
-        query = self.bz.build_query(
-            component=BugCategory.to_components(category),
-            status=['UNCONFIRMED', 'CONFIRMED', 'IN_PROGRESS'],
-            include_fields=list(INCLUDE_BUG_FIELDS))
-        # TODO: a hack
+        search_params = {
+            'resolution': '---',
+        }
+        component = BugCategory.to_components(category)
+        if component is not None:
+            search_params['component'] = component
         if limit is not None:
-            query['limit'] = limit
+            search_params['limit'] = limit
+
+        resp = self._request('bug', params=search_params).json()
 
         ret = {}
-        for b in self.bz.query(query):
+        for b in resp['bugs']:
             # skip empty bugs (likely security issues that are not
             # stabilization requests)
-            if not b.cf_stabilisation_atoms:
+            if not b['cf_stabilisation_atoms'].strip():
                 continue
-            ret[b.id] = make_bug_info(b)
+            ret[b['id']] = make_bug_info(b)
         return ret
