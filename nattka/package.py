@@ -89,8 +89,11 @@ def fill_keywords(repo, tuples, cc):
     to determine valid arches.  Returns an iterator over updated tuples.
     """
 
-    arches = frozenset(f'{x}@gentoo.org' for x in repo.known_arches)
+    arches = sorted(x.split('@')[0] for x in frozenset(f'{x}@gentoo.org'
+                                                       for x
+                                                       in repo.known_arches)
+                                             .intersection(cc))
     for p, keywords in tuples:
         if not keywords:
-            keywords = [x.split('@')[0] for x in arches.intersection(cc)]
+            keywords = arches
         yield p, keywords
