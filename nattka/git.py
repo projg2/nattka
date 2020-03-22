@@ -1,9 +1,10 @@
 """ Git repository support. """
 
 import subprocess
+import typing
 
 
-def git_get_toplevel(repo_path):
+def git_get_toplevel(repo_path: str) -> typing.Optional[str]:
     """
     Get top-level working tree path for @repo_path.  Returns None
     when not in repository.
@@ -19,7 +20,7 @@ def git_get_toplevel(repo_path):
     return sout.decode().strip()
 
 
-def git_is_dirty(repo_path):
+def git_is_dirty(repo_path: str) -> bool:
     """
     Returns True if repository in @repo_path has dirty working tree
     (i.e. calling 'git checkout' will overwrite changes), False
@@ -33,7 +34,7 @@ def git_is_dirty(repo_path):
     return sp.wait() != 0
 
 
-def git_reset_changes(repo_path):
+def git_reset_changes(repo_path: str) -> None:
     """
     Reset all changes done to the working tree in repository
     at @repo_path.
@@ -49,6 +50,10 @@ def git_reset_changes(repo_path):
                            .format(serr.decode()))
 
 
+class GitRepositoryNotFound(Exception):
+    pass
+
+
 class GitDirtyWorkTree(Exception):
     pass
 
@@ -59,14 +64,21 @@ class GitWorkTree(object):
     repository and reset changes afterwards.
     """
 
-    def __init__(self, repo_path):
-        self.path = git_get_toplevel(repo_path)
+    path: str
 
-    def __enter__(self):
+    def __init__(self, repo_path: str):
+        path = git_get_toplevel(repo_path)
+        if path is None:
+            raise GitRepositoryNotFound(
+                'No repository found in {}'.format(self.path))
+        else:
+            self.path = path
+
+    def __enter__(self) -> 'GitWorkTree':
         if git_is_dirty(self.path):
             raise GitDirtyWorkTree(
                 'Git working tree {} is dirty'.format(self.path))
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args) -> None:
         git_reset_changes(self.path)

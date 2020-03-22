@@ -1,7 +1,7 @@
 """ Bugzilla support. """
 
-import collections
 import enum
+import typing
 
 import requests
 
@@ -41,23 +41,28 @@ class BugCategory(enum.Enum):
             return ['Keywording', 'Stabilization', 'Vulnerabilities']
 
 
-BugInfo = collections.namedtuple('BugInfo',
-    ('category', 'atoms', 'cc', 'depends', 'blocks'))
+class BugInfo(typing.NamedTuple):
+    category: BugCategory
+    atoms: str
+    cc: typing.List[str]
+    depends: typing.List[int]
+    blocks: typing.List[int]
 
 
-def make_bug_info(bug):
+def make_bug_info(bug: typing.Dict[str, typing.Any]) -> BugInfo:
     bcat = BugCategory.from_component(bug['component'])
     atoms = bug['cf_stabilisation_atoms'] + '\r\n'
     return BugInfo(bcat, atoms, bug['cc'], bug['depends_on'], bug['blocks'])
 
 
 class NattkaBugzilla(object):
-    def __init__(self, api_key, api_url=BUGZILLA_API_URL):
+    def __init__(self, api_key: str, api_url: str = BUGZILLA_API_URL):
         self.api_key = api_key
         self.api_url = api_url
         self.session = requests.Session()
 
-    def _request(self, endpoint, params):
+    def _request(self, endpoint: str, params: typing.Mapping[str,
+            typing.Union[typing.Iterable[str], str]]) -> requests.Response:
         params = dict(params)
         params['Bugzilla_api_key'] = self.api_key
         params['include_fields'] = INCLUDE_BUG_FIELDS
@@ -66,7 +71,8 @@ class NattkaBugzilla(object):
         ret.raise_for_status()
         return ret
 
-    def fetch_package_list(self, bugs):
+    def fetch_package_list(self, bugs: typing.Iterable[int]
+            ) -> typing.Dict[int, BugInfo]:
         """
         Fetch specified @bugs (list of bug numbers).  Returns a dict
         of {bugno: buginfo}.
@@ -82,7 +88,8 @@ class NattkaBugzilla(object):
             ret[b['id']] = make_bug_info(b)
         return ret
 
-    def find_bugs(self, category, limit=None):
+    def find_bugs(self, category: BugCategory, limit: int = None
+            ) -> typing.Dict[int, BugInfo]:
         """
         Find all relevant bugs in @category.  Limit to @limit results
         (None = no limit).
@@ -95,7 +102,7 @@ class NattkaBugzilla(object):
         if component is not None:
             search_params['component'] = component
         if limit is not None:
-            search_params['limit'] = limit
+            search_params['limit'] = str(limit)
 
         resp = self._request('bug', params=search_params).json()
 
