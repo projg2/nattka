@@ -6,7 +6,7 @@ import unittest
 
 import vcr
 
-from nattka.bugzilla import NattkaBugzilla, BugCategory, BugInfo
+from nattka.bugzilla import NattkaBugzilla, BugCategory
 
 
 # API key should be needed only for the initial recording
