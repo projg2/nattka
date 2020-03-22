@@ -29,9 +29,8 @@ class NattkaCommands(object):
         repo = find_repository(self.args.repo)
 
         bz = NattkaBugzilla(self.get_api_key())
-        for i, b in enumerate(bz.fetch_package_list(self.args.bug)):
-            log.info('Bug {} ({})'.format(self.args.bug[i],
-                                          b.category.name))
+        for bugno, b in bz.fetch_package_list(self.args.bug).items():
+            log.info('Bug {} ({})'.format(bugno, b.category.name))
             plist = dict(fill_keywords(repo,
                                        match_package_list(repo, b.atoms),
                                        b.cc))

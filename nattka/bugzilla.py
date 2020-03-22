@@ -56,12 +56,14 @@ class NattkaBugzilla(object):
 
     def fetch_package_list(self, bugs):
         """
-        Fetch specified @bugs (list of bug numberss).  Returns
-        an iterator over BugInfo tuples.
+        Fetch specified @bugs (list of bug numbers).  Returns a dict
+        of {bugno: buginfo}.
         """
 
+        ret = {}
         for b in self.bz.getbugs(bugs, include_fields=list(INCLUDE_BUG_FIELDS)):
-            yield make_bug_info(b)
+            ret[b.id] = make_bug_info(b)
+        return ret
 
 
     def find_bugs(self, category, limit=None):

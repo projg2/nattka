@@ -37,39 +37,39 @@ class BugzillaTests(unittest.TestCase):
     def test_fetch_bugs(self):
         """ Test getting simple bugs. """
         self.assertEqual(
-            list(self.bz.fetch_package_list([700194, 711762, 710410])),
-            [(BugCategory.KEYWORDREQ,
-              'dev-python/unittest-mixins-1.6\r\n'
-              'dev-python/coverage-4.5.4\r\n',
-              [f'{x}@gentoo.org' for x in ('hppa',
-                                           'm68k',
-                                           'prefix',
-                                           's390',
-                                           'sh',
-                                           'x86')],
-              [701196],
-              []),
-             (BugCategory.KEYWORDREQ,
-              'dev-python/urllib3-1.25.8\r\n'
-              'dev-python/trustme-0.6.0\r\n'
-              'dev-python/brotlipy-0.7.0\r\n',
-              [f'{x}@gentoo.org' for x in ('hppa',
-                                           'm68k',
-                                           'mips',
-                                           'ppc64',
-                                           'ppc',
-                                           's390',
-                                           'sh',
-                                           'sparc')],
-              [],
-              []),
-             (BugCategory.STABLEREQ,
-              'dev-python/mako-1.1.0\r\n',
-              [f'{x}@gentoo.org' for x in ('m68k',
-                                           'sh')],
-              [],
-              []),
-            ])
+            self.bz.fetch_package_list([700194, 711762, 710410]),
+            {700194: (BugCategory.KEYWORDREQ,
+                      'dev-python/unittest-mixins-1.6\r\n'
+                      'dev-python/coverage-4.5.4\r\n',
+                      [f'{x}@gentoo.org' for x in ('hppa',
+                                                   'm68k',
+                                                   'prefix',
+                                                   's390',
+                                                   'sh',
+                                                   'x86')],
+                      [701196],
+                      []),
+             711762: (BugCategory.KEYWORDREQ,
+                      'dev-python/urllib3-1.25.8\r\n'
+                      'dev-python/trustme-0.6.0\r\n'
+                      'dev-python/brotlipy-0.7.0\r\n',
+                      [f'{x}@gentoo.org' for x in ('hppa',
+                                                   'm68k',
+                                                   'mips',
+                                                   'ppc64',
+                                                   'ppc',
+                                                   's390',
+                                                   'sh',
+                                                   'sparc')],
+                      [],
+                      []),
+             710410: (BugCategory.STABLEREQ,
+                      'dev-python/mako-1.1.0\r\n',
+                      [f'{x}@gentoo.org' for x in ('m68k',
+                                                   'sh')],
+                      [],
+                      []),
+            })
 
     @rec.use_cassette()
     def test_find_keywordreqs(self):
