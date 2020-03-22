@@ -46,3 +46,26 @@ def git_reset_changes(repo_path):
     if sp.wait() != 0:
         raise RuntimeError('git checkout failed: {}'
                            .format(stderr.decode()))
+
+
+class GitDirtyWorkTree(Exception):
+    pass
+
+
+class GitWorkTree(object):
+    """
+    A context manager factory to obtain 'exclusive' access to a git
+    repository and reset changes afterwards.
+    """
+
+    def __init__(self, repo_path):
+        self.path = git_get_toplevel(repo_path)
+
+    def __enter__(self):
+        if git_is_dirty(self.path):
+            raise GitDirtyWorkTree(
+                'Git working tree {} is dirty'.format(self.path))
+        return self
+
+    def __exit__(self, *args):
+        git_reset_changes(self.path)
