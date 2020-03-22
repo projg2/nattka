@@ -34,11 +34,11 @@ class BugCategory(enum.Enum):
     @classmethod
     def to_components(cls, val):
         if val == cls.KEYWORDREQ:
-            return ['keywording']
+            return ['Keywording']
         elif val == cls.STABLEREQ:
             return ['Stabilization', 'Vulnerabilities']
         else:
-            return None
+            return ['Keywording', 'Stabilization', 'Vulnerabilities']
 
 
 BugInfo = collections.namedtuple('BugInfo',
