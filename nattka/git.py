@@ -43,9 +43,10 @@ def git_reset_changes(repo_path):
                           cwd=git_get_toplevel(repo_path),
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE)
+    sout, serr = sp.communicate()
     if sp.wait() != 0:
         raise RuntimeError('git checkout failed: {}'
-                           .format(stderr.decode()))
+                           .format(serr.decode()))
 
 
 class GitDirtyWorkTree(Exception):
