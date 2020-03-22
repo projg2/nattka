@@ -73,7 +73,7 @@ class GitTests(unittest.TestCase):
             assert (subprocess.Popen(['git', 'add', 'file'], cwd=td)
                               .wait() == 0)
 
-            with GitWorkTree(td) as wt:
+            with GitWorkTree(td):
                 f.write('second\n')
                 f.flush()
 
@@ -90,5 +90,5 @@ class GitTests(unittest.TestCase):
                               .wait() == 0)
 
             with self.assertRaises(GitDirtyWorkTree):
-                with GitWorkTree(td) as wt:
+                with GitWorkTree(td):
                     pass
