@@ -1,0 +1,179 @@
+interactions:
+- request:
+    body: '<?xml version=''1.0''?>
+
+      <methodCall>
+
+      <methodName>Bug.search</methodName>
+
+      <params>
+
+      <param>
+
+      <value><struct>
+
+      <member>
+
+      <name>component</name>
+
+      <value><array><data>
+
+      <value><string>Stabilization</string></value>
+
+      <value><string>Vulnerabilities</string></value>
+
+      </data></array></value>
+
+      </member>
+
+      <member>
+
+      <name>bug_status</name>
+
+      <value><array><data>
+
+      <value><string>UNCONFIRMED</string></value>
+
+      <value><string>CONFIRMED</string></value>
+
+      <value><string>IN_PROGRESS</string></value>
+
+      </data></array></value>
+
+      </member>
+
+      <member>
+
+      <name>include_fields</name>
+
+      <value><array><data>
+
+      <value><string>component</string></value>
+
+      <value><string>cf_stabilisation_atoms</string></value>
+
+      <value><string>cc</string></value>
+
+      <value><string>depends_on</string></value>
+
+      <value><string>blocks</string></value>
+
+      <value><string>id</string></value>
+
+      </data></array></value>
+
+      </member>
+
+      <member>
+
+      <name>limit</name>
+
+      <value><int>10</int></value>
+
+      </member>
+
+      <member>
+
+      <name>Bugzilla_api_key</name>
+
+      <value><string><!-- API key stripped --></string></value>
+
+      </member>
+
+      </struct></value>
+
+      </param>
+
+      </params>
+
+      </methodCall>
+
+      '
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1084'
+      Content-Type:
+      - text/xml
+      Cookie:
+      - Bugzilla_login_request_cookie=jFTIspU7rf
+      User-Agent:
+      - Python/Bugzilla
+    method: POST
+    uri: https://bugs.gentoo.org/xmlrpc.cgi
+  response:
+    body:
+      string: !!binary |
+        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
+    headers:
+      Connection:
+      - Keep-Alive
+      Content-Encoding:
+      - gzip
+      Content-Length:
+      - '1871'
+      Content-Security-Policy:
+      - frame-ancestors 'self'
+      Content-Type:
+      - text/xml
+      Date:
+      - Fri, 20 Mar 2020 16:37:04 GMT
+      ETag:
+      - a6dkldGvhhxGSsLuzRSmXw
+      Keep-Alive:
+      - timeout=15, max=100
+      SOAPServer:
+      - SOAP::Lite/Perl/1.26
+      Server:
+      - Apache
+      Strict-Transport-Security:
+      - max-age=15768000; includeSubDomains
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
