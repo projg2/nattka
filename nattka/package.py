@@ -1,10 +1,13 @@
 """ Package processing support. """
 
+import io
 import itertools
-import json
 import subprocess
 import typing
 
+# need to preload it to fix pkgcheck.reporters import error
+__import__('pkgcheck.checks')
+from pkgcheck.reporters import PickleStream
 import pkgcore.ebuild.ebuild_src
 
 from gentoolkit.ekeyword import ekeyword
@@ -78,17 +81,17 @@ def check_dependencies(repo: UnconfiguredTree, tuples: typing.Iterable[
     for keywords, packages in itertools.groupby(tuples, lambda x: x[1]):
         package_strs = list((str(x[0].versioned_atom) for x in packages))
         args = ['pkgcheck', 'scan', '-c', 'VisibilityCheck',
-                '-R', 'JsonStream', '-a', ','.join(keywords)] + package_strs
+                '-R', 'PickleStream', '-a', ','.join(keywords)] + package_strs
         sp = subprocess.Popen(args,
                               cwd=repo.location,
                               stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE)
         sout, serr = sp.communicate()
-        for l in sout.splitlines():
-            j = json.loads(l)
-            if j['__class__'].startswith('NonsolvableDeps'):
+
+        for r in PickleStream.from_file(io.BytesIO(sout)):
+            if r.name.startswith('NonsolvableDeps'):
                 ret = False
-                errors.append(j)
+                errors.append(r)
 
     return CheckResult(ret, errors)
 

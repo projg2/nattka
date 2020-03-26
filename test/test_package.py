@@ -133,8 +133,28 @@ class KeywordAdderTest(BaseRepoTestCase):
                     self.assertEqual(e3.keywords, ('alpha', 'amd64', '~hppa'))
 
 
-def sort_check_result(res):
-    return (res.success, sorted(res.output, key=lambda x: x['package']))
+def results_to_dict(res):
+    """
+    Convert pkgcheck NonSolvableDeps* result into dicts for checking.
+    """
+
+    out = []
+    for r in sorted(res.output, key=lambda r: r.package):
+        out.append({
+            '__class__': r.name,
+            'attr': r.attr,
+            'category': r.category,
+            'deps': list(r.deps),
+            'keyword': r.keyword,
+            'num_profiles': r.num_profiles,
+            'package': r.package,
+            'profile': r.profile,
+            'profile_deprecated': r.profile_deprecated,
+            'profile_status': r.profile_status,
+            'version': r.version,
+        })
+
+    return (res.success, out)
 
 
 class DependencyCheckerTest(BaseRepoTestCase):
@@ -147,9 +167,9 @@ class DependencyCheckerTest(BaseRepoTestCase):
 
     def test_amd64_bad(self):
         self.assertEqual(
-            check_dependencies(self.repo,
+            results_to_dict(check_dependencies(self.repo,
                     [(self.get_package('=test/amd64-stable-deps-1'),
-                     ['amd64'])]),
+                     ['amd64'])])),
             (False, [
                 {'__class__': 'NonsolvableDepsInStable',
                  'attr': 'rdepend',
@@ -166,9 +186,9 @@ class DependencyCheckerTest(BaseRepoTestCase):
 
     def test_alpha_bad(self):
         self.assertEqual(
-            check_dependencies(self.repo,
+            results_to_dict(check_dependencies(self.repo,
                     [(self.get_package('=test/alpha-testing-deps-1'),
-                      ['alpha'])]),
+                      ['alpha'])])),
             (False, [
                 {'__class__': 'NonsolvableDepsInStable',
                  'attr': 'rdepend',
@@ -185,7 +205,7 @@ class DependencyCheckerTest(BaseRepoTestCase):
 
     def test_multiple_reports(self):
         self.assertEqual(
-            sort_check_result(check_dependencies(self.repo,
+            results_to_dict(check_dependencies(self.repo,
                     [(self.get_package('=test/amd64-stable-deps-1'),
                       ['amd64']),
                      (self.get_package('=test/amd64-testing-deps-2'),
