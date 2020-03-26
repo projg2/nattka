@@ -133,6 +133,10 @@ class KeywordAdderTest(BaseRepoTestCase):
                     self.assertEqual(e3.keywords, ('alpha', 'amd64', '~hppa'))
 
 
+def sort_check_result(res):
+    return (res.success, sorted(res.output, key=lambda x: x['package']))
+
+
 class DependencyCheckerTest(BaseRepoTestCase):
     def test_amd64_good(self):
         self.assertEqual(
@@ -177,6 +181,39 @@ class DependencyCheckerTest(BaseRepoTestCase):
                  'profile_deprecated': False,
                  'profile_status': 'stable',
                  'version': '1'},
+            ]))
+
+    def test_multiple_reports(self):
+        self.assertEqual(
+            sort_check_result(check_dependencies(self.repo,
+                    [(self.get_package('=test/amd64-stable-deps-1'),
+                      ['amd64']),
+                     (self.get_package('=test/amd64-testing-deps-2'),
+                      ['amd64'])
+                    ])),
+            (False, [
+                {'__class__': 'NonsolvableDepsInStable',
+                 'attr': 'rdepend',
+                 'category': 'test',
+                 'deps': ['test/amd64-testing'],
+                 'keyword': 'amd64',
+                 'num_profiles': 1,
+                 'package': 'amd64-stable-deps',
+                 'profile': 'amd64',
+                 'profile_deprecated': False,
+                 'profile_status': 'stable',
+                 'version': '1'},
+                {'__class__': 'NonsolvableDepsInStable',
+                 'attr': 'bdepend',
+                 'category': 'test',
+                 'deps': ['test/alpha-testing-deps'],
+                 'keyword': '~amd64',
+                 'num_profiles': 1,
+                 'package': 'amd64-testing-deps',
+                 'profile': 'amd64',
+                 'profile_deprecated': False,
+                 'profile_status': 'stable',
+                 'version': '2'},
             ]))
 
 
