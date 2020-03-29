@@ -5,9 +5,10 @@ import logging
 import os.path
 import sys
 
-from nattka.bugzilla import NattkaBugzilla, BugCategory
+from nattka.bugzilla import (NattkaBugzilla, BugCategory,
+                             fill_keywords_from_cc)
 from nattka.package import (find_repository, match_package_list,
-                            add_keywords, fill_keywords)
+                            add_keywords)
 
 
 log = logging.getLogger('nattka')
@@ -30,10 +31,9 @@ class NattkaCommands(object):
 
         bz = NattkaBugzilla(self.get_api_key())
         for bugno, b in bz.fetch_package_list(self.args.bug).items():
+            b = fill_keywords_from_cc(b, repo.known_arches)
             log.info('Bug {} ({})'.format(bugno, b.category.name))
-            plist = dict(fill_keywords(repo,
-                                       match_package_list(repo, b.atoms),
-                                       b.cc))
+            plist = dict(match_package_list(repo, b.atoms))
             for p, keywords in plist.items():
                 log.info('Package {}: {}'.format(p.cpvstr, plist[p]))
             add_keywords(plist.items(), b.category == BugCategory.STABLEREQ)

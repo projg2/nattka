@@ -7,7 +7,8 @@ import unittest
 import vcr
 
 from nattka.bugzilla import (NattkaBugzilla, BugCategory, BugInfo,
-                             get_combined_buginfo)
+                             get_combined_buginfo,
+                             fill_keywords_from_cc)
 
 
 # API key should be needed only for the initial recording
@@ -159,3 +160,18 @@ class BugInfoCombinerTest(unittest.TestCase):
                 }, 1),
             BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n',
                     ['amd64@gentoo.org', 'x86@gentoo.org'], [2], []))
+
+
+class KeywordFillerTest(unittest.TestCase):
+    def test_fill_keywords_cc(self):
+        self.assertEqual(
+            fill_keywords_from_cc(
+                BugInfo('Stabilization', 'test/foo-1 x86\r\n'
+                                         'test/bar-2\r\n'
+                                         'test/bar-3 \r\n',
+                        ['amd64@gentoo.org', 'x86@gentoo.org'], [], []),
+                ['amd64', 'arm64', 'x86']),
+            BugInfo('Stabilization', 'test/foo-1 x86\r\n'
+                                     'test/bar-2 amd64 x86\r\n'
+                                     'test/bar-3  amd64 x86\r\n',
+                    ['amd64@gentoo.org', 'x86@gentoo.org'], [], []))

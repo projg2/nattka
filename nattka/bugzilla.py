@@ -141,3 +141,26 @@ def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo], bugno: int
 
     return BugInfo(topbug.category, atoms, topbug.cc, sorted(deps),
                    topbug.blocks)
+
+
+def fill_keywords_from_cc(bug: BugInfo, known_arches: typing.Iterable[str]
+        ) -> BugInfo:
+    """
+    Fill missing keywords in @bug based on CC list.  @known_arches
+    specifies the list of valid arches.  Returns a BugInfo with arches
+    filled in (if possible).
+    """
+
+    arches = sorted(x.split('@')[0] for x in frozenset(f'{x}@gentoo.org'
+                                                       for x
+                                                       in known_arches)
+                                             .intersection(bug.cc))
+
+    ret = ''
+    for l in bug.atoms.splitlines():
+        sl = l.split()
+        if len(sl) == 1:
+            l += f' {" ".join(arches)}'
+        ret += f'{l}\r\n'
+
+    return BugInfo(bug.category, ret, bug.cc, bug.depends, bug.blocks)

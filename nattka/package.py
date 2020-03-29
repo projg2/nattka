@@ -94,21 +94,3 @@ def check_dependencies(repo: UnconfiguredTree, tuples: typing.Iterable[
                 errors.append(r)
 
     return CheckResult(ret, errors)
-
-
-def fill_keywords(repo: UnconfiguredTree, tuples: typing.Iterator[
-        PackageKeywords], cc: typing.Iterable[str]) -> typing.Iterator[
-        PackageKeywords]:
-    """
-    Fill missing keywords in @tuples based on @cc list.  @repo is used
-    to determine valid arches.  Returns an iterator over updated tuples.
-    """
-
-    arches = sorted(x.split('@')[0] for x in frozenset(f'{x}@gentoo.org'
-                                                       for x
-                                                       in repo.known_arches)
-                                             .intersection(cc))
-    for p, keywords in tuples:
-        if not keywords:
-            keywords = arches
-        yield PackageKeywords(p, keywords)

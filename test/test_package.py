@@ -235,20 +235,3 @@ class DependencyCheckerTest(BaseRepoTestCase):
                  'profile_status': 'stable',
                  'version': '2'},
             ]))
-
-
-class KeywordFillerTest(BaseRepoTestCase):
-    def test_fill_keywords_cc(self):
-        pkgs = self.repo.match(
-            parserestrict.parse_match('test/amd64-testing'))
-        inp = [
-            (pkgs[0], ['alpha']),
-            (pkgs[1], []),
-        ]
-        self.assertEqual(list(fill_keywords(self.repo, inp,
-                                            [f'{x}@gentoo.org'
-                                             for x in ('alpha', 'hppa')])),
-                         [
-                             (pkgs[0], ['alpha']),
-                             (pkgs[1], ['alpha', 'hppa']),
-                         ])
