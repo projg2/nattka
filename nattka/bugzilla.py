@@ -114,3 +114,30 @@ class NattkaBugzilla(object):
                 continue
             ret[b['id']] = make_bug_info(b)
         return ret
+
+
+def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo], bugno: int
+        ) -> BugInfo:
+    """
+    Combine information from linked (via 'depends on') bugs into
+    a single BugInfo.  @bugdict is the dict returned by Bugzilla search,
+    @bugno is the number of bug of interest.
+    """
+
+    topbug = bugdict[bugno]
+    combined_bugs = [topbug]
+    atoms = ''
+    deps = set()
+
+    i = 0
+    while i < len(combined_bugs):
+        atoms += combined_bugs[i].atoms
+        for b in combined_bugs[i].depends:
+            if b in bugdict and bugdict[b].category == topbug.category:
+                combined_bugs.append(bugdict[b])
+            else:
+                deps.add(b)
+        i += 1
+
+    return BugInfo(topbug.category, atoms, topbug.cc, sorted(deps),
+                   topbug.blocks)

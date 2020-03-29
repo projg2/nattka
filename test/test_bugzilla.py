@@ -6,7 +6,8 @@ import unittest
 
 import vcr
 
-from nattka.bugzilla import NattkaBugzilla, BugCategory
+from nattka.bugzilla import (NattkaBugzilla, BugCategory, BugInfo,
+                             get_combined_buginfo)
 
 
 # API key should be needed only for the initial recording
@@ -112,3 +113,49 @@ class BugzillaTests(unittest.TestCase):
                                    [],
                                    [])
                          })
+
+
+class BugInfoCombinerTest(unittest.TestCase):
+    def test_combine_bugs(self):
+        """ Test combining linked bugs. """
+        self.assertEqual(
+            get_combined_buginfo(
+                {1: BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n',
+                            ['amd64@gentoo.org', 'x86@gentoo.org'],
+                            [2], []),
+                 2: BugInfo('Stabilization', 'test/bar-2 x86\r\n',
+                            ['x86@gentoo.org'],
+                            [], [1])
+                }, 1),
+            BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n'
+                                     'test/bar-2 x86\r\n',
+                    ['amd64@gentoo.org', 'x86@gentoo.org'], [], []))
+
+    def test_combine_with_blocker(self):
+        """ Test combining stabilization blocked by a regular bug. """
+        self.assertEqual(
+            get_combined_buginfo(
+                {1: BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n',
+                            ['amd64@gentoo.org', 'x86@gentoo.org'],
+                            [2, 3], []),
+                 2: BugInfo('Stabilization', 'test/bar-2 x86\r\n',
+                            ['x86@gentoo.org'],
+                            [3, 4], [1])
+                }, 1),
+            BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n'
+                                     'test/bar-2 x86\r\n',
+                    ['amd64@gentoo.org', 'x86@gentoo.org'], [3, 4], []))
+
+    def test_combine_keywordreq_stablereq(self):
+        """ Test combining keywordreq & stablereq. """
+        self.assertEqual(
+            get_combined_buginfo(
+                {1: BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n',
+                            ['amd64@gentoo.org', 'x86@gentoo.org'],
+                            [2], []),
+                 2: BugInfo('Keywording', 'test/foo-1 x86\r\n',
+                            ['x86@gentoo.org'],
+                            [], [1])
+                }, 1),
+            BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n',
+                    ['amd64@gentoo.org', 'x86@gentoo.org'], [2], []))
