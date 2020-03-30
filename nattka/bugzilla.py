@@ -10,6 +10,7 @@ BUGZILLA_API_URL = 'https://bugs.gentoo.org/rest'
 
 INCLUDE_BUG_FIELDS = (
     'id',
+    'product',
     'component',
     'cf_stabilisation_atoms',
     'cc',
@@ -23,23 +24,39 @@ class BugCategory(enum.Enum):
     STABLEREQ = enum.auto()
 
     @classmethod
-    def from_component(cls, component):
-        if component in ('Keywording',):
-            return cls.KEYWORDREQ
-        elif component in ('Stabilization', 'Vulnerabilities', 'Kernel'):
-            return cls.STABLEREQ
-        else:
-            return None
+    def from_product_component(cls, product: str, component: str
+            ) -> typing.Optional['BugCategory']:
+        """
+        Return a BugCategory for bug in @product and @component.
+        """
+
+        if product == 'Gentoo Linux':
+            if component == 'Keywording':
+                return cls.KEYWORDREQ
+            elif component == 'Stabilization':
+                return cls.STABLEREQ
+        elif product == 'Gentoo Security':
+            if component in ('Vulnerabilities', 'Kernel'):
+                return cls.STABLEREQ
+        return None
 
     @classmethod
-    def to_components(cls, val):
+    def to_products_components(cls, val: 'BugCategory'
+            ) -> typing.Tuple[typing.List[str], typing.List[str]]:
+        """
+        Return a tuple of valid bug products and components for a given
+        category.
+        """
+
         if val == cls.KEYWORDREQ:
-            return ['Keywording']
+            return (['Gentoo Linux'], ['Keywording'])
         elif val == cls.STABLEREQ:
-            return ['Stabilization', 'Vulnerabilities', 'Kernel']
+            return (['Gentoo Linux', 'Gentoo Security'],
+                    ['Stabilization', 'Vulnerabilities', 'Kernel'])
         else:
-            return ['Keywording', 'Stabilization', 'Vulnerabilities',
-                    'Kernel']
+            return (['Gentoo Linux', 'Gentoo Security'],
+                    ['Keywording', 'Stabilization', 'Vulnerabilities',
+                     'Kernel'])
 
 
 class BugInfo(typing.NamedTuple):
@@ -51,7 +68,8 @@ class BugInfo(typing.NamedTuple):
 
 
 def make_bug_info(bug: typing.Dict[str, typing.Any]) -> BugInfo:
-    bcat = BugCategory.from_component(bug['component'])
+    bcat = BugCategory.from_product_component(bug['product'],
+                                              bug['component'])
     atoms = bug['cf_stabilisation_atoms'] + '\r\n'
     return BugInfo(bcat, atoms, bug['cc'], bug['depends_on'], bug['blocks'])
 
@@ -99,12 +117,12 @@ class NattkaBugzilla(object):
         (None = no limit).
         """
 
+        product, component = BugCategory.to_products_components(category)
         search_params = {
+            'product': product,
+            'component': component,
             'resolution': '---',
         }
-        component = BugCategory.to_components(category)
-        if component is not None:
-            search_params['component'] = component
         if limit is not None:
             search_params['limit'] = str(limit)
 
