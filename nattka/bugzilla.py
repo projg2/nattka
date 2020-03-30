@@ -56,9 +56,11 @@ def make_bug_info(bug: typing.Dict[str, typing.Any]) -> BugInfo:
 
 
 class NattkaBugzilla(object):
-    def __init__(self, api_key: str, api_url: str = BUGZILLA_API_URL):
+    def __init__(self, api_key: str, api_url: str = BUGZILLA_API_URL,
+                 auth: typing.Tuple[str, str] = None):
         self.api_key = api_key
         self.api_url = api_url
+        self.auth = auth
         self.session = requests.Session()
 
     def _request(self, endpoint: str, params: typing.Mapping[str,
@@ -67,6 +69,7 @@ class NattkaBugzilla(object):
         params['Bugzilla_api_key'] = self.api_key
         params['include_fields'] = INCLUDE_BUG_FIELDS
         ret = self.session.get(self.api_url + '/' + endpoint,
+                               auth=self.auth,
                                params=params)
         ret.raise_for_status()
         return ret

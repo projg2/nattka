@@ -11,39 +11,28 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://bugs.gentoo.org/rest/bug?component=Stabilization&component=Vulnerabilities&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=id&limit=10&resolution=---
+    uri: https://bugstest.gentoo.org/rest/bug?component=Stabilization&component=Vulnerabilities&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=id&limit=5&resolution=---
   response:
     body:
-      string: "{\"bugs\":[{\"id\":376589,\"cc\":[\"games@gentoo.org\",\"holgersson@posteo.de\",\"jaak@ristioja.ee\",\"redblade7@runbox.com\"],\"blocks\":[],\"cc_detail\":[{\"email\":\"games@gentoo.org\",\"name\":\"games@gentoo.org\",\"real_name\":\"Gentoo
-        Games\",\"id\":4120},{\"id\":84722,\"real_name\":\"Nils Freydank\",\"name\":\"holgersson@posteo.de\",\"email\":\"holgersson@posteo.de\"},{\"name\":\"jaak@ristioja.ee\",\"real_name\":\"Jaak
-        Ristioja\",\"email\":\"jaak@ristioja.ee\",\"id\":19868},{\"email\":\"redblade7@runbox.com\",\"real_name\":\"Red\",\"name\":\"redblade7@runbox.com\",\"id\":98388}],\"component\":\"Vulnerabilities\",\"cf_stabilisation_atoms\":\"\",\"depends_on\":[420783,606694,606696,606698,606702]},{\"cf_stabilisation_atoms\":\"\",\"cc_detail\":[{\"id\":74905,\"email\":\"cluster@gentoo.org\",\"real_name\":\"Gentoo
-        Cluster Team\",\"name\":\"cluster@gentoo.org\"},{\"id\":54153,\"email\":\"mgorny@gentoo.org\",\"name\":\"mgorny@gentoo.org\",\"real_name\":\"Micha\u0142
-        G\xF3rny\"},{\"id\":41660,\"email\":\"treecleaner@gentoo.org\",\"real_name\":\"Gentoo
-        TreeCleaner Project\",\"name\":\"treecleaner@gentoo.org\"}],\"component\":\"Vulnerabilities\",\"cc\":[\"cluster@gentoo.org\",\"mgorny@gentoo.org\",\"treecleaner@gentoo.org\"],\"blocks\":[],\"id\":463338,\"depends_on\":[]},{\"depends_on\":[],\"id\":522930,\"cc\":[\"chutzpah@gentoo.org\",\"cluster@gentoo.org\",\"dlan@gentoo.org\",\"kernel@gentoo.org\",\"pacho@gentoo.org\",\"security-kernel@gentoo.org\"],\"blocks\":[469854,512526,524848,568212,464546,579076],\"component\":\"Vulnerabilities\",\"cc_detail\":[{\"email\":\"chutzpah@gentoo.org\",\"real_name\":\"Patrick
-        McLean\",\"name\":\"chutzpah@gentoo.org\",\"id\":6318},{\"id\":74905,\"email\":\"cluster@gentoo.org\",\"name\":\"cluster@gentoo.org\",\"real_name\":\"Gentoo
-        Cluster Team\"},{\"real_name\":\"Yixun Lan\",\"name\":\"dlan@gentoo.org\",\"email\":\"dlan@gentoo.org\",\"id\":40698},{\"real_name\":\"Gentoo
-        Kernel Bug Wranglers and Kernel Maintainers\",\"name\":\"kernel@gentoo.org\",\"email\":\"kernel@gentoo.org\",\"id\":14888},{\"email\":\"pacho@gentoo.org\",\"real_name\":\"Pacho
-        Ramos\",\"name\":\"pacho@gentoo.org\",\"id\":32293},{\"id\":25934,\"name\":\"security-kernel@gentoo.org\",\"real_name\":\"Gentoo
-        Kernel Security\",\"email\":\"security-kernel@gentoo.org\"}],\"cf_stabilisation_atoms\":\"=sys-kernel/gentoo-sources-3.4.113\"},{\"depends_on\":[522930],\"id\":524848,\"cc_detail\":[{\"email\":\"kernel@gentoo.org\",\"real_name\":\"Gentoo
-        Kernel Bug Wranglers and Kernel Maintainers\",\"name\":\"kernel@gentoo.org\",\"id\":14888}],\"component\":\"Vulnerabilities\",\"cf_stabilisation_atoms\":\"\",\"blocks\":[],\"cc\":[\"kernel@gentoo.org\"]},{\"depends_on\":[],\"cc\":[\"candrews@gentoo.org\",\"proxy-maint@gentoo.org\",\"vapier@gentoo.org\",\"xbox@gentoo.org\"],\"blocks\":[],\"cf_stabilisation_atoms\":\"\",\"cc_detail\":[{\"email\":\"candrews@gentoo.org\",\"name\":\"candrews@gentoo.org\",\"real_name\":\"Craig
-        Andrews\",\"id\":38910},{\"id\":80117,\"real_name\":\"Proxy Maintainers\",\"name\":\"proxy-maint@gentoo.org\",\"email\":\"proxy-maint@gentoo.org\"},{\"id\":900,\"email\":\"vapier@gentoo.org\",\"real_name\":\"SpanKY\",\"name\":\"vapier@gentoo.org\"},{\"email\":\"xbox@gentoo.org\",\"name\":\"xbox@gentoo.org\",\"real_name\":\"Xbox
-        herd\",\"id\":71879}],\"component\":\"Vulnerabilities\",\"id\":536366},{\"component\":\"Vulnerabilities\",\"cc_detail\":[{\"name\":\"alexander@tsoy.me\",\"real_name\":\"Alexander
-        Tsoy\",\"email\":\"alexander@tsoy.me\",\"id\":63186},{\"real_name\":\"TeX
-        project\",\"name\":\"tex@gentoo.org\",\"email\":\"tex@gentoo.org\",\"id\":48184}],\"cf_stabilisation_atoms\":\"\",\"blocks\":[],\"cc\":[\"alexander@tsoy.me\",\"tex@gentoo.org\"],\"id\":536720,\"depends_on\":[]},{\"id\":543310,\"cc_detail\":[{\"email\":\"dev-portage@gentoo.org\",\"real_name\":\"Portage
-        team\",\"name\":\"dev-portage@gentoo.org\",\"id\":8876},{\"id\":6387,\"name\":\"ferringb@gentoo.org\",\"real_name\":\"Brian
-        Harring\",\"email\":\"ferringb@gentoo.org\"},{\"id\":54153,\"name\":\"mgorny@gentoo.org\",\"real_name\":\"Micha\u0142
-        G\xF3rny\",\"email\":\"mgorny@gentoo.org\"}],\"component\":\"Vulnerabilities\",\"cf_stabilisation_atoms\":\"=dev-util/diffball-1.0.1-r2\",\"cc\":[\"dev-portage@gentoo.org\",\"ferringb@gentoo.org\",\"mgorny@gentoo.org\"],\"blocks\":[],\"depends_on\":[]},{\"cf_stabilisation_atoms\":\"\",\"cc_detail\":[{\"id\":27011,\"name\":\"dev-zero@gentoo.org\",\"real_name\":\"Tiziano
-        M\xFCller\",\"email\":\"dev-zero@gentoo.org\"},{\"email\":\"maintainer-needed@gentoo.org\",\"real_name\":\"No
-        maintainer - Look at https://wiki.gentoo.org/wiki/Project:Proxy_Maintainers
-        if you want to take care of it\",\"name\":\"maintainer-needed@gentoo.org\",\"id\":31762},{\"name\":\"mgorny@gentoo.org\",\"real_name\":\"Micha\u0142
-        G\xF3rny\",\"email\":\"mgorny@gentoo.org\",\"id\":54153},{\"email\":\"python@gentoo.org\",\"name\":\"python@gentoo.org\",\"real_name\":\"Python
-        Gentoo Team\",\"id\":8535}],\"component\":\"Vulnerabilities\",\"blocks\":[],\"cc\":[\"dev-zero@gentoo.org\",\"maintainer-needed@gentoo.org\",\"mgorny@gentoo.org\",\"python@gentoo.org\"],\"id\":544228,\"depends_on\":[]},{\"depends_on\":[625626],\"id\":548132,\"cf_stabilisation_atoms\":\"\",\"cc_detail\":[{\"real_name\":\"cyberbat\",\"name\":\"cyberbat83@gmail.com\",\"email\":\"cyberbat83@gmail.com\",\"id\":76800},{\"name\":\"mysql-bugs@gentoo.org\",\"real_name\":\"Gentoo
-        Linux MySQL bugs team\",\"email\":\"mysql-bugs@gentoo.org\",\"id\":6124}],\"component\":\"Vulnerabilities\",\"blocks\":[],\"cc\":[\"cyberbat83@gmail.com\",\"mysql-bugs@gentoo.org\"]},{\"depends_on\":[522930],\"cf_stabilisation_atoms\":\"\",\"component\":\"Vulnerabilities\",\"cc_detail\":[{\"name\":\"blueness@gentoo.org\",\"real_name\":\"Anthony
-        Basile\",\"email\":\"blueness@gentoo.org\",\"id\":66374},{\"real_name\":\"Florian
-        Schmaus\",\"name\":\"flo@geekplace.eu\",\"email\":\"flo@geekplace.eu\",\"id\":44075},{\"name\":\"hydrapolic@gmail.com\",\"real_name\":\"Tom\xE1\u0161
-        M\xF3zes\",\"email\":\"hydrapolic@gmail.com\",\"id\":82755},{\"email\":\"kernel@gentoo.org\",\"real_name\":\"Gentoo
-        Kernel Bug Wranglers and Kernel Maintainers\",\"name\":\"kernel@gentoo.org\",\"id\":14888},{\"name\":\"mpagano@gentoo.org\",\"real_name\":\"Mike
-        Pagano\",\"email\":\"mpagano@gentoo.org\",\"id\":30078}],\"blocks\":[567962],\"cc\":[\"blueness@gentoo.org\",\"flo@geekplace.eu\",\"hydrapolic@gmail.com\",\"kernel@gentoo.org\",\"mpagano@gentoo.org\"],\"id\":568212}]}"
+      string: '{"bugs":[{"id":541500,"blocks":[],"cc_detail":[{"real_name":"No maintainer
+        - Look at https://wiki.gentoo.org/wiki/Project:Proxy_Maintainers if you want
+        to take care of it","id":31762,"email":"maintainer-needed@gentoo.org","name":"maintainer-needed@gentoo.org"}],"cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7
+        amd64 ppc x86","component":"Vulnerabilities","cc":["maintainer-needed@gentoo.org"],"depends_on":[]},{"blocks":[],"id":560240,"component":"Stabilization","cf_stabilisation_atoms":"","cc_detail":[{"email":"amd64@gentoo.org","id":10249,"real_name":"AMD64
+        Project","name":"amd64@gentoo.org"},{"name":"arm@gentoo.org","email":"arm@gentoo.org","real_name":"Gentoo
+        ARM Porters","id":17102},{"email":"ia64@gentoo.org","real_name":"IA-64 team","id":11597,"name":"ia64@gentoo.org"},{"name":"ppc64@gentoo.org","id":17485,"email":"ppc64@gentoo.org","real_name":"ppc64
+        architecture team"},{"email":"ppc@gentoo.org","id":4125,"real_name":"PPC Porters","name":"ppc@gentoo.org"},{"id":16261,"real_name":"Gentoo
+        Developers for the x86 Architecture","email":"x86@gentoo.org","name":"x86@gentoo.org"}],"depends_on":[560242],"cc":["amd64@gentoo.org","arm@gentoo.org","ia64@gentoo.org","ppc64@gentoo.org","ppc@gentoo.org","x86@gentoo.org"]},{"depends_on":[],"cc":["arm@gentoo.org","hppa@gentoo.org","ia64@gentoo.org","ppc64@gentoo.org","sparc@gentoo.org","x86@gentoo.org"],"cc_detail":[{"name":"arm@gentoo.org","email":"arm@gentoo.org","id":17102,"real_name":"Gentoo
+        ARM Porters"},{"name":"hppa@gentoo.org","email":"hppa@gentoo.org","real_name":"HPPA
+        Porters","id":11016},{"id":11597,"real_name":"IA-64 team","email":"ia64@gentoo.org","name":"ia64@gentoo.org"},{"name":"ppc64@gentoo.org","email":"ppc64@gentoo.org","real_name":"ppc64
+        architecture team","id":17485},{"name":"sparc@gentoo.org","email":"sparc@gentoo.org","real_name":"Sparc
+        Porters","id":3398},{"name":"x86@gentoo.org","real_name":"Gentoo Developers
+        for the x86 Architecture","id":16261,"email":"x86@gentoo.org"}],"component":"Stabilization","cf_stabilisation_atoms":"=dev-libs/libebml-1.3.4    hppa
+        amd64\r\nmedia-plugins/vdr-beep-0.1.2 arm hppa","blocks":[560240],"id":560242},{"cc_detail":[{"name":"amd64@gentoo.org","email":"amd64@gentoo.org","id":10249,"real_name":"AMD64
+        Project"},{"name":"hppa@gentoo.org","email":"hppa@gentoo.org","real_name":"HPPA
+        Porters","id":11016}],"cc":["amd64@gentoo.org","hppa@gentoo.org"],"depends_on":[],"component":"Stabilization","cf_stabilisation_atoms":"","blocks":[],"id":560244},{"cf_stabilisation_atoms":"dev-python/pytest-5.4.1","component":"Stabilization","blocks":[],"id":560308,"depends_on":[560310],"cc":["amd64@gentoo.org","arm64@gentoo.org","arm@gentoo.org"],"cc_detail":[{"real_name":"AMD64
+        Project","email":"amd64@gentoo.org","id":10249,"name":"amd64@gentoo.org"},{"real_name":"ARM64
+        Project","id":90198,"email":"arm64@gentoo.org","name":"arm64@gentoo.org"},{"email":"arm@gentoo.org","id":17102,"real_name":"Gentoo
+        ARM Porters","name":"arm@gentoo.org"}]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -56,9 +45,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Sun, 22 Mar 2020 12:05:43 GMT
+      - Mon, 30 Mar 2020 05:46:41 GMT
       Etag:
-      - bUbHDTLhlAqHRAUsIayTbw
+      - G2ER2qOjFjkcHujcKmqrZQ
       Keep-Alive:
       - timeout=15, max=100
       Server:
