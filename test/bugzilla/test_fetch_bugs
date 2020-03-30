@@ -11,24 +11,26 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://bugstest.gentoo.org/rest/bug?id=560314%2C560312%2C560316&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=id&include_fields=product
+    uri: https://bugstest.gentoo.org/rest/bug?id=560314%2C560312%2C560316&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product
   response:
     body:
-      string: '{"bugs":[{"cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","blocks":[],"product":"Gentoo
-        Linux","depends_on":[500112],"cc":["hppa@gentoo.org","m68k@gentoo.org","prefix@gentoo.org","s390@gentoo.org","sh@gentoo.org","x86@gentoo.org"],"component":"Keywording","cc_detail":[{"id":11016,"email":"hppa@gentoo.org","real_name":"HPPA
-        Porters","name":"hppa@gentoo.org"},{"real_name":"m68k team","name":"m68k@gentoo.org","id":52674,"email":"m68k@gentoo.org"},{"real_name":"Gentoo
-        Prefix","name":"prefix@gentoo.org","email":"prefix@gentoo.org","id":62614},{"name":"s390@gentoo.org","real_name":"s390
-        team","email":"s390@gentoo.org","id":16257},{"email":"sh@gentoo.org","id":28276,"real_name":"Gentoo
-        SuperH Porters","name":"sh@gentoo.org"},{"name":"x86@gentoo.org","real_name":"Gentoo
-        Developers for the x86 Architecture","email":"x86@gentoo.org","id":16261}],"id":560312},{"blocks":[],"cf_stabilisation_atoms":"dev-python/mako-1.1.0","component":"Stabilization","cc":["m68k@gentoo.org","sh@gentoo.org"],"id":560314,"cc_detail":[{"email":"m68k@gentoo.org","id":52674,"real_name":"m68k
-        team","name":"m68k@gentoo.org"},{"name":"sh@gentoo.org","real_name":"Gentoo
-        SuperH Porters","id":28276,"email":"sh@gentoo.org"}],"product":"Gentoo Linux","depends_on":[]},{"blocks":[],"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","cc":["hppa@gentoo.org","m68k@gentoo.org","mips@gentoo.org","ppc64@gentoo.org","ppc@gentoo.org","s390@gentoo.org","sh@gentoo.org","sparc@gentoo.org"],"component":"Keywording","cc_detail":[{"name":"hppa@gentoo.org","real_name":"HPPA
-        Porters","id":11016,"email":"hppa@gentoo.org"},{"email":"m68k@gentoo.org","id":52674,"real_name":"m68k
-        team","name":"m68k@gentoo.org"},{"id":9770,"email":"mips@gentoo.org","real_name":"MIPS
-        Porters","name":"mips@gentoo.org"},{"real_name":"ppc64 architecture team","name":"ppc64@gentoo.org","email":"ppc64@gentoo.org","id":17485},{"id":4125,"email":"ppc@gentoo.org","real_name":"PPC
-        Porters","name":"ppc@gentoo.org"},{"real_name":"s390 team","name":"s390@gentoo.org","email":"s390@gentoo.org","id":16257},{"name":"sh@gentoo.org","real_name":"Gentoo
-        SuperH Porters","id":28276,"email":"sh@gentoo.org"},{"id":3398,"email":"sparc@gentoo.org","real_name":"Sparc
-        Porters","name":"sparc@gentoo.org"}],"id":560316,"product":"Gentoo Linux","depends_on":[]}]}'
+      string: '{"bugs":[{"cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","flags":[],"component":"Keywording","cc_detail":[{"id":11016,"real_name":"HPPA
+        Porters","email":"hppa@gentoo.org","name":"hppa@gentoo.org"},{"id":52674,"real_name":"m68k
+        team","name":"m68k@gentoo.org","email":"m68k@gentoo.org"},{"id":62614,"name":"prefix@gentoo.org","email":"prefix@gentoo.org","real_name":"Gentoo
+        Prefix"},{"id":16257,"real_name":"s390 team","name":"s390@gentoo.org","email":"s390@gentoo.org"},{"id":28276,"email":"sh@gentoo.org","name":"sh@gentoo.org","real_name":"Gentoo
+        SuperH Porters"},{"email":"x86@gentoo.org","name":"x86@gentoo.org","real_name":"Gentoo
+        Developers for the x86 Architecture","id":16261}],"id":560312,"depends_on":[500112],"cc":["hppa@gentoo.org","m68k@gentoo.org","prefix@gentoo.org","s390@gentoo.org","sh@gentoo.org","x86@gentoo.org"],"product":"Gentoo
+        Linux","blocks":[]},{"cf_stabilisation_atoms":"dev-python/mako-1.1.0","cc":["m68k@gentoo.org","sh@gentoo.org"],"depends_on":[],"cc_detail":[{"real_name":"m68k
+        team","name":"m68k@gentoo.org","email":"m68k@gentoo.org","id":52674},{"id":28276,"name":"sh@gentoo.org","email":"sh@gentoo.org","real_name":"Gentoo
+        SuperH Porters"}],"id":560314,"flags":[],"component":"Stabilization","blocks":[],"product":"Gentoo
+        Linux"},{"component":"Keywording","flags":[],"id":560316,"cc_detail":[{"id":11016,"name":"hppa@gentoo.org","email":"hppa@gentoo.org","real_name":"HPPA
+        Porters"},{"id":52674,"email":"m68k@gentoo.org","name":"m68k@gentoo.org","real_name":"m68k
+        team"},{"real_name":"MIPS Porters","email":"mips@gentoo.org","name":"mips@gentoo.org","id":9770},{"id":17485,"name":"ppc64@gentoo.org","email":"ppc64@gentoo.org","real_name":"ppc64
+        architecture team"},{"real_name":"PPC Porters","email":"ppc@gentoo.org","name":"ppc@gentoo.org","id":4125},{"id":16257,"real_name":"s390
+        team","name":"s390@gentoo.org","email":"s390@gentoo.org"},{"email":"sh@gentoo.org","name":"sh@gentoo.org","real_name":"Gentoo
+        SuperH Porters","id":28276},{"name":"sparc@gentoo.org","email":"sparc@gentoo.org","real_name":"Sparc
+        Porters","id":3398}],"depends_on":[],"cc":["hppa@gentoo.org","m68k@gentoo.org","mips@gentoo.org","ppc64@gentoo.org","ppc@gentoo.org","s390@gentoo.org","sh@gentoo.org","sparc@gentoo.org"],"product":"Gentoo
+        Linux","blocks":[],"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -41,9 +43,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Mon, 30 Mar 2020 06:15:36 GMT
+      - Mon, 30 Mar 2020 09:49:02 GMT
       Etag:
-      - peTUYjxIJgkyoOqNJttB2g
+      - P46sLpIG6Wj+teTZFkagDA
       Keep-Alive:
       - timeout=15, max=100
       Server:

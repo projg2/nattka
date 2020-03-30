@@ -53,14 +53,12 @@ class BugzillaTests(unittest.TestCase):
                                                           's390',
                                                           'sh',
                                                           'x86')],
-                             [500112],
-                             []),
+                             [500112], [], None),
              560314: BugInfo(BugCategory.STABLEREQ,
                              'dev-python/mako-1.1.0\r\n',
                              [f'{x}@gentoo.org' for x in ('m68k',
                                                           'sh')],
-                             [],
-                             []),
+                             [], [], None),
              560316: BugInfo(BugCategory.KEYWORDREQ,
                              'dev-python/urllib3-1.25.8\r\n'
                              'dev-python/trustme-0.6.0\r\n'
@@ -73,8 +71,7 @@ class BugzillaTests(unittest.TestCase):
                                                           's390',
                                                           'sh',
                                                           'sparc')],
-                             [],
-                             []),
+                             [], [], None),
             })
 
     @rec.use_cassette()
@@ -87,7 +84,7 @@ class BugzillaTests(unittest.TestCase):
                              '=dev-python/greenlet-0.4.11\r\n',
                              ['ia64@gentoo.org', 'ppc@gentoo.org',
                               'sparc@gentoo.org'],
-                             [], []),
+                             [], [], False),
              548352: BugInfo(BugCategory.KEYWORDREQ,
                              'dev-perl/Class-Load-0.230.0 ~amd64-linux ~arm64 ~m68k ~ppc-aix ~ppc-macos ~s390 ~sh ~x64-macos ~x86-fbsd ~x86-freebsd ~x86-linux ~x86-macos ~x86-solaris\r\n'
                              'dev-perl/Package-Stash-0.370.0 ~amd64-linux\r\n'
@@ -97,11 +94,11 @@ class BugzillaTests(unittest.TestCase):
                              ['arm64@gentoo.org', 'm68k@gentoo.org',
                               'prefix@gentoo.org', 's390@gentoo.org',
                               'sh@gentoo.org', 'sparc@gentoo.org'],
-                             [], []),
+                             [], [], True),
              560246: BugInfo(BugCategory.KEYWORDREQ,
                              '=media-libs/flac-1.3.2-r1\r\n',
                              ['alpha@gentoo.org', 'amd64@gentoo.org'],
-                             [], [])
+                             [], [], True)
             })
 
     @rec.use_cassette()
@@ -111,22 +108,22 @@ class BugzillaTests(unittest.TestCase):
             {541500: BugInfo(BugCategory.STABLEREQ,
                              'app-arch/arj-3.10.22-r7 amd64 ppc x86\r\n',
                              ['maintainer-needed@gentoo.org'],
-                             [], []),
+                             [], [], None),
              556804: BugInfo(BugCategory.STABLEREQ,
                              'sys-kernel/gentoo-sources-4.1.6\r\n',
-                             [], [], []),
+                             [], [], [], None),
              560242: BugInfo(BugCategory.STABLEREQ,
                              '=dev-libs/libebml-1.3.4    hppa amd64\r\n'
                              'media-plugins/vdr-beep-0.1.2 arm hppa\r\n',
                              ['arm@gentoo.org', 'hppa@gentoo.org',
                               'ia64@gentoo.org', 'ppc64@gentoo.org',
                               'sparc@gentoo.org', 'x86@gentoo.org'],
-                             [], [560240]),
+                             [], [560240], False),
              560308: BugInfo(BugCategory.STABLEREQ,
                              'dev-python/pytest-5.4.1\r\n',
                              ['amd64@gentoo.org', 'arm64@gentoo.org',
                               'arm@gentoo.org'],
-                             [560310], [])
+                             [560310], [], True)
             })
 
 
@@ -137,14 +134,15 @@ class BugInfoCombinerTest(unittest.TestCase):
             get_combined_buginfo(
                 {1: BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n',
                             ['amd64@gentoo.org', 'x86@gentoo.org'],
-                            [2], []),
+                            [2], [], True),
                  2: BugInfo('Stabilization', 'test/bar-2 x86\r\n',
                             ['x86@gentoo.org'],
-                            [], [1])
+                            [], [1], True)
                 }, 1),
             BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n'
                                      'test/bar-2 x86\r\n',
-                    ['amd64@gentoo.org', 'x86@gentoo.org'], [], []))
+                    ['amd64@gentoo.org', 'x86@gentoo.org'], [], [],
+                    True))
 
     def test_combine_with_blocker(self):
         """ Test combining stabilization blocked by a regular bug. """
@@ -152,14 +150,15 @@ class BugInfoCombinerTest(unittest.TestCase):
             get_combined_buginfo(
                 {1: BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n',
                             ['amd64@gentoo.org', 'x86@gentoo.org'],
-                            [2, 3], []),
+                            [2, 3], [], True),
                  2: BugInfo('Stabilization', 'test/bar-2 x86\r\n',
                             ['x86@gentoo.org'],
-                            [3, 4], [1])
+                            [3, 4], [1], True)
                 }, 1),
             BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n'
                                      'test/bar-2 x86\r\n',
-                    ['amd64@gentoo.org', 'x86@gentoo.org'], [3, 4], []))
+                    ['amd64@gentoo.org', 'x86@gentoo.org'], [3, 4], [],
+                    True))
 
     def test_combine_keywordreq_stablereq(self):
         """ Test combining keywordreq & stablereq. """
@@ -167,13 +166,14 @@ class BugInfoCombinerTest(unittest.TestCase):
             get_combined_buginfo(
                 {1: BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n',
                             ['amd64@gentoo.org', 'x86@gentoo.org'],
-                            [2], []),
+                            [2], [], True),
                  2: BugInfo('Keywording', 'test/foo-1 x86\r\n',
                             ['x86@gentoo.org'],
-                            [], [1])
+                            [], [1], True)
                 }, 1),
             BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n',
-                    ['amd64@gentoo.org', 'x86@gentoo.org'], [2], []))
+                    ['amd64@gentoo.org', 'x86@gentoo.org'], [2], [],
+                    True))
 
 
 class KeywordFillerTest(unittest.TestCase):
@@ -183,9 +183,11 @@ class KeywordFillerTest(unittest.TestCase):
                 BugInfo('Stabilization', 'test/foo-1 x86\r\n'
                                          'test/bar-2\r\n'
                                          'test/bar-3 \r\n',
-                        ['amd64@gentoo.org', 'x86@gentoo.org'], [], []),
+                        ['amd64@gentoo.org', 'x86@gentoo.org'], [], [],
+                        None),
                 ['amd64', 'arm64', 'x86']),
             BugInfo('Stabilization', 'test/foo-1 x86\r\n'
                                      'test/bar-2 amd64 x86\r\n'
                                      'test/bar-3  amd64 x86\r\n',
-                    ['amd64@gentoo.org', 'x86@gentoo.org'], [], []))
+                    ['amd64@gentoo.org', 'x86@gentoo.org'], [], [],
+                    None))

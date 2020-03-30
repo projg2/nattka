@@ -11,24 +11,25 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://bugstest.gentoo.org/rest/bug?component=Keywording&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=id&include_fields=product&limit=3&product=Gentoo+Linux&resolution=---
+    uri: https://bugstest.gentoo.org/rest/bug?component=Keywording&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&limit=3&product=Gentoo+Linux&resolution=---
   response:
     body:
-      string: '{"bugs":[{"product":"Gentoo Linux","id":538510,"cc_detail":[{"name":"ia64@gentoo.org","id":11597,"email":"ia64@gentoo.org","real_name":"IA-64
-        team"},{"name":"ppc@gentoo.org","id":4125,"real_name":"PPC Porters","email":"ppc@gentoo.org"},{"real_name":"Sparc
-        Porters","email":"sparc@gentoo.org","id":3398,"name":"sparc@gentoo.org"}],"blocks":[],"component":"Keywording","depends_on":[],"cf_stabilisation_atoms":"=dev-python/pyzor-1.0.0
-        \r\n=dev-python/gevent-1.0.1\r\n=dev-python/greenlet-0.4.11","cc":["ia64@gentoo.org","ppc@gentoo.org","sparc@gentoo.org"]},{"cc":["arm64@gentoo.org","m68k@gentoo.org","prefix@gentoo.org","s390@gentoo.org","sh@gentoo.org","sparc@gentoo.org"],"depends_on":[],"cf_stabilisation_atoms":"dev-perl/Class-Load-0.230.0
+      string: '{"bugs":[{"product":"Gentoo Linux","id":538510,"cc":["ia64@gentoo.org","ppc@gentoo.org","sparc@gentoo.org"],"flags":[{"setter":"kensington@gentoo.org","type_id":16,"status":"-","id":422,"creation_date":"2017-01-06T15:36:48Z","modification_date":"2017-01-06T15:36:48Z","name":"sanity-check"}],"cc_detail":[{"name":"ia64@gentoo.org","real_name":"IA-64
+        team","id":11597,"email":"ia64@gentoo.org"},{"email":"ppc@gentoo.org","id":4125,"name":"ppc@gentoo.org","real_name":"PPC
+        Porters"},{"real_name":"Sparc Porters","name":"sparc@gentoo.org","email":"sparc@gentoo.org","id":3398}],"blocks":[],"component":"Keywording","cf_stabilisation_atoms":"=dev-python/pyzor-1.0.0
+        \r\n=dev-python/gevent-1.0.1\r\n=dev-python/greenlet-0.4.11","depends_on":[]},{"flags":[{"modification_date":"2017-01-06T16:19:33Z","name":"sanity-check","creation_date":"2017-01-06T16:19:33Z","type_id":16,"id":434,"setter":"kensington@gentoo.org","status":"+"}],"cc_detail":[{"id":90198,"email":"arm64@gentoo.org","name":"arm64@gentoo.org","real_name":"ARM64
+        Project"},{"id":52674,"email":"m68k@gentoo.org","real_name":"m68k team","name":"m68k@gentoo.org"},{"real_name":"Gentoo
+        Prefix","name":"prefix@gentoo.org","id":62614,"email":"prefix@gentoo.org"},{"name":"s390@gentoo.org","real_name":"s390
+        team","email":"s390@gentoo.org","id":16257},{"real_name":"Gentoo SuperH Porters","name":"sh@gentoo.org","email":"sh@gentoo.org","id":28276},{"real_name":"Sparc
+        Porters","name":"sparc@gentoo.org","id":3398,"email":"sparc@gentoo.org"}],"depends_on":[],"cf_stabilisation_atoms":"dev-perl/Class-Load-0.230.0
         ~amd64-linux ~arm64 ~m68k ~ppc-aix ~ppc-macos ~s390 ~sh ~x64-macos ~x86-fbsd
         ~x86-freebsd ~x86-linux ~x86-macos ~x86-solaris\r\ndev-perl/Package-Stash-0.370.0
         ~amd64-linux\r\ndev-perl/Dist-CheckConflicts-0.110.0 ~amd64-linux\r\ndev-perl/Package-Stash-XS-0.280.0
-        ~amd64-linux\r\ndev-perl/Test-Requires-0.100.0 ~ppc-aix","component":"Keywording","blocks":[],"product":"Gentoo
-        Linux","cc_detail":[{"name":"arm64@gentoo.org","id":90198,"email":"arm64@gentoo.org","real_name":"ARM64
-        Project"},{"email":"m68k@gentoo.org","real_name":"m68k team","id":52674,"name":"m68k@gentoo.org"},{"id":62614,"name":"prefix@gentoo.org","email":"prefix@gentoo.org","real_name":"Gentoo
-        Prefix"},{"id":16257,"name":"s390@gentoo.org","real_name":"s390 team","email":"s390@gentoo.org"},{"real_name":"Gentoo
-        SuperH Porters","email":"sh@gentoo.org","name":"sh@gentoo.org","id":28276},{"id":3398,"name":"sparc@gentoo.org","real_name":"Sparc
-        Porters","email":"sparc@gentoo.org"}],"id":548352},{"product":"Gentoo Linux","cc_detail":[{"name":"alpha@gentoo.org","id":4124,"real_name":"Alpha
-        Porters","email":"alpha@gentoo.org"},{"id":10249,"name":"amd64@gentoo.org","email":"amd64@gentoo.org","real_name":"AMD64
-        Project"}],"id":560246,"blocks":[],"component":"Keywording","depends_on":[],"cf_stabilisation_atoms":"=media-libs/flac-1.3.2-r1","cc":["alpha@gentoo.org","amd64@gentoo.org"]}]}'
+        ~amd64-linux\r\ndev-perl/Test-Requires-0.100.0 ~ppc-aix","blocks":[],"component":"Keywording","id":548352,"product":"Gentoo
+        Linux","cc":["arm64@gentoo.org","m68k@gentoo.org","prefix@gentoo.org","s390@gentoo.org","sh@gentoo.org","sparc@gentoo.org"]},{"cc":["alpha@gentoo.org","amd64@gentoo.org"],"id":560246,"product":"Gentoo
+        Linux","depends_on":[],"blocks":[],"cf_stabilisation_atoms":"=media-libs/flac-1.3.2-r1","component":"Keywording","flags":[{"type_id":16,"modification_date":"2017-01-13T19:11:53Z","name":"sanity-check","creation_date":"2017-01-13T19:11:07Z","setter":"kensington@gentoo.org","status":"+","id":436}],"cc_detail":[{"real_name":"Alpha
+        Porters","name":"alpha@gentoo.org","id":4124,"email":"alpha@gentoo.org"},{"id":10249,"email":"amd64@gentoo.org","name":"amd64@gentoo.org","real_name":"AMD64
+        Project"}]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -41,9 +42,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Mon, 30 Mar 2020 06:15:39 GMT
+      - Mon, 30 Mar 2020 09:49:04 GMT
       Etag:
-      - UL7esMaFfr6CnXrazjvMdQ
+      - i7LHxzaMCB+2j0QLa2RHfw
       Keep-Alive:
       - timeout=15, max=100
       Server:

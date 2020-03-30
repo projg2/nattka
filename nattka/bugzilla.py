@@ -16,6 +16,7 @@ INCLUDE_BUG_FIELDS = (
     'cc',
     'depends_on',
     'blocks',
+    'flags',
 )
 
 
@@ -65,13 +66,23 @@ class BugInfo(typing.NamedTuple):
     cc: typing.List[str]
     depends: typing.List[int]
     blocks: typing.List[int]
+    sanity_check: typing.Optional[bool]
 
 
 def make_bug_info(bug: typing.Dict[str, typing.Any]) -> BugInfo:
     bcat = BugCategory.from_product_component(bug['product'],
                                               bug['component'])
     atoms = bug['cf_stabilisation_atoms'] + '\r\n'
-    return BugInfo(bcat, atoms, bug['cc'], bug['depends_on'], bug['blocks'])
+    sanity_check = None
+    for f in bug['flags']:
+        if f['name'] == 'sanity-check':
+            if f['status'] == '+':
+                sanity_check = True
+            elif f['status'] == '-':
+                sanity_check = False
+
+    return BugInfo(bcat, atoms, bug['cc'], bug['depends_on'],
+                   bug['blocks'], sanity_check)
 
 
 class NattkaBugzilla(object):
@@ -162,7 +173,7 @@ def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo], bugno: int
         i += 1
 
     return BugInfo(topbug.category, atoms, topbug.cc, sorted(deps),
-                   topbug.blocks)
+                   topbug.blocks, topbug.sanity_check)
 
 
 def fill_keywords_from_cc(bug: BugInfo, known_arches: typing.Iterable[str]
@@ -185,4 +196,5 @@ def fill_keywords_from_cc(bug: BugInfo, known_arches: typing.Iterable[str]
             l += f' {" ".join(arches)}'
         ret += f'{l}\r\n'
 
-    return BugInfo(bug.category, ret, bug.cc, bug.depends, bug.blocks)
+    return BugInfo(bug.category, ret, bug.cc, bug.depends, bug.blocks,
+                   bug.sanity_check)
