@@ -56,6 +56,7 @@ class NattkaCommands(object):
             raise SystemExit(1)
 
         bz = self.get_bugzilla()
+        username = bz.whoami()
         bugs = bz.find_bugs(None)
         for bno, b in bugs.items():
             bugs[bno] = fill_keywords_from_cc(b, repo.known_arches)
@@ -82,12 +83,33 @@ class NattkaCommands(object):
                             check_res, issues = check_dependencies(
                                     repo, plist.items())
                             if check_res:
+                                # if nothing changed, do nothing
+                                if b.sanity_check is True:
+                                    log.info('Still good')
+                                    continue
+
+                                # otherwise, update the bug status
                                 log.info('All good')
+                                # if it was bad before, leave a comment
+                                if b.sanity_check is False:
+                                    comment = 'All sanity-check issues have been resolved'
+                                else:
+                                    comment = None
                             else:
-                                log.warning('Issues found:')
-                                for i in issues:
-                                    # TODO
-                                    log.warning(i)
+                                issues = sorted(str(x) for x in issues)
+                                comment = ('Sanity check failed:\n\n'
+                                    + '\n'.join(f'> {x}' for x in issues))
+                                # verify whether anything changed since last run
+                                if b.sanity_check is False:
+                                    old_comment = bz.get_latest_comment(
+                                        bno, username)
+                                    # do not add a second identical comment
+                                    if comment.strip() == old_comment.strip():
+                                        log.info('Still fails')
+                                        continue
+                                log.info('New failures')
+                            bz.update_status(bno, check_res, comment)
+                            log.info('Bug status updated')
                 except Exception as e:
                     log.error('TODO: handle exception {} {}'.format(e.__class__, e))
         except GitDirtyWorkTree:
