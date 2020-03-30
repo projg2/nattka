@@ -16,7 +16,7 @@ API_ENDPOINT = 'https://bugstest.gentoo.org/rest'
 API_AUTH = os.environ.get('TEST_SERVER_AUTH')
 API_KEY = os.environ.get('TEST_API_KEY')
 
-if API_AUTH is not None: # and API_KEY is not None:
+if API_AUTH is not None and API_KEY is not None:
     API_AUTH = tuple(API_AUTH.split(':'))
     assert len(API_AUTH) == 2
     RECORD_MODE = 'once'
