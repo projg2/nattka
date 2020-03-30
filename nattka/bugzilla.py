@@ -1,7 +1,6 @@
 """ Bugzilla support. """
 
 import enum
-import json
 import typing
 
 import requests
