@@ -5,6 +5,8 @@ import logging
 import os.path
 import sys
 
+from pkgcore.util.parserestrict import ParseError
+
 from nattka.bugzilla import (NattkaBugzilla, BugCategory,
                              get_combined_buginfo,
                              fill_keywords_from_cc)
@@ -99,20 +101,28 @@ class NattkaCommands(object):
                                 issues = sorted(str(x) for x in issues)
                                 comment = ('Sanity check failed:\n\n'
                                     + '\n'.join(f'> {x}' for x in issues))
-                                # verify whether anything changed since last run
-                                if b.sanity_check is False:
-                                    old_comment = bz.get_latest_comment(
-                                        bno, username)
-                                    # do not add a second identical comment
-                                    if comment.strip() == old_comment.strip():
-                                        log.info('Still fails')
-                                        continue
-                                log.info('New failures')
-                            if not self.args.no_update:
-                                bz.update_status(bno, check_res, comment)
-                                log.info('Bug status updated')
+                                log.info('Sanity check failed')
+                except ParseError as e:
+                    log.error(e)
+                    check_res = False
+                    comment = f'Unable to check for sanity:\n\n> {e}'
                 except Exception as e:
                     log.error('TODO: handle exception {} {}'.format(e.__class__, e))
+                    continue
+
+                # for negative results, we verify whether the comment
+                # needs to change
+                if not check_res and b.sanity_check is False:
+                    old_comment = bz.get_latest_comment(bno, username)
+                    # do not add a second identical comment
+                    if (old_comment is not None and comment.strip() ==
+                                                    old_comment.strip()):
+                        log.info('Failure reported already')
+                        continue
+
+                if not self.args.no_update:
+                    bz.update_status(bno, check_res, comment)
+                    log.info('Bug status updated')
         except GitDirtyWorkTree:
             log.error('{}: working tree is dirty'.format(git_repo))
             raise SystemExit(1)
