@@ -15,7 +15,7 @@ from nattka.bugzilla import (NattkaBugzilla, BugCategory, BugInfo,
 API_ENDPOINT = 'https://bugstest.gentoo.org/rest'
 # auth data is used only for the initial recording
 API_AUTH_S = os.environ.get('TEST_SERVER_AUTH')
-API_AUTH: typing.Optional[tuple] = None
+API_AUTH: typing.Optional[typing.Iterable[str]] = None
 API_KEY = os.environ.get('TEST_API_KEY')
 BUGZILLA_USERNAME = 'mgorny+nattka' + '@gentoo.org'
 
