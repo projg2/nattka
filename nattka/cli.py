@@ -108,8 +108,9 @@ class NattkaCommands(object):
                                         log.info('Still fails')
                                         continue
                                 log.info('New failures')
-                            bz.update_status(bno, check_res, comment)
-                            log.info('Bug status updated')
+                            if not self.args.no_update:
+                                bz.update_status(bno, check_res, comment)
+                                log.info('Bug status updated')
                 except Exception as e:
                     log.error('TODO: handle exception {} {}'.format(e.__class__, e))
         except GitDirtyWorkTree:
@@ -138,6 +139,9 @@ def main(argv):
     prop = subp.add_parser('process-bugs',
                            help='Process all open bugs -- apply '
                                 'keywords, test, report results')
+    prop.add_argument('-n', '--no-update', action='store_true',
+                      help='Do not commit updates to the bugs, only '
+                           'check them and report what would be done')
 
     args = argp.parse_args(argv)
     cmd = NattkaCommands(args)
