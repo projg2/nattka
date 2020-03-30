@@ -41,6 +41,11 @@ class BugzillaTests(unittest.TestCase):
         self.bz = NattkaBugzilla(API_KEY, API_ENDPOINT, API_AUTH)
 
     @rec.use_cassette()
+    def test_whoami(self):
+        """ Test whoami(). """
+        self.assertEqual(self.bz.whoami(), BUGZILLA_USERNAME)
+
+    @rec.use_cassette()
     def test_fetch_bugs(self):
         """ Test getting simple bugs. """
         self.assertEqual(

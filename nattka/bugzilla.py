@@ -116,6 +116,12 @@ class NattkaBugzilla(object):
         ret.raise_for_status()
         return ret
 
+    def whoami(self) -> str:
+        """
+        Return username for the current Bugzilla user.
+        """
+        return self._request('whoami').json()['name']
+
     def fetch_package_list(self, bugs: typing.Iterable[int]
             ) -> typing.Dict[int, BugInfo]:
         """
