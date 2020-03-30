@@ -9,7 +9,7 @@ import unittest
 from pkgcore.util import parserestrict
 
 from nattka.package import (match_package_list, add_keywords,
-                            check_dependencies, fill_keywords)
+                            check_dependencies)
 
 from test import get_test_repo
 
