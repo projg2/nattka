@@ -26,7 +26,7 @@ class BugCategory(enum.Enum):
     def from_component(cls, component):
         if component in ('Keywording',):
             return cls.KEYWORDREQ
-        elif component in ('Stabilization', 'Vulnerabilities'):
+        elif component in ('Stabilization', 'Vulnerabilities', 'Kernel'):
             return cls.STABLEREQ
         else:
             return None
@@ -36,9 +36,10 @@ class BugCategory(enum.Enum):
         if val == cls.KEYWORDREQ:
             return ['Keywording']
         elif val == cls.STABLEREQ:
-            return ['Stabilization', 'Vulnerabilities']
+            return ['Stabilization', 'Vulnerabilities', 'Kernel']
         else:
-            return ['Keywording', 'Stabilization', 'Vulnerabilities']
+            return ['Keywording', 'Stabilization', 'Vulnerabilities',
+                    'Kernel']
 
 
 class BugInfo(typing.NamedTuple):

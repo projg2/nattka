@@ -107,11 +107,14 @@ class BugzillaTests(unittest.TestCase):
     @rec.use_cassette()
     def test_find_stablereqs(self):
         """ Test finding stablereqs. """
-        self.assertEqual(self.bz.find_bugs(BugCategory.STABLEREQ, limit=5),
+        self.assertEqual(self.bz.find_bugs(BugCategory.STABLEREQ, limit=6),
             {541500: BugInfo(BugCategory.STABLEREQ,
                              'app-arch/arj-3.10.22-r7 amd64 ppc x86\r\n',
                              ['maintainer-needed@gentoo.org'],
                              [], []),
+             556804: BugInfo(BugCategory.STABLEREQ,
+                             'sys-kernel/gentoo-sources-4.1.6\r\n',
+                             [], [], []),
              560242: BugInfo(BugCategory.STABLEREQ,
                              '=dev-libs/libebml-1.3.4    hppa amd64\r\n'
                              'media-plugins/vdr-beep-0.1.2 arm hppa\r\n',
