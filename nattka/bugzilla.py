@@ -61,7 +61,7 @@ class BugCategory(enum.Enum):
 
 
 class BugInfo(typing.NamedTuple):
-    category: BugCategory
+    category: typing.Optional[BugCategory]
     atoms: str
     cc: typing.List[str]
     depends: typing.List[int]
