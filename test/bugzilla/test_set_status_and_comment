@@ -1,0 +1,105 @@
+interactions:
+- request:
+    body: '{"ids": [560310], "flags": [{"name": "sanity-check", "status": "-"}], "comment":
+      {"body": "sanity check failed\r\n"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '117'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.23.0
+    method: PUT
+    uri: https://bugstest.gentoo.org/rest/bug/560310
+  response:
+    body:
+      string: '{"bugs":[{"id":560310,"alias":[],"last_change_time":"2020-03-30T09:54:08Z","changes":{}}]}'
+    headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
+      Date:
+      - Mon, 30 Mar 2020 09:54:06 GMT
+      Etag:
+      - 3ejrroqmJi0PlqGHHL1rWA
+      Keep-Alive:
+      - timeout=15, max=100
+      Server:
+      - Apache
+      Strict-transport-security:
+      - max-age=15768000; includeSubDomains
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
+      - nosniff
+      X-frame-options:
+      - SAMEORIGIN
+      X-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: GET
+    uri: https://bugstest.gentoo.org/rest/bug?id=560310&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product
+  response:
+    body:
+      string: '{"bugs":[{"blocks":[560308],"cf_stabilisation_atoms":"dev-python/xmlschema-1.1.2
+        amd64 arm64 arm\r\ndev-python/elementpath-1.4.3 amd64 arm64 arm","component":"Stabilization","product":"Gentoo
+        Linux","flags":[{"id":440,"modification_date":"2020-03-30T09:42:52Z","creation_date":"2020-03-30T09:35:45Z","name":"sanity-check","type_id":16,"status":"-","setter":"mgorny@gentoo.org"}],"cc":[],"depends_on":[],"cc_detail":[],"id":560310}]}'
+    headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
+      Date:
+      - Mon, 30 Mar 2020 09:54:08 GMT
+      Etag:
+      - dvcnx923PrZwKr7eu21m5Q
+      Keep-Alive:
+      - timeout=15, max=99
+      Server:
+      - Apache
+      Strict-transport-security:
+      - max-age=15768000; includeSubDomains
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
+      - nosniff
+      X-frame-options:
+      - SAMEORIGIN
+      X-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

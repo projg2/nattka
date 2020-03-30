@@ -126,6 +126,24 @@ class BugzillaTests(unittest.TestCase):
                              [560310], [], True)
             })
 
+    @rec.use_cassette()
+    def test_set_status(self):
+        """ Test setting sanity-check status. """
+        self.bz.update_status(560308, True)
+        self.assertEqual(
+            self.bz.fetch_package_list([560308])[560308].sanity_check,
+            True)
+
+    @rec.use_cassette()
+    def test_set_status_and_comment(self):
+        """ Test setting sanity-check status and commenting. """
+        self.bz.update_status(560310, False,
+            'sanity check failed\r\n')
+        self.assertEqual(
+            self.bz.fetch_package_list([560310])[560310].sanity_check,
+            False)
+        # TODO: check comment?
+
 
 class BugInfoCombinerTest(unittest.TestCase):
     def test_combine_bugs(self):

@@ -1,6 +1,7 @@
 """ Bugzilla support. """
 
 import enum
+import json
 import typing
 
 import requests
@@ -104,6 +105,17 @@ class NattkaBugzilla(object):
         ret.raise_for_status()
         return ret
 
+    def _request_put(self, endpoint: str, data: dict) -> requests.Response:
+        data = dict(data)
+        ret = self.session.put(self.api_url + '/' + endpoint,
+                               auth=self.auth,
+                               json=data,
+                               params={
+                                   'Bugzilla_api_key': self.api_key,
+                               })
+        ret.raise_for_status()
+        return ret
+
     def fetch_package_list(self, bugs: typing.Iterable[int]
             ) -> typing.Dict[int, BugInfo]:
         """
@@ -147,6 +159,30 @@ class NattkaBugzilla(object):
                 continue
             ret[b['id']] = make_bug_info(b)
         return ret
+
+    def update_status(self, bugno: int, status: bool, comment: str = None):
+        """
+        Update the sanity-check status of bug @bugno.  @status specifies
+        the new status, @comment is an optional comment to add.
+        """
+
+        req = {
+            'ids': [bugno],
+            'flags': [
+                {
+                    'name': 'sanity-check',
+                    'status': '+' if status else '-',
+                },
+            ],
+        }
+
+        if comment is not None:
+            req['comment'] = {
+                'body': comment,
+            }
+
+        resp = self._request_put(f'bug/{bugno}', data=req).json()
+        assert resp['bugs'][0]['id'] == bugno
 
 
 def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo], bugno: int
