@@ -95,10 +95,10 @@ class NattkaBugzilla(object):
         self.session = requests.Session()
 
     def _request(self, endpoint: str, params: typing.Mapping[str,
-            typing.Union[typing.Iterable[str], str]]) -> requests.Response:
+            typing.Union[typing.Iterable[str], str]] = {}
+            ) -> requests.Response:
         params = dict(params)
         params['Bugzilla_api_key'] = self.api_key
-        params['include_fields'] = INCLUDE_BUG_FIELDS
         ret = self.session.get(self.api_url + '/' + endpoint,
                                auth=self.auth,
                                params=params)
@@ -125,7 +125,8 @@ class NattkaBugzilla(object):
 
         resp = self._request('bug',
                              params={
-                                 'id': ','.join(str(x) for x in bugs)
+                                 'id': ','.join(str(x) for x in bugs),
+                                 'include_fields': INCLUDE_BUG_FIELDS,
                              }).json()
 
         ret = {}
@@ -145,6 +146,7 @@ class NattkaBugzilla(object):
             'product': product,
             'component': component,
             'resolution': '---',
+            'include_fields': INCLUDE_BUG_FIELDS,
         }
         if limit is not None:
             search_params['limit'] = str(limit)
@@ -159,6 +161,19 @@ class NattkaBugzilla(object):
                 continue
             ret[b['id']] = make_bug_info(b)
         return ret
+
+    def get_latest_comment(self, bugno: int, username: str
+            ) -> typing.Optional[str]:
+        """
+        Get the latest comment left by @username on bug @bugno.
+        Returns comment's text or None, if no matching comments found.
+        """
+
+        resp = self._request(f'bug/{bugno}/comment').json()
+        for c in reversed(resp['bugs'][str(bugno)]['comments']):
+            if c['creator'] == username:
+                return c['text']
+        return None
 
     def update_status(self, bugno: int, status: bool, comment: str = None):
         """

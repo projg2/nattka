@@ -15,6 +15,7 @@ API_ENDPOINT = 'https://bugstest.gentoo.org/rest'
 # auth data is used only for the initial recording
 API_AUTH = os.environ.get('TEST_SERVER_AUTH')
 API_KEY = os.environ.get('TEST_API_KEY')
+BUGZILLA_USERNAME = 'mgorny+nattka' + '@gentoo.org'
 
 if API_AUTH is not None and API_KEY is not None:
     API_AUTH = tuple(API_AUTH.split(':'))
@@ -127,6 +128,13 @@ class BugzillaTests(unittest.TestCase):
             })
 
     @rec.use_cassette()
+    def test_get_latest_comment(self):
+        """ Test getting latest self-comment. """
+        self.assertEqual(
+            self.bz.get_latest_comment(560310, BUGZILLA_USERNAME).strip(),
+            'sanity check failed!')
+
+    @rec.use_cassette()
     def test_set_status(self):
         """ Test setting sanity-check status. """
         self.bz.update_status(560308, True)
@@ -138,11 +146,13 @@ class BugzillaTests(unittest.TestCase):
     def test_set_status_and_comment(self):
         """ Test setting sanity-check status and commenting. """
         self.bz.update_status(560310, False,
-            'sanity check failed\r\n')
+            'sanity check failed!\r\n')
         self.assertEqual(
             self.bz.fetch_package_list([560310])[560310].sanity_check,
             False)
-        # TODO: check comment?
+        self.assertEqual(
+            self.bz.get_latest_comment(560310, BUGZILLA_USERNAME).strip(),
+            'sanity check failed!')
 
 
 class BugInfoCombinerTest(unittest.TestCase):
