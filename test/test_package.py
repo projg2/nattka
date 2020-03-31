@@ -11,7 +11,7 @@ from pkgcore.util import parserestrict
 
 from nattka.package import (match_package_list, add_keywords,
                             check_dependencies, PackageNoMatch,
-                            KeywordNoMatch)
+                            KeywordNoMatch, PackageInvalid)
 
 from test import get_test_repo
 
@@ -48,6 +48,18 @@ class PackageMatcherTests(BaseRepoTestCase):
                 (self.ebuild_path('test', 'amd64-stable-hppa-testing', '1'), []),
             ])
 
+    def test_versioned_package_list_equals(self):
+        """ Test versioned package lists using = syntax. """
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, '''
+                    test/amd64-testing-1
+                    =test/amd64-testing-2
+                '''))), [
+                (self.ebuild_path('test', 'amd64-testing', '1'), []),
+                (self.ebuild_path('test', 'amd64-testing', '2'), []),
+            ])
+
     def test_versioned_package_list_with_keywords(self):
         """ Test versioned package lists with keywords. """
         self.assertEqual(
@@ -64,6 +76,62 @@ class PackageMatcherTests(BaseRepoTestCase):
                 (self.ebuild_path('test', 'amd64-stable-hppa-testing', '1'),
                  []),
             ])
+
+    def test_invalid_spec(self):
+        """ Test package list containing invalid dependency spec. """
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        <>test/amd64-testing-2 amd64 hppa
+                    '''):
+                pass
+
+    def test_noequals_spec(self):
+        """ Test package list containing dependency spec other than =. """
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        >=test/amd64-testing-2 amd64 hppa
+                    '''):
+                pass
+
+    def test_equals_wildcard_spec(self):
+        """ Test package list containing =...* spec. """
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        =test/amd64-testing-2* amd64 hppa
+                    '''):
+                pass
+
+    def test_pure_catpkg_spec(self):
+        """
+        Test package list containing just the category and package name.
+        """
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        test/amd64-testing amd64 hppa
+                    '''):
+                pass
+
+    def test_pure_package_spec(self):
+        """ Test package list containing just the package name. """
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        amd64-testing amd64 hppa
+                    '''):
+                pass
+
+    def test_wildcard_package_spec(self):
+        """ Test package list using wildcards. """
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        test/amd64-* amd64 hppa
+                    '''):
+                pass
 
     def test_no_match(self):
         """ Test package list containing package with no matches. """

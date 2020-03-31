@@ -12,8 +12,9 @@ import pkgcore.ebuild.ebuild_src
 
 from gentoolkit.ekeyword import ekeyword
 from pkgcore.config import load_config
+from pkgcore.ebuild.atom import atom
 from pkgcore.ebuild.repository import UnconfiguredTree
-from pkgcore.util import parserestrict
+from pkgcore.util.parserestrict import parse_match, ParseError
 
 
 class PackageKeywords(typing.NamedTuple):
@@ -31,6 +32,10 @@ class PackageNoMatch(Exception):
 
 
 class KeywordNoMatch(Exception):
+    pass
+
+
+class PackageInvalid(Exception):
     pass
 
 
@@ -64,7 +69,23 @@ def match_package_list(repo: UnconfiguredTree, package_list: str
         if unknown_keywords:
             raise KeywordNoMatch(
                 f'incorrect keywords: {" ".join(unknown_keywords)}')
-        m = repo.match(parserestrict.parse_match('=' + sl[0].strip()))
+
+        dep = None
+        for sdep in (f'={sl[0].strip()}', sl[0].strip()):
+            try:
+                dep = parse_match(sdep)
+                break
+            except ParseError:
+                pass
+
+        if dep is None or not isinstance(dep, atom):
+            raise PackageInvalid(
+                f'invalid package spec: {sdep}')
+        if dep.op != '=':
+            raise PackageInvalid(
+                f'disallowed package spec (only = allowed): {dep}')
+
+        m = repo.match(dep)
         if not m:
             raise PackageNoMatch(
                 f'no match for package: {sl[0]}')

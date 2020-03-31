@@ -8,7 +8,6 @@ import typing
 from pathlib import Path
 
 from pkgcore.ebuild.repository import UnconfiguredTree
-from pkgcore.util.parserestrict import ParseError
 
 from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
                              get_combined_buginfo,
@@ -16,7 +15,8 @@ from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
 from nattka.git import GitWorkTree, GitDirtyWorkTree
 from nattka.package import (find_repository, match_package_list,
                             add_keywords, check_dependencies,
-                            PackageNoMatch, KeywordNoMatch)
+                            PackageNoMatch, KeywordNoMatch,
+                            PackageInvalid)
 
 
 log = logging.getLogger('nattka')
@@ -146,7 +146,7 @@ class NattkaCommands(object):
                                 comment = ('Sanity check failed:\n\n'
                                     + '\n'.join(f'> {x}' for x in issues))
                                 log.info('Sanity check failed')
-                except (ParseError, PackageNoMatch, KeywordNoMatch) as e:
+                except (PackageInvalid, PackageNoMatch, KeywordNoMatch) as e:
                     log.error(e)
                     check_res = False
                     comment = f'Unable to check for sanity:\n\n> {e}'
