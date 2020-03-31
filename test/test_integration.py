@@ -54,6 +54,92 @@ class IntegrationTestCase(object):
         return pkg[0]
 
 
+class IntegrationNoActionTestCase(IntegrationTestCase,
+                                  metaclass=abc.ABCMeta):
+    """
+    Test case for a bug that can not be processed.
+    """
+
+    @abc.abstractmethod
+    def bug_preset(self, bugz: MagicMock, initial_status: bool = None
+            ) -> MagicMock:
+        """ Preset bugzilla mock. """
+        pass
+
+    @abc.abstractproperty
+    def reset_msg(self):
+        """ Expected reset message. """
+        pass
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_empty_keywords(self, bugz, add_keywords):
+        """
+        Test skipping a bug with no keywords in package list, and no
+        arches CC-ed.
+        """
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
+        bugz_inst.update_status.assert_not_called()
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_empty_keywords_on_checked_bug_n(self, bugz, add_keywords):
+        """
+        Test skipping a bug with no keywords in package list, no
+        arches CC-ed and sanity-check status set, with '-n'.
+        """
+        bugz_inst = self.bug_preset(bugz, initial_status=True)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '-n', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
+        bugz_inst.update_status.assert_not_called()
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_empty_keywords_on_checked_bug(self, bugz, add_keywords):
+        """
+        Test resetting a bug with no keywords in package list, no
+        arches CC-ed but sanity-check status set.
+        """
+        bugz_inst = self.bug_preset(bugz, initial_status=True)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
+        bugz_inst.update_status.assert_called_with(560322, None,
+            self.reset_msg)
+
+
+class IntegrationEmptyKeywordsTests(IntegrationNoActionTestCase,
+                                    unittest.TestCase):
+    """
+    Test for a bug where keywords can not be determined (neither fully
+    specified nor in CC).
+    """
+
+    reset_msg = ('Resetting sanity check; keywords are not fully '
+                 'specified and arches are not CC-ed.')
+
+    def bug_preset(self, bugz: MagicMock, initial_status: bool = None
+            ) -> MagicMock:
+        bugz_inst = bugz.return_value
+        bugz_inst.fetch_package_list.return_value = {
+            560322: BugInfo(BugCategory.STABLEREQ,
+                            'test/amd64-testing-1 amd64\r\n'
+                            'test/alpha-amd64-hppa-testing-2\r\n',
+                            [], [], [], initial_status),
+        }
+        return bugz_inst
+
+
 class IntegrationSuccessTestCase(IntegrationTestCase,
                                  metaclass=abc.ABCMeta):
     """

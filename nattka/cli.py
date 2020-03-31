@@ -121,6 +121,10 @@ class NattkaCommands(object):
                         # arches CC-ed)
                         if not keywords:
                             log.info('Skipping because of incomplete keywords')
+                            check_res = None
+                            comment = ('Resetting sanity check; keywords are '
+                                       'not fully specified and arches are not '
+                                       'CC-ed.')
                             break
                     else:
                         with git_repo:
@@ -157,9 +161,14 @@ class NattkaCommands(object):
                     log.error(f'TODO: handle exception {e.__class__} {e}')
                     continue
 
+                # if we can not check it, and it's not been marked
+                # as checked, just skip it;  otherwise, reset the flag
+                if check_res is None and b.sanity_check is None:
+                    continue
+
                 # for negative results, we verify whether the comment
                 # needs to change
-                if not check_res and b.sanity_check is False:
+                if check_res is False and b.sanity_check is False:
                     old_comment = bz.get_latest_comment(bno, username)
                     # do not add a second identical comment
                     if (old_comment is not None and comment.strip() ==
