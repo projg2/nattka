@@ -3,12 +3,14 @@
 import argparse
 import logging
 import sys
+import typing
 
 from pathlib import Path
 
+from pkgcore.ebuild.repository import UnconfiguredTree
 from pkgcore.util.parserestrict import ParseError
 
-from nattka.bugzilla import (NattkaBugzilla, BugCategory,
+from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
                              get_combined_buginfo,
                              fill_keywords_from_cc)
 from nattka.git import GitWorkTree, GitDirtyWorkTree
@@ -20,10 +22,21 @@ log = logging.getLogger('nattka')
 
 
 class NattkaCommands(object):
+    args: argparse.Namespace
+    bz: typing.Optional[NattkaBugzilla]
+    repo: typing.Optional[UnconfiguredTree]
+
     def __init__(self, args):
         self.args = args
+        self.bz = None
+        self.repo = None
 
-    def get_api_key(self):
+    def get_api_key(self) -> str:
+        """
+        Find and return the Bugzilla API key.  Raises SystemExit
+        if unsuccesful.
+        """
+
         if self.args.api_key is not None:
             return self.args.api_key
         with open(Path.home() / '.bugz_token', 'r') as f:
@@ -31,21 +44,49 @@ class NattkaCommands(object):
         log.error('Please pass --api-key or put it in ~/.bugz_token')
         raise SystemExit(1)
 
-    def get_bugzilla(self):
-        kwargs = {}
-        if self.args.bugzilla_auth is not None:
-            kwargs['auth'] = tuple(self.args.bugzilla_auth.split(':', 1))
-        if self.args.bugzilla_endpoint is not None:
-            kwargs['api_url'] = self.args.bugzilla_endpoint
+    def get_bugzilla(self) -> NattkaBugzilla:
+        """
+        Initialize and return a bugzilla instance.  Caches the result.
+        """
 
-        return NattkaBugzilla(self.get_api_key(), **kwargs)
+        if self.bz is None:
+            kwargs = {}
+            if self.args.bugzilla_auth is not None:
+                kwargs['auth'] = tuple(self.args.bugzilla_auth.split(':', 1))
+            if self.args.bugzilla_endpoint is not None:
+                kwargs['api_url'] = self.args.bugzilla_endpoint
+            self.bz = NattkaBugzilla(self.get_api_key(), **kwargs)
+        return self.bz
 
-    def apply(self):
-        repo = find_repository(self.args.repo, self.args.portage_conf)
+    def find_bugs(self) -> typing.Dict[int, BugInfo]:
+        """
+        Find/get bugs according to command-line options.  Returns
+        a dictionary of bug numbers to BugInfo objects.
+        """
 
         bz = self.get_bugzilla()
-        for bugno, b in bz.fetch_package_list(self.args.bug).items():
-            b = fill_keywords_from_cc(b, repo.known_arches)
+        if self.args.bug:
+            bugs = bz.fetch_package_list(self.args.bug)
+        else:
+            bugs = bz.find_bugs(None)
+        for bno, b in bugs.items():
+            bugs[bno] = fill_keywords_from_cc(
+                b, self.get_repository().known_arches)
+        return bugs
+
+    def get_repository(self) -> UnconfiguredTree:
+        """
+        Initialize and return a repo instance.  Caches the result.
+        """
+
+        if self.repo is None:
+            self.repo = find_repository(self.args.repo,
+                                        self.args.portage_conf)
+        return self.repo
+
+    def apply(self) -> int:
+        repo = self.get_repository()
+        for bugno, b in self.find_bugs().items():
             log.info(f'Bug {bugno} ({b.category.name})')
             plist = dict(match_package_list(repo, b.atoms))
             for p, keywords in plist.items():
@@ -54,8 +95,8 @@ class NattkaCommands(object):
 
         return 0
 
-    def process_bugs(self):
-        repo = find_repository(self.args.repo, self.args.portage_conf)
+    def process_bugs(self) -> int:
+        repo = self.get_repository()
         git_repo = GitWorkTree(repo.location)
         if git_repo.path != Path(repo.location):
             log.error(f'{repo.location} does not seem to be a git repository')
@@ -63,9 +104,7 @@ class NattkaCommands(object):
 
         bz = self.get_bugzilla()
         username = bz.whoami()
-        bugs = bz.find_bugs(None)
-        for bno, b in bugs.items():
-            bugs[bno] = fill_keywords_from_cc(b, repo.known_arches)
+        bugs = self.find_bugs()
         try:
             # start with the newest bugs
             for bno in reversed(sorted(bugs)):
@@ -162,6 +201,8 @@ def main(argv):
     prop.add_argument('-n', '--no-update', action='store_true',
                       help='Do not commit updates to the bugs, only '
                            'check them and report what would be done')
+    prop.add_argument('bug', nargs='*', type=int,
+                      help='Bug(s) to process (default: find all)')
 
     args = argp.parse_args(argv)
     if args.command is None:
