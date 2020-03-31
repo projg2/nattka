@@ -135,3 +135,106 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(560322, True,
             'All sanity-check issues have been resolved')
+
+
+class IntegrationFailureTests(IntegrationTestCase):
+    """
+    Tests for package list failing sanity-check.
+    """
+
+    fail_msg = ('Sanity check failed:\n\n> nonsolvable depset(rdepend) '
+                'keyword(~alpha) stable profile (alpha) (1 total): '
+                'solutions: [ test/amd64-testing ]')
+
+    def bug_preset(self, bugz, initial_status=None):
+        """ Preset bugzilla mock. """
+        bugz_inst = bugz.return_value
+        bugz_inst.fetch_package_list.return_value = {
+            560322: BugInfo(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-deps-1 ~alpha\r\n',
+                            [], [], [], initial_status),
+        }
+        return bugz_inst
+
+    def post_verify(self):
+        """ Verify that the original data has been restored. """
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-deps-1').keywords,
+            ('~amd64',))
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_failure_n(self, bugz):
+        """ Test processing with -n. """
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '-n', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.update_status.assert_not_called()
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_failure(self, bugz):
+        """ Test setting new failure. """
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.update_status.assert_called_with(560322, False,
+            self.fail_msg)
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_failure_no_comment(self, bugz):
+        """
+        Test setting failure when bug is sanity-check- without a comment.
+        """
+        bugz_inst = self.bug_preset(bugz)
+        bugz_inst.get_latest_comment.return_value = None
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.update_status.assert_called_with(560322, False,
+            self.fail_msg)
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_failure_from_other_failure(self, bugz):
+        """
+        Test setting failure when bug is sanity-check- with a different
+        failure.
+        """
+        bugz_inst = self.bug_preset(bugz, initial_status=False)
+        bugz_inst.get_latest_comment.return_value = (
+            'Sanity check failed:\n\n> nonsolvable depset(rdepend) '
+            'keyword(~alpha) stable profile (alpha) (1 total): '
+            'solutions: [ test/frobnicate ]')
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.update_status.assert_called_with(560322, False,
+            self.fail_msg)
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_failure_from_same_failure(self, bugz):
+        """
+        Test non-update when bug was marked sanity-check- already.
+        """
+        bugz_inst = self.bug_preset(bugz, initial_status=False)
+        bugz_inst.get_latest_comment.return_value = self.fail_msg
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.update_status.assert_not_called()
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_failure_from_success(self, bugz):
+        """ Test transition from success to failure. """
+        bugz_inst = self.bug_preset(bugz, initial_status=True)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.update_status.assert_called_with(560322, False,
+            self.fail_msg)
