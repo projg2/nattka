@@ -180,18 +180,29 @@ class NattkaBugzilla(object):
                 return c['text']
         return None
 
-    def update_status(self, bugno: int, status: bool, comment: str = None):
+    def update_status(self, bugno: int, status: typing.Optional[bool],
+            comment: str = None):
         """
         Update the sanity-check status of bug @bugno.  @status specifies
-        the new status, @comment is an optional comment to add.
+        the new status (True, False or None to remove the flag),
+        @comment is an optional comment to add.
         """
+
+        if status is True:
+            new_status = '+'
+        elif status is False:
+            new_status = '-'
+        elif status is None:
+            new_status = 'X'
+        else:
+            raise ValueError(f'Invalid status={status}')
 
         req = {
             'ids': [bugno],
             'flags': [
                 {
                     'name': 'sanity-check',
-                    'status': '+' if status else '-',
+                    'status': new_status,
                 },
             ],
         }

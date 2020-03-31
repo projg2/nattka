@@ -169,6 +169,14 @@ class BugzillaTests(BugzillaTestCase):
             self.bz.get_latest_comment(560310, BUGZILLA_USERNAME).strip(),
             'sanity check failed!')
 
+    @rec.use_cassette()
+    def test_reset_status(self):
+        """ Test resetting sanity-check status. """
+        self.bz.update_status(560308, None)
+        self.assertEqual(
+            self.bz.fetch_package_list([560308])[560308].sanity_check,
+            None)
+
 
 class BugInfoCombinerTest(unittest.TestCase):
     def test_combine_bugs(self):
