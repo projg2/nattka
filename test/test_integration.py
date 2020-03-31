@@ -5,13 +5,15 @@ import shutil
 import tempfile
 import unittest
 
+from pathlib import Path
+
 import vcr
 
 from pkgcore.util import parserestrict
 
 from nattka.cli import main
 
-from test import (__path__, get_test_repo)
+from test import get_test_repo
 from test.test_bugzilla import (RECORD_MODE, API_KEY, API_ENDPOINT,
                                 API_AUTH_S)
 
@@ -34,16 +36,18 @@ class IntegrationTestCase(unittest.TestCase):
     def setUp(self):
         super().setUp()
         self.tempdir = tempfile.TemporaryDirectory()
+        tempdir_path = Path(self.tempdir.name)
+        basedir = Path(__file__).parent
         for subdir in ('conf', 'data'):
-            shutil.copytree(os.path.join(__path__[0], subdir),
-                            os.path.join(self.tempdir.name, subdir),
+            shutil.copytree(basedir / subdir,
+                            tempdir_path / subdir,
                             symlinks=True)
 
-        self.repo = get_test_repo(self.tempdir.name)
+        self.repo = get_test_repo(tempdir_path)
 
         self.common_args = [
             '--bugzilla-endpoint', API_ENDPOINT,
-            '--portage-conf', os.path.join(self.tempdir.name, 'conf'),
+            '--portage-conf', str(tempdir_path / 'conf'),
             '--repo', self.repo.location,
         ]
         if API_AUTH_S is not None and API_KEY is not None:
