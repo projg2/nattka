@@ -1,6 +1,5 @@
 """ Integration tests. """
 
-import os.path
 import shutil
 import tempfile
 import unittest
@@ -19,8 +18,7 @@ from test.test_bugzilla import (RECORD_MODE, API_KEY, API_ENDPOINT,
 
 
 rec = vcr.VCR(
-    cassette_library_dir=os.path.join(os.path.dirname(__file__),
-                                      'integration'),
+    cassette_library_dir=str(Path(__file__).parent / 'integration'),
     filter_headers=['Authorization'],
     filter_query_parameters=['Bugzilla_api_key'],
     record_mode=RECORD_MODE,

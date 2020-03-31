@@ -1,9 +1,10 @@
 """ Tests for Bugzilla interaction. """
 
 import os
-import os.path
 import typing
 import unittest
+
+from pathlib import Path
 
 import vcr
 
@@ -28,8 +29,7 @@ else:
 
 
 rec = vcr.VCR(
-    cassette_library_dir=os.path.join(os.path.dirname(__file__),
-                                      'bugzilla'),
+    cassette_library_dir=str(Path(__file__).parent / 'bugzilla'),
     filter_headers=['Authorization'],
     filter_query_parameters=['Bugzilla_api_key'],
     record_mode=RECORD_MODE,

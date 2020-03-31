@@ -1,10 +1,11 @@
 """ Tests for package processing. """
 
-import os.path
 import re
 import shutil
 import tempfile
 import unittest
+
+from pathlib import Path
 
 from pkgcore.util import parserestrict
 
@@ -27,8 +28,8 @@ class BaseRepoTestCase(unittest.TestCase):
         return pkg[0]
 
     def ebuild_path(self, cat, pkg, ver):
-        return os.path.join(self.repo.location, cat, pkg,
-                            '{}-{}.ebuild'.format(pkg, ver))
+        return str(Path(self.repo.location) / cat / pkg /
+                   f'{pkg}-{ver}.ebuild')
 
 
 class PackageMatcherTests(BaseRepoTestCase):

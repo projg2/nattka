@@ -3,8 +3,10 @@
 import subprocess
 import typing
 
+from pathlib import Path
 
-def git_get_toplevel(repo_path: str) -> typing.Optional[str]:
+
+def git_get_toplevel(repo_path: Path) -> typing.Optional[Path]:
     """
     Get top-level working tree path for @repo_path.  Returns None
     when not in repository.
@@ -17,10 +19,10 @@ def git_get_toplevel(repo_path: str) -> typing.Optional[str]:
     sout, serr = sp.communicate()
     if sp.returncode != 0:
         return None
-    return sout.decode().strip()
+    return Path(sout.decode().strip())
 
 
-def git_is_dirty(repo_path: str) -> bool:
+def git_is_dirty(repo_path: Path) -> bool:
     """
     Returns True if repository in @repo_path has dirty working tree
     (i.e. calling 'git checkout' will overwrite changes), False
@@ -34,7 +36,7 @@ def git_is_dirty(repo_path: str) -> bool:
     return sp.wait() != 0
 
 
-def git_reset_changes(repo_path: str) -> None:
+def git_reset_changes(repo_path: Path) -> None:
     """
     Reset all changes done to the working tree in repository
     at @repo_path.
@@ -64,9 +66,9 @@ class GitWorkTree(object):
     repository and reset changes afterwards.
     """
 
-    path: str
+    path: Path
 
-    def __init__(self, repo_path: str):
+    def __init__(self, repo_path: Path):
         path = git_get_toplevel(repo_path)
         if path is None:
             raise GitRepositoryNotFound(

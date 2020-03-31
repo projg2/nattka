@@ -2,8 +2,9 @@
 
 import argparse
 import logging
-import os.path
 import sys
+
+from pathlib import Path
 
 from pkgcore.util.parserestrict import ParseError
 
@@ -25,7 +26,7 @@ class NattkaCommands(object):
     def get_api_key(self):
         if self.args.api_key is not None:
             return self.args.api_key
-        with open(os.path.expanduser('~/.bugz_token'), 'r') as f:
+        with open(Path.home() / '.bugz_token', 'r') as f:
             return f.read().strip()
         log.error('Please pass --api-key or put it in ~/.bugz_token')
         raise SystemExit(1)
@@ -56,7 +57,7 @@ class NattkaCommands(object):
     def process_bugs(self):
         repo = find_repository(self.args.repo, self.args.portage_conf)
         git_repo = GitWorkTree(repo.location)
-        if git_repo.path != repo.location:
+        if git_repo.path != Path(repo.location):
             log.error('{} does not seem to be a git repository'
                       .format(repo.location))
             raise SystemExit(1)
