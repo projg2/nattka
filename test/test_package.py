@@ -7,7 +7,7 @@ import unittest
 
 from pathlib import Path
 
-from pkgcore.util import parserestrict
+from pkgcore.ebuild.atom import atom
 
 from nattka.package import (match_package_list, add_keywords,
                             check_dependencies, PackageNoMatch,
@@ -23,8 +23,8 @@ class BaseRepoTestCase(unittest.TestCase):
     def setUp(self):
         self.repo = get_test_repo()
 
-    def get_package(self, atom):
-        pkg = self.repo.match(parserestrict.parse_match(atom))
+    def get_package(self, spec):
+        pkg = self.repo.match(atom(spec))
         assert len(pkg) == 1
         return pkg[0]
 
@@ -130,6 +130,42 @@ class PackageMatcherTests(BaseRepoTestCase):
             for m in match_package_list(self.repo, '''
                         test/amd64-testing-2 amd64 hppa
                         test/amd64-* amd64 hppa
+                    '''):
+                pass
+
+    def test_blocker_package_spec(self):
+        """ Test package list using a blocker. """
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        !=test/amd64-testing-1 amd64 hppa
+                    '''):
+                pass
+
+    def test_slotted_package_spec(self):
+        """ Test package list using a slot. """
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        =test/amd64-testing-1:0 amd64 hppa
+                    '''):
+                pass
+
+    def test_useflags_package_spec(self):
+        """ Test package list including a USE dependency. """
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        =test/amd64-testing-1[foo] amd64 hppa
+                    '''):
+                pass
+
+    def test_repo_package_spec(self):
+        """ Test package list including a repository name. """
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        =test/amd64-testing-1::foo amd64 hppa
                     '''):
                 pass
 

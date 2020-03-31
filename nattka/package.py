@@ -13,8 +13,8 @@ import pkgcore.ebuild.ebuild_src
 from gentoolkit.ekeyword import ekeyword
 from pkgcore.config import load_config
 from pkgcore.ebuild.atom import atom
+from pkgcore.ebuild.errors import MalformedAtom
 from pkgcore.ebuild.repository import UnconfiguredTree
-from pkgcore.util.parserestrict import parse_match, ParseError
 
 
 class PackageKeywords(typing.NamedTuple):
@@ -73,12 +73,12 @@ def match_package_list(repo: UnconfiguredTree, package_list: str
         dep = None
         for sdep in (f'={sl[0].strip()}', sl[0].strip()):
             try:
-                dep = parse_match(sdep)
+                dep = atom(sdep, eapi='0')
                 break
-            except ParseError:
+            except MalformedAtom:
                 pass
 
-        if dep is None or not isinstance(dep, atom):
+        if dep is None or dep.blocks:
             raise PackageInvalid(
                 f'invalid package spec: {sdep}')
         if dep.op != '=':
