@@ -106,6 +106,7 @@ class NattkaCommands(object):
         bz = self.get_bugzilla()
         username = bz.whoami()
         bugs = self.find_bugs()
+        log.info(f'Found {len(bugs)} bugs')
         try:
             # start with the newest bugs
             for bno in reversed(sorted(bugs)):
