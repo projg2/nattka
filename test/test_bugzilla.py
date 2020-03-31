@@ -36,11 +36,19 @@ rec = vcr.VCR(
 )
 
 
-class BugzillaTests(unittest.TestCase):
-    maxDiff = None
+class BugzillaTestCase(unittest.TestCase):
+    """
+    TestCase subclass initiating Bugzilla as its 'bz' parameter.
+    """
+
+    bz: NattkaBugzilla
 
     def setUp(self):
         self.bz = NattkaBugzilla(API_KEY, API_ENDPOINT, API_AUTH)
+
+
+class BugzillaTests(BugzillaTestCase):
+    maxDiff = None
 
     @rec.use_cassette()
     def test_whoami(self):

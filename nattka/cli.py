@@ -32,13 +32,15 @@ class NattkaCommands(object):
 
     def get_bugzilla(self):
         kwargs = {}
+        if self.args.bugzilla_auth is not None:
+            kwargs['auth'] = tuple(self.args.bugzilla_auth.split(':', 1))
         if self.args.bugzilla_endpoint is not None:
             kwargs['api_url'] = self.args.bugzilla_endpoint
 
         return NattkaBugzilla(self.get_api_key(), **kwargs)
 
     def apply(self):
-        repo = find_repository(self.args.repo)
+        repo = find_repository(self.args.repo, self.args.portage_conf)
 
         bz = self.get_bugzilla()
         for bugno, b in bz.fetch_package_list(self.args.bug).items():
@@ -49,8 +51,10 @@ class NattkaCommands(object):
                 log.info('Package {}: {}'.format(p.cpvstr, plist[p]))
             add_keywords(plist.items(), b.category == BugCategory.STABLEREQ)
 
+        return 0
+
     def process_bugs(self):
-        repo = find_repository(self.args.repo)
+        repo = find_repository(self.args.repo, self.args.portage_conf)
         git_repo = GitWorkTree(repo.location)
         if git_repo.path != repo.location:
             log.error('{} does not seem to be a git repository'
@@ -127,14 +131,21 @@ class NattkaCommands(object):
             log.error('{}: working tree is dirty'.format(git_repo))
             raise SystemExit(1)
 
+        return 0
+
 
 def main(argv):
     argp = argparse.ArgumentParser()
     argp.add_argument('--api-key',
                       help='Bugzilla API key (read from ~/.bugz_token '
                            'by default')
+    argp.add_argument('--bugzilla-auth',
+                      help='Bugzilla HTTP server username:password '
+                           '(for HTTP auth protected sites, e.g. bugstest)')
     argp.add_argument('--bugzilla-endpoint',
                       help='Bugzilla /rest endpoint URL')
+    argp.add_argument('--portage-conf', default=None,
+                      help='Override Portage-style configuration directory')
     argp.add_argument('--repo', default='.',
                       help='Repository path (default: .)')
     subp = argp.add_subparsers(title='commands', dest='command',
