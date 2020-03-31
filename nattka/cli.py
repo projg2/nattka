@@ -150,6 +150,8 @@ class NattkaCommands(object):
                     log.error(e)
                     check_res = False
                     comment = f'Unable to check for sanity:\n\n> {e}'
+                except GitDirtyWorkTree:
+                    raise
                 except Exception as e:
                     log.error(f'TODO: handle exception {e.__class__} {e}')
                     continue
@@ -168,7 +170,7 @@ class NattkaCommands(object):
                     bz.update_status(bno, check_res, comment)
                     log.info('Bug status updated')
         except GitDirtyWorkTree:
-            log.error(f'{git_repo}: working tree is dirty')
+            log.error(f'{git_repo.path}: working tree is dirty')
             raise SystemExit(1)
 
         return 0
