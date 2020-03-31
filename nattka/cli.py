@@ -148,8 +148,7 @@ def main(argv):
                       help='Override Portage-style configuration directory')
     argp.add_argument('--repo', default='.',
                       help='Repository path (default: .)')
-    subp = argp.add_subparsers(title='commands', dest='command',
-                               required=True)
+    subp = argp.add_subparsers(title='commands', dest='command')
 
     appp = subp.add_parser('apply',
                            help='Keyword/stabilize packages according '
@@ -165,6 +164,9 @@ def main(argv):
                            'check them and report what would be done')
 
     args = argp.parse_args(argv)
+    if args.command is None:
+        argp.error('Command must be specified')
+
     cmd = NattkaCommands(args)
     try:
         return getattr(cmd, args.command.replace('-', '_'))()
