@@ -26,6 +26,10 @@ class CheckResult(typing.NamedTuple):
     output: typing.List[dict]
 
 
+class PackageNoMatch(Exception):
+    pass
+
+
 def find_repository(path: str, conf_path: str = None
         ) -> UnconfiguredTree:
     """
@@ -51,8 +55,12 @@ def match_package_list(repo: UnconfiguredTree, package_list: str
         if not sl:
             continue
         keywords = [x.strip().lstrip('~') for x in sl[1:]]
-        for m in repo.itermatch(parserestrict.parse_match('=' + sl[0].strip())):
-            yield PackageKeywords(m, keywords)
+        m = repo.match(parserestrict.parse_match('=' + sl[0].strip()))
+        if not m:
+            raise PackageNoMatch(
+                f'no match for package: {sl[0]}')
+        assert len(m) == 1
+        yield PackageKeywords(m[0], keywords)
 
 
 def add_keywords(tuples: typing.Iterator[PackageKeywords], stable: bool

@@ -278,3 +278,18 @@ class IntegrationMalformedPackageListTests(IntegrationFailureTestCase,
                             [], [], [], initial_status),
         }
         return bugz_inst
+
+
+class IntegrationNonMatchedPackageListTests(IntegrationFailureTestCase,
+                                            unittest.TestCase):
+    fail_msg = ("Unable to check for sanity:\n\n> no match for package: "
+                "test/enoent-7")
+
+    def bug_preset(self, bugz, initial_status=None):
+        bugz_inst = bugz.return_value
+        bugz_inst.fetch_package_list.return_value = {
+            560322: BugInfo(BugCategory.KEYWORDREQ,
+                            'test/enoent-7 ~alpha\r\n',
+                            [], [], [], initial_status),
+        }
+        return bugz_inst

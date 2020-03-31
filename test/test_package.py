@@ -10,7 +10,7 @@ from pathlib import Path
 from pkgcore.util import parserestrict
 
 from nattka.package import (match_package_list, add_keywords,
-                            check_dependencies)
+                            check_dependencies, PackageNoMatch)
 
 from test import get_test_repo
 
@@ -63,6 +63,15 @@ class PackageMatcherTests(BaseRepoTestCase):
                 (self.ebuild_path('test', 'amd64-stable-hppa-testing', '1'),
                  []),
             ])
+
+    def test_no_match(self):
+        """ Test package list containing package with no matches. """
+        with self.assertRaises(PackageNoMatch):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-1 amd64 hppa
+                        test/enoent-7
+                    '''):
+                pass
 
 
 class DuplicatedEbuild(object):
