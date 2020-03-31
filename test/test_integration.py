@@ -1,12 +1,13 @@
 """ Integration tests. """
 
+import abc
 import shutil
 import subprocess
 import tempfile
 import unittest
 
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from pkgcore.util import parserestrict
 
@@ -16,7 +17,7 @@ from nattka.cli import main
 from test import get_test_repo
 
 
-class IntegrationTestCase(unittest.TestCase):
+class IntegrationTestCase(object):
     """
     A test case for an integration test.  Combines Bugzilla support
     with a temporary clone of the repository.
@@ -53,21 +54,17 @@ class IntegrationTestCase(unittest.TestCase):
         return pkg[0]
 
 
-class IntegrationSuccessTests(IntegrationTestCase):
+class IntegrationSuccessTestCase(IntegrationTestCase,
+                                 metaclass=abc.ABCMeta):
     """
-    Tests for package list passing sanity-check.
+    Integration test case that passes sanity-check.
     """
 
-    def bug_preset(self, bugz, initial_status=None):
+    @abc.abstractmethod
+    def bug_preset(self, bugz: MagicMock, initial_status: bool = None
+            ) -> MagicMock:
         """ Preset bugzilla mock. """
-        bugz_inst = bugz.return_value
-        bugz_inst.fetch_package_list.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-testing-1 amd64\r\n'
-                            'test/alpha-amd64-hppa-testing-2 amd64 hppa\r\n',
-                            [], [], [], initial_status),
-        }
-        return bugz_inst
+        pass
 
     def post_verify(self):
         """ Verify that the original data has been restored. """
@@ -77,21 +74,6 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.assertEqual(
             self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
             ('~alpha', '~amd64', '~hppa'))
-
-    @patch('nattka.cli.NattkaBugzilla')
-    def test_apply(self, bugz):
-        bugz_inst = self.bug_preset(bugz)
-        self.assertEqual(
-            main(self.common_args + ['apply', '560322']),
-            0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
-
-        self.assertEqual(
-            self.get_package('=test/amd64-testing-1').keywords,
-            ('amd64',))
-        self.assertEqual(
-            self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
-            ('~alpha', 'amd64', 'hppa'))
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_success_n(self, bugz):
@@ -137,24 +119,51 @@ class IntegrationSuccessTests(IntegrationTestCase):
             'All sanity-check issues have been resolved')
 
 
-class IntegrationFailureTests(IntegrationTestCase):
-    """
-    Tests for package list failing sanity-check.
-    """
-
-    fail_msg = ('Sanity check failed:\n\n> nonsolvable depset(rdepend) '
-                'keyword(~alpha) stable profile (alpha) (1 total): '
-                'solutions: [ test/amd64-testing ]')
-
-    def bug_preset(self, bugz, initial_status=None):
+class IntegrationSuccessTests(IntegrationSuccessTestCase, unittest.TestCase):
+    def bug_preset(self, bugz: MagicMock, initial_status: bool = None
+            ) -> MagicMock:
         """ Preset bugzilla mock. """
         bugz_inst = bugz.return_value
         bugz_inst.fetch_package_list.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
+            560322: BugInfo(BugCategory.STABLEREQ,
+                            'test/amd64-testing-1 amd64\r\n'
+                            'test/alpha-amd64-hppa-testing-2 amd64 hppa\r\n',
                             [], [], [], initial_status),
         }
         return bugz_inst
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_apply(self, bugz):
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['apply', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-1').keywords,
+            ('amd64',))
+        self.assertEqual(
+            self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
+            ('~alpha', 'amd64', 'hppa'))
+
+
+class IntegrationFailureTestCase(IntegrationTestCase,
+                                 metaclass=abc.ABCMeta):
+    """
+    Integration test case that fails sanity-check.
+    """
+
+    @abc.abstractproperty
+    def fail_msg(self):
+        """ Expected failure message. """
+        pass
+
+    @abc.abstractmethod
+    def bug_preset(self, bugz: MagicMock, initial_status: bool = None
+            ) -> MagicMock:
+        """ Preset bugzilla mock. """
+        pass
 
     def post_verify(self):
         """ Verify that the original data has been restored. """
@@ -238,3 +247,19 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(560322, False,
             self.fail_msg)
+
+
+class IntegrationFailureTests(IntegrationFailureTestCase,
+                              unittest.TestCase):
+    fail_msg = ('Sanity check failed:\n\n> nonsolvable depset(rdepend) '
+                'keyword(~alpha) stable profile (alpha) (1 total): '
+                'solutions: [ test/amd64-testing ]')
+
+    def bug_preset(self, bugz, initial_status=None):
+        bugz_inst = bugz.return_value
+        bugz_inst.fetch_package_list.return_value = {
+            560322: BugInfo(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-deps-1 ~alpha\r\n',
+                            [], [], [], initial_status),
+        }
+        return bugz_inst
