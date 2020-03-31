@@ -46,10 +46,10 @@ class NattkaCommands(object):
         bz = self.get_bugzilla()
         for bugno, b in bz.fetch_package_list(self.args.bug).items():
             b = fill_keywords_from_cc(b, repo.known_arches)
-            log.info('Bug {} ({})'.format(bugno, b.category.name))
+            log.info(f'Bug {bugno} ({b.category.name})')
             plist = dict(match_package_list(repo, b.atoms))
             for p, keywords in plist.items():
-                log.info('Package {}: {}'.format(p.cpvstr, plist[p]))
+                log.info(f'Package {p.cpvstr}: {plist[p]}')
             add_keywords(plist.items(), b.category == BugCategory.STABLEREQ)
 
         return 0
@@ -58,8 +58,7 @@ class NattkaCommands(object):
         repo = find_repository(self.args.repo, self.args.portage_conf)
         git_repo = GitWorkTree(repo.location)
         if git_repo.path != Path(repo.location):
-            log.error('{} does not seem to be a git repository'
-                      .format(repo.location))
+            log.error(f'{repo.location} does not seem to be a git repository')
             raise SystemExit(1)
 
         bz = self.get_bugzilla()
@@ -71,7 +70,7 @@ class NattkaCommands(object):
             # start with the newest bugs
             for bno in reversed(sorted(bugs)):
                 b = get_combined_buginfo(bugs, bno)
-                log.info('Bug {} ({})'.format(bno, b.category.name))
+                log.info(f'Bug {bno} ({b.category.name})')
                 try:
                     plist = dict(match_package_list(repo, b.atoms))
 
@@ -112,7 +111,7 @@ class NattkaCommands(object):
                     check_res = False
                     comment = f'Unable to check for sanity:\n\n> {e}'
                 except Exception as e:
-                    log.error('TODO: handle exception {} {}'.format(e.__class__, e))
+                    log.error(f'TODO: handle exception {e.__class__} {e}')
                     continue
 
                 # for negative results, we verify whether the comment
@@ -129,7 +128,7 @@ class NattkaCommands(object):
                     bz.update_status(bno, check_res, comment)
                     log.info('Bug status updated')
         except GitDirtyWorkTree:
-            log.error('{}: working tree is dirty'.format(git_repo))
+            log.error(f'{git_repo}: working tree is dirty')
             raise SystemExit(1)
 
         return 0

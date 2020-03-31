@@ -48,8 +48,7 @@ def git_reset_changes(repo_path: Path) -> None:
                           stderr=subprocess.PIPE)
     sout, serr = sp.communicate()
     if sp.wait() != 0:
-        raise RuntimeError('git checkout failed: {}'
-                           .format(serr.decode()))
+        raise RuntimeError(f'git checkout failed: {serr.decode()}')
 
 
 class GitRepositoryNotFound(Exception):
@@ -72,14 +71,14 @@ class GitWorkTree(object):
         path = git_get_toplevel(repo_path)
         if path is None:
             raise GitRepositoryNotFound(
-                'No repository found in {}'.format(self.path))
+                f'No repository found in {self.path}')
         else:
             self.path = path
 
     def __enter__(self) -> 'GitWorkTree':
         if git_is_dirty(self.path):
             raise GitDirtyWorkTree(
-                'Git working tree {} is dirty'.format(self.path))
+                f'Git working tree {self.path} is dirty')
         return self
 
     def __exit__(self, *args) -> None:
