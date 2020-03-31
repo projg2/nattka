@@ -10,7 +10,8 @@ from pathlib import Path
 from pkgcore.util import parserestrict
 
 from nattka.package import (match_package_list, add_keywords,
-                            check_dependencies, PackageNoMatch)
+                            check_dependencies, PackageNoMatch,
+                            KeywordNoMatch)
 
 from test import get_test_repo
 
@@ -70,6 +71,15 @@ class PackageMatcherTests(BaseRepoTestCase):
             for m in match_package_list(self.repo, '''
                         test/amd64-testing-1 amd64 hppa
                         test/enoent-7
+                    '''):
+                pass
+
+    def test_unknown_keywords(self):
+        """ Test package list containing unknown keywords. """
+        with self.assertRaises(KeywordNoMatch):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-1 amd64 hppa
+                        test/amd64-testing-2 mysuperarch
                     '''):
                 pass
 

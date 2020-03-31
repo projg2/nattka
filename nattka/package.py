@@ -30,6 +30,10 @@ class PackageNoMatch(Exception):
     pass
 
 
+class KeywordNoMatch(Exception):
+    pass
+
+
 def find_repository(path: str, conf_path: str = None
         ) -> UnconfiguredTree:
     """
@@ -50,11 +54,16 @@ def match_package_list(repo: UnconfiguredTree, package_list: str
     raises an exception.
     """
 
+    valid_arches = frozenset(repo.known_arches)
     for l in package_list.splitlines():
         sl = l.split()
         if not sl:
             continue
         keywords = [x.strip().lstrip('~') for x in sl[1:]]
+        unknown_keywords = frozenset(keywords) - valid_arches
+        if unknown_keywords:
+            raise KeywordNoMatch(
+                f'incorrect keywords: {" ".join(unknown_keywords)}')
         m = repo.match(parserestrict.parse_match('=' + sl[0].strip()))
         if not m:
             raise PackageNoMatch(

@@ -16,7 +16,7 @@ from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
 from nattka.git import GitWorkTree, GitDirtyWorkTree
 from nattka.package import (find_repository, match_package_list,
                             add_keywords, check_dependencies,
-                            PackageNoMatch)
+                            PackageNoMatch, KeywordNoMatch)
 
 
 log = logging.getLogger('nattka')
@@ -146,7 +146,7 @@ class NattkaCommands(object):
                                 comment = ('Sanity check failed:\n\n'
                                     + '\n'.join(f'> {x}' for x in issues))
                                 log.info('Sanity check failed')
-                except (ParseError, PackageNoMatch) as e:
+                except (ParseError, PackageNoMatch, KeywordNoMatch) as e:
                     log.error(e)
                     check_res = False
                     comment = f'Unable to check for sanity:\n\n> {e}'
