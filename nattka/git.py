@@ -71,7 +71,7 @@ class GitWorkTree(object):
         path = git_get_toplevel(repo_path)
         if path is None:
             raise GitRepositoryNotFound(
-                f'No repository found in {self.path}')
+                f'No repository found in {repo_path}')
         else:
             self.path = path
 
