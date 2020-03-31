@@ -148,6 +148,28 @@ class IntegrationSuccessTests(IntegrationSuccessTestCase, unittest.TestCase):
             ('~alpha', 'amd64', 'hppa'))
 
 
+class IntegrationDependSuccessTests(IntegrationSuccessTestCase,
+                                    unittest.TestCase):
+    """
+    Tests for sanity-check result depending on dependant bug.
+    """
+
+    def bug_preset(self, bugz, initial_status=None):
+        bugz_inst = bugz.return_value
+        # TODO: we hackily add dependent bug to the return value now
+        # this will probably make more sense when fetch_package_list()
+        # has recursive fetching support
+        bugz_inst.fetch_package_list.return_value = {
+            560311: BugInfo(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-1 ~alpha\r\n',
+                            [], [], [560322], True),
+            560322: BugInfo(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-deps-1 ~alpha\r\n',
+                            [], [560311], [], initial_status),
+        }
+        return bugz_inst
+
+
 class IntegrationFailureTestCase(IntegrationTestCase,
                                  metaclass=abc.ABCMeta):
     """
