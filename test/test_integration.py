@@ -263,3 +263,18 @@ class IntegrationFailureTests(IntegrationFailureTestCase,
                             [], [], [], initial_status),
         }
         return bugz_inst
+
+
+class IntegrationMalformedPackageListTests(IntegrationFailureTestCase,
+                                           unittest.TestCase):
+    fail_msg = ("Unable to check for sanity:\n\n> invalid package atom: "
+                "'=<>amd64-testing-deps-1'")
+
+    def bug_preset(self, bugz, initial_status=None):
+        bugz_inst = bugz.return_value
+        bugz_inst.fetch_package_list.return_value = {
+            560322: BugInfo(BugCategory.KEYWORDREQ,
+                            '<>amd64-testing-deps-1 ~alpha\r\n',
+                            [], [], [], initial_status),
+        }
+        return bugz_inst
