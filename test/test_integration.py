@@ -4,6 +4,8 @@
 """ Integration tests. """
 
 import abc
+import datetime
+import json
 import shutil
 import subprocess
 import tempfile
@@ -66,6 +68,31 @@ class IntegrationTestCase(object):
         pkg = self.repo.match(parserestrict.parse_match(atom))
         assert len(pkg) == 1
         return pkg[0]
+
+    def make_cache(self,
+                   bugz_inst: MagicMock,
+                   last_check: datetime.datetime = datetime.datetime.utcnow(),
+                   package_list: typing.Optional[str] = None,
+                   sanity_check: typing.Optional[bool] = None
+                   ) -> str:
+        """
+        Write a cache file and return the path to it.
+        """
+        fn = Path(self.tempdir.name) / 'cache.json'
+        with open(fn, 'w') as f:
+            json.dump({
+                'bugs': {
+                    '560322': {
+                        'last-check': last_check.isoformat(),
+                        'package-list':
+                            package_list if package_list is not None
+                            else bugz_inst.fetch_package_list
+                            .return_value[560322].atoms,
+                        'check-res': sanity_check,
+                    },
+                },
+            }, f)
+        return str(fn)
 
 
 class IntegrationNoActionTestCase(IntegrationTestCase,
@@ -336,6 +363,75 @@ class IntegrationSuccessTests(IntegrationSuccessTestCase, unittest.TestCase):
             self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
             ('~alpha', 'amd64', 'hppa'))
 
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_cached(self, bugz, add_keywords):
+        """
+        Test that cached entry for sanity-check+ is respected.
+        """
+        bugz_inst = self.bug_preset(bugz, initial_status=True)
+        cache = self.make_cache(bugz_inst, sanity_check=True)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322',
+                                     '--cache-file', cache]),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
+        bugz_inst.update_status.assert_not_called()
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_cache_expired(self, bugz, add_keywords):
+        """
+        Test that expired cached entry for sanity-check+ is ignored.
+        """
+        bugz_inst = self.bug_preset(bugz, initial_status=True)
+        last_check = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+        cache = self.make_cache(bugz_inst,
+                                last_check=last_check,
+                                sanity_check=True)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322',
+                                     '--cache-file', cache]),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_called()
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_cache_plist_changed(self, bugz, add_keywords):
+        """
+        Test that cached entry for sanity-check+ is ignored if package
+        list changes.
+        """
+        bugz_inst = self.bug_preset(bugz, initial_status=True)
+        cache = self.make_cache(bugz_inst,
+                                package_list='test/foo',
+                                sanity_check=True)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322',
+                                     '--cache-file', cache]),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_called()
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_cache_result_changed(self, bugz, add_keywords):
+        """
+        Test that cached entry for sanity-check+ is ignored
+        if sanity-check flag changed.
+        """
+        bugz_inst = self.bug_preset(bugz, initial_status=True)
+        cache = self.make_cache(bugz_inst,
+                                sanity_check=False)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322',
+                                     '--cache-file', cache]),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_called()
+
 
 class IntegrationDependSuccessTests(IntegrationSuccessTestCase,
                                     unittest.TestCase):
@@ -483,6 +579,79 @@ class IntegrationFailureTests(IntegrationFailureTestCase,
                             [], [], [], initial_status),
         }
         return bugz_inst
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_cached(self, bugz, add_keywords):
+        """
+        Test that cached entry for sanity-check- is respected.
+        """
+        assert isinstance(self, unittest.TestCase)
+        bugz_inst = self.bug_preset(bugz, initial_status=False)
+        cache = self.make_cache(bugz_inst, sanity_check=False)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322',
+                                     '--cache-file', cache]),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
+        bugz_inst.update_status.assert_not_called()
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_cache_expired(self, bugz, add_keywords):
+        """
+        Test that expired cached entry for sanity-check- is ignored.
+        """
+        bugz_inst = self.bug_preset(bugz, initial_status=False)
+        bugz_inst.get_latest_comment.return_value = self.fail_msg
+        last_check = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+        cache = self.make_cache(bugz_inst,
+                                last_check=last_check,
+                                sanity_check=False)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322',
+                                     '--cache-file', cache]),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_called()
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_cache_plist_changed(self, bugz, add_keywords):
+        """
+        Test that cached entry for sanity-check- is ignored if package
+        list changes.
+        """
+        bugz_inst = self.bug_preset(bugz, initial_status=False)
+        bugz_inst.get_latest_comment.return_value = self.fail_msg
+        cache = self.make_cache(bugz_inst,
+                                package_list='test/foo',
+                                sanity_check=False)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322',
+                                     '--cache-file', cache]),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_called()
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_cache_result_changed(self, bugz, add_keywords):
+        """
+        Test that cached entry for sanity-check- is ignored
+        if sanity-check flag changed.
+        """
+        bugz_inst = self.bug_preset(bugz, initial_status=False)
+        bugz_inst.get_latest_comment.return_value = self.fail_msg
+        cache = self.make_cache(bugz_inst,
+                                sanity_check=True)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322',
+                                     '--cache-file', cache]),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_called()
 
 
 class IntegrationMalformedPackageListTests(IntegrationFailureTestCase,

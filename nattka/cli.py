@@ -4,12 +4,15 @@
 """ CLI for nattka. """
 
 import argparse
+import datetime
+import json
 import logging
 import sys
 import typing
 
 from pathlib import Path
 
+from snakeoil.fileutils import AtomicWriteFile
 from pkgcore.ebuild.repository import UnconfiguredTree
 
 from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
@@ -97,6 +100,29 @@ class NattkaCommands(object):
                                         self.args.portage_conf)
         return self.repo
 
+    def get_cache(self) -> dict:
+        """
+        Read cache file if specified.  Returns a deserialized cache
+        or {} if not found.
+        """
+
+        if self.args.cache_file is not None:
+            try:
+                with open(self.args.cache_file, 'r') as f:
+                    return json.load(f)
+            except FileNotFoundError:
+                pass
+        return {}
+
+    def write_cache(self, data: dict) -> None:
+        """
+        Write @data to the cache file, if one is specified.
+        """
+
+        if self.args.cache_file is not None:
+            with AtomicWriteFile(self.args.cache_file) as f:
+                json.dump(data, f, indent=2)
+
     def apply(self) -> int:
         repo = self.get_repository()
         for bno, b in self.find_bugs().items():
@@ -127,95 +153,129 @@ class NattkaCommands(object):
             log.error(f'{repo.location} does not seem to be a git repository')
             raise SystemExit(1)
 
+        cache = self.get_cache()
+        cache.setdefault('bugs', {})
+
         bz = self.get_bugzilla()
         username = bz.whoami()
         bugs = self.find_bugs()
         log.info(f'Found {len(bugs)} bugs')
 
-        # start with the newest bugs
-        for bno in reversed(sorted(bugs)):
-            b = get_combined_buginfo(bugs, bno)
-            if b.category is None:
-                log.info(f'Bug {bno}: neither stablereq nor keywordreq')
-                continue
-
-            log.info(f'Bug {bno} ({b.category.name})')
-            try:
-                comment: typing.Optional[str] = None
-                check_res: typing.Optional[bool] = None
-
-                plist = dict(match_package_list(repo, b.atoms))
-                if not plist:
-                    log.info('Skipping because of empty package list')
-                    comment = ('Resetting sanity check; package list '
-                               'is empty.')
-                    raise SkipBug()
-
-                if any(not x for x in plist.values()):
-                    # skip the bug if at least one package has undefined
-                    # keywords (i.e. neither explicitly specified nor
-                    # arches CC-ed)
-                    log.info('Skipping because of incomplete keywords')
-                    comment = ('Resetting sanity check; keywords are '
-                               'not fully specified and arches are not '
-                               'CC-ed.')
-                    raise SkipBug()
-
-                with git_repo:
-                    add_keywords(plist.items(),
-                                 b.category == BugCategory.STABLEREQ)
-
-                    check_res, issues = check_dependencies(
-                        repo, plist.items())
-                    if check_res:
-                        # if nothing changed, do nothing
-                        if b.sanity_check is True:
-                            log.info('Still good')
-                            continue
-
-                        # otherwise, update the bug status
-                        log.info('All good')
-                        # if it was bad before, leave a comment
-                        if b.sanity_check is False:
-                            comment = ('All sanity-check issues '
-                                       'have been resolved')
-                    else:
-                        issues = sorted(str(x) for x in issues)
-                        comment = ('Sanity check failed:\n\n'
-                                   + '\n'.join(f'> {x}' for x in issues))
-                        log.info('Sanity check failed')
-            except (PackageInvalid, PackageNoMatch, KeywordNoMatch) as e:
-                log.error(e)
-                check_res = False
-                comment = f'Unable to check for sanity:\n\n> {e}'
-            except GitDirtyWorkTree:
-                log.error(f'{git_repo.path}: working tree is dirty')
-                raise SystemExit(1)
-            except SkipBug:
-                pass
-            except Exception as e:
-                log.error(f'TODO: handle exception {e.__class__} {e}')
-                continue
-
-            # if we can not check it, and it's not been marked
-            # as checked, just skip it;  otherwise, reset the flag
-            if check_res is None and b.sanity_check is None:
-                continue
-
-            # for negative results, we verify whether the comment
-            # needs to change
-            if check_res is False and b.sanity_check is False:
-                assert comment is not None
-                old_comment = bz.get_latest_comment(bno, username)
-                # do not add a second identical comment
-                if (old_comment is not None
-                        and comment.strip() == old_comment.strip()):
-                    log.info('Failure reported already')
+        try:
+            # start with the newest bugs
+            for bno in reversed(sorted(bugs)):
+                b = get_combined_buginfo(bugs, bno)
+                if b.category is None:
+                    log.info(f'Bug {bno}: neither stablereq nor keywordreq')
                     continue
 
-            if not self.args.no_update:
-                bz.update_status(bno, check_res, comment)
-                log.info('Bug status updated')
+                log.info(f'Bug {bno} ({b.category.name})')
+
+                try:
+                    comment: typing.Optional[str] = None
+                    check_res: typing.Optional[bool] = None
+
+                    plist = dict(match_package_list(repo, b.atoms))
+                    if not plist:
+                        log.info('Skipping because of empty package list')
+                        comment = ('Resetting sanity check; package list '
+                                   'is empty.')
+                        raise SkipBug()
+
+                    if any(not x for x in plist.values()):
+                        # skip the bug if at least one package has undefined
+                        # keywords (i.e. neither explicitly specified nor
+                        # arches CC-ed)
+                        log.info('Skipping because of incomplete keywords')
+                        comment = ('Resetting sanity check; keywords are '
+                                   'not fully specified and arches are not '
+                                   'CC-ed.')
+                        raise SkipBug()
+
+                    cache_entry = cache['bugs'].get(str(bno), {})
+                    last_check = cache_entry.get('last-check')
+                    if last_check is not None:
+                        if cache_entry.get('package-list', '') != b.atoms:
+                            log.info('Package list changed, will recheck.')
+                        elif (cache_entry.get('check-res', None)
+                              is not b.sanity_check):
+                            log.info('Sanity-check flag changed, '
+                                     'will recheck.')
+                        elif (datetime.datetime.utcnow()
+                              - datetime.datetime.fromisoformat(last_check)
+                              > datetime.timedelta(
+                                seconds=self.args.cache_max_age)):
+                            log.info('Cache entry is old, will recheck.')
+                        else:
+                            log.info('Cache entry is up-to-date, skipping.')
+                            continue
+
+                    with git_repo:
+                        add_keywords(plist.items(),
+                                     b.category == BugCategory.STABLEREQ)
+                        check_res, issues = check_dependencies(
+                            repo, plist.items())
+
+                        # do not update cache when not updating bugzilla
+                        if not self.args.no_update:
+                            cache['bugs'][str(bno)] = {
+                                'last-check':
+                                    datetime.datetime.utcnow().isoformat(),
+                                'package-list': b.atoms,
+                                'check-res': check_res,
+                            }
+
+                        if check_res:
+                            # if nothing changed, do nothing
+                            if b.sanity_check is True:
+                                log.info('Still good')
+                                continue
+
+                            # otherwise, update the bug status
+                            log.info('All good')
+                            # if it was bad before, leave a comment
+                            if b.sanity_check is False:
+                                comment = ('All sanity-check issues '
+                                           'have been resolved')
+                        else:
+                            issues = sorted(str(x) for x in issues)
+                            comment = ('Sanity check failed:\n\n'
+                                       + '\n'.join(f'> {x}' for x in issues))
+                            log.info('Sanity check failed')
+                except (PackageInvalid, PackageNoMatch, KeywordNoMatch) as e:
+                    log.error(e)
+                    check_res = False
+                    comment = f'Unable to check for sanity:\n\n> {e}'
+                except GitDirtyWorkTree:
+                    log.error(f'{git_repo.path}: working tree is dirty')
+                    raise SystemExit(1)
+                except SkipBug:
+                    pass
+                except Exception as e:
+                    log.error(f'TODO: handle exception {e.__class__} {e}')
+                    continue
+
+                # if we can not check it, and it's not been marked
+                # as checked, just skip it;  otherwise, reset the flag
+                if check_res is None and b.sanity_check is None:
+                    continue
+
+                # for negative results, we verify whether the comment
+                # needs to change
+                if check_res is False and b.sanity_check is False:
+                    assert comment is not None
+                    old_comment = bz.get_latest_comment(bno, username)
+                    # do not add a second identical comment
+                    if (old_comment is not None
+                            and comment.strip() == old_comment.strip()):
+                        log.info('Failure reported already')
+                        continue
+
+                if not self.args.no_update:
+                    bz.update_status(bno, check_res, comment)
+                    log.info('Bug status updated')
+        finally:
+            self.write_cache(cache)
 
         return 0
 
@@ -245,6 +305,12 @@ def main(argv: typing.List[str]) -> int:
     prop = subp.add_parser('process-bugs',
                            help='Process all open bugs -- apply '
                                 'keywords, test, report results')
+    prop.add_argument('-c', '--cache-file', type=Path,
+                      help='Path to the file used to cache bug states '
+                           '(default: caching disabled)')
+    prop.add_argument('--cache-max-age', type=int, default=12 * 60 * 60,
+                      help='Max age of cache entries before refreshing '
+                           'in seconds (default: 12 hours)')
     prop.add_argument('-n', '--no-update', action='store_true',
                       help='Do not commit updates to the bugs, only '
                            'check them and report what would be done')
