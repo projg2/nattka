@@ -212,14 +212,14 @@ class KeywordAdderTest(BaseRepoTestCase):
     def setUp(self):
         super().setUp()
         self.tempdir = tempfile.TemporaryDirectory()
-        shutil.copytree(self.repo.location, self.tempdir.name,
-                        dirs_exist_ok=True)
+        shutil.copytree(self.repo.location,
+                        Path(self.tempdir.name) / 'data')
 
     def tearDown(self):
         self.tempdir.cleanup()
 
     def ebuild_path(self, cat, pkg, ver):
-        return str(Path(self.tempdir.name) / cat / pkg
+        return str(Path(self.tempdir.name) / 'data' / cat / pkg
                                            / f'{pkg}-{ver}.ebuild')
 
     def test_keyword(self):
