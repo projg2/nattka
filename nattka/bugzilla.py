@@ -42,7 +42,7 @@ class BugCategory(enum.Enum):
         return None
 
     @classmethod
-    def to_products_components(cls, val: 'BugCategory'
+    def to_products_components(cls, val: typing.Optional['BugCategory']
             ) -> typing.Tuple[typing.List[str], typing.List[str]]:
         """
         Return a tuple of valid bug products and components for a given
@@ -139,8 +139,8 @@ class NattkaBugzilla(object):
             ret[b['id']] = make_bug_info(b)
         return ret
 
-    def find_bugs(self, category: BugCategory, limit: int = None
-            ) -> typing.Dict[int, BugInfo]:
+    def find_bugs(self, category: typing.Optional[BugCategory],
+            limit: int = None) -> typing.Dict[int, BugInfo]:
         """
         Find all relevant bugs in @category.  Limit to @limit results
         (None = no limit).
