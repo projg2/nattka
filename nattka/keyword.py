@@ -8,6 +8,8 @@ import typing
 
 from pathlib import Path
 
+from snakeoil.fileutils import AtomicWriteFile
+
 
 KEYWORDS_RE = re.compile(
     r'^(?P<pre>[^#]*\bKEYWORDS=(?P<quote>[\'"]?))'
@@ -89,6 +91,5 @@ def update_keywords_in_file(path: Path,
         data[i] = f'{m.group("pre")}{new_kw}{m.group("post")}\n'
         break
 
-    # TODO: use atomic updates
-    with open(path, 'w') as f:
+    with AtomicWriteFile(path) as f:
         f.writelines(data)
