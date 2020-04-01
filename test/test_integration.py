@@ -440,28 +440,30 @@ class IntegrationSuccessTests(IntegrationTestCase, unittest.TestCase):
         bugz_inst.update_status.assert_called_with(560322, True, None)
 
 
-class IntegrationFailureTestCase(IntegrationTestCase,
-                                 metaclass=abc.ABCMeta):
+class IntegrationFailureTests(IntegrationTestCase, unittest.TestCase):
     """
-    Integration test case that fails sanity-check.
+    Integration tests that fail sanity-check.
     """
 
-    @abc.abstractproperty
-    def fail_msg(self) -> str:
-        """ Expected failure message. """
-        pass
+    fail_msg = ('Sanity check failed:\n\n> nonsolvable depset(rdepend) '
+                'keyword(~alpha) stable profile (alpha) (1 total): '
+                'solutions: [ test/amd64-testing ]')
 
-    @abc.abstractmethod
     def bug_preset(self,
                    bugz: MagicMock,
                    initial_status: typing.Optional[bool] = None
                    ) -> MagicMock:
-        """ Preset bugzilla mock. """
-        pass
+        """ Instantiate Bugzilla mock. """
+        bugz_inst = bugz.return_value
+        bugz_inst.fetch_package_list.return_value = {
+            560322: BugInfo(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-deps-1 ~alpha\r\n',
+                            [], [], [], initial_status),
+        }
+        return bugz_inst
 
     def post_verify(self) -> None:
         """ Verify that the original data has been restored. """
-        assert isinstance(self, unittest.TestCase)
         self.assertEqual(
             self.get_package('=test/amd64-testing-deps-1').keywords,
             ('~amd64',))
@@ -469,7 +471,6 @@ class IntegrationFailureTestCase(IntegrationTestCase,
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_failure_n(self, bugz):
         """ Test processing with -n. """
-        assert isinstance(self, unittest.TestCase)
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['process-bugs', '-n', '560322']),
@@ -480,7 +481,6 @@ class IntegrationFailureTestCase(IntegrationTestCase,
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_failure(self, bugz):
         """ Test setting new failure. """
-        assert isinstance(self, unittest.TestCase)
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['process-bugs', '560322']),
@@ -494,7 +494,6 @@ class IntegrationFailureTestCase(IntegrationTestCase,
         """
         Test setting failure when bug is sanity-check- without a comment.
         """
-        assert isinstance(self, unittest.TestCase)
         bugz_inst = self.bug_preset(bugz)
         bugz_inst.get_latest_comment.return_value = None
         self.assertEqual(
@@ -510,7 +509,6 @@ class IntegrationFailureTestCase(IntegrationTestCase,
         Test setting failure when bug is sanity-check- with a different
         failure.
         """
-        assert isinstance(self, unittest.TestCase)
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         bugz_inst.get_latest_comment.return_value = (
             'Sanity check failed:\n\n> nonsolvable depset(rdepend) '
@@ -528,7 +526,6 @@ class IntegrationFailureTestCase(IntegrationTestCase,
         """
         Test non-update when bug was marked sanity-check- already.
         """
-        assert isinstance(self, unittest.TestCase)
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         bugz_inst.get_latest_comment.return_value = self.fail_msg
         self.assertEqual(
@@ -540,7 +537,6 @@ class IntegrationFailureTestCase(IntegrationTestCase,
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_failure_from_success(self, bugz):
         """ Test transition from success to failure. """
-        assert isinstance(self, unittest.TestCase)
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
             main(self.common_args + ['process-bugs', '560322']),
@@ -549,29 +545,12 @@ class IntegrationFailureTestCase(IntegrationTestCase,
         bugz_inst.update_status.assert_called_with(
             560322, False, self.fail_msg)
 
-
-class IntegrationFailureTests(IntegrationFailureTestCase,
-                              unittest.TestCase):
-    fail_msg = ('Sanity check failed:\n\n> nonsolvable depset(rdepend) '
-                'keyword(~alpha) stable profile (alpha) (1 total): '
-                'solutions: [ test/amd64-testing ]')
-
-    def bug_preset(self, bugz, initial_status=None):
-        bugz_inst = bugz.return_value
-        bugz_inst.fetch_package_list.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
-                            [], [], [], initial_status),
-        }
-        return bugz_inst
-
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_cached(self, bugz, add_keywords):
         """
         Test that cached entry for sanity-check- is respected.
         """
-        assert isinstance(self, unittest.TestCase)
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         cache = self.make_cache(bugz_inst, sanity_check=False)
         self.assertEqual(
@@ -638,65 +617,69 @@ class IntegrationFailureTests(IntegrationFailureTestCase,
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_called()
 
-
-class IntegrationMalformedPackageListTests(IntegrationFailureTestCase,
-                                           unittest.TestCase):
-    fail_msg = ('Unable to check for sanity:\n\n> invalid package spec: '
-                '<>amd64-testing-deps-1')
-
-    def bug_preset(self, bugz, initial_status=None):
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_malformed_package_list(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.fetch_package_list.return_value = {
             560322: BugInfo(BugCategory.KEYWORDREQ,
                             '<>amd64-testing-deps-1 ~alpha\r\n',
-                            [], [], [], initial_status),
+                            [], [], [], None),
         }
-        return bugz_inst
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, False, 'Unable to check for sanity:\n\n> invalid '
+            'package spec: <>amd64-testing-deps-1')
 
-
-class IntegrationNonequalsPackageListTests(IntegrationFailureTestCase,
-                                           unittest.TestCase):
-    fail_msg = ('Unable to check for sanity:\n\n> disallowed package '
-                'spec (only = allowed): >=test/amd64-testing-deps-1')
-
-    def bug_preset(self, bugz, initial_status=None):
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_disallowed_package_list(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.fetch_package_list.return_value = {
             560322: BugInfo(BugCategory.KEYWORDREQ,
                             '>=test/amd64-testing-deps-1 ~alpha\r\n',
-                            [], [], [], initial_status),
+                            [], [], [], None),
         }
-        return bugz_inst
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, False, 'Unable to check for sanity:\n\n> disallowed '
+            'package spec (only = allowed): >=test/amd64-testing-deps-1')
 
-
-class IntegrationNonMatchedPackageListTests(IntegrationFailureTestCase,
-                                            unittest.TestCase):
-    fail_msg = ("Unable to check for sanity:\n\n> no match for package: "
-                "test/enoent-7")
-
-    def bug_preset(self, bugz, initial_status=None):
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_non_matched_package_list(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.fetch_package_list.return_value = {
             560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/enoent-7 ~alpha\r\n',
-                            [], [], [], initial_status),
+                            [], [], [], None),
         }
-        return bugz_inst
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, False, 'Unable to check for sanity:\n\n> no match '
+            'for package: test/enoent-7')
 
-
-class IntegrationNonMatchedKeywordListTests(IntegrationFailureTestCase,
-                                            unittest.TestCase):
-    fail_msg = ("Unable to check for sanity:\n\n> incorrect keywords: "
-                "mysuperarch")
-
-    def bug_preset(self, bugz, initial_status=None):
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_non_matched_keyword_list(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.fetch_package_list.return_value = {
             560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 amd64 ~mysuperarch\r\n',
-                            [], [], [], initial_status),
+                            [], [], [], None),
         }
-        return bugz_inst
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, False, 'Unable to check for sanity:\n\n> incorrect '
+            'keywords: mysuperarch')
 
 
 class IntegrationLimiterTests(IntegrationTestCase, unittest.TestCase):
