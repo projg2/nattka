@@ -258,6 +258,10 @@ def main(argv):
         return e.code
 
 
-if __name__ == '__main__':
+def setuptools_main():
     log.setLevel(logging.INFO)
     sys.exit(main(sys.argv[1:]))
+
+
+if __name__ == '__main__':
+    setuptools_main()
