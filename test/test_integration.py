@@ -36,6 +36,9 @@ class IntegrationTestCase(object):
         self.repo = get_test_repo(tempdir_path)
 
         self.common_args = [
+            # we do not need an API key since we mock NattkaBugzilla
+            # but the program refuses to run without it
+            '--api-key', 'UNUSED',
             '--portage-conf', str(tempdir_path / 'conf'),
             '--repo', self.repo.location,
         ]
