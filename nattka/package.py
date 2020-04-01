@@ -13,11 +13,12 @@ __import__('pkgcheck.checks')
 from pkgcheck.reporters import PickleStream
 import pkgcore.ebuild.ebuild_src
 
-from gentoolkit.ekeyword import ekeyword
 from pkgcore.config import load_config
 from pkgcore.ebuild.atom import atom
 from pkgcore.ebuild.errors import MalformedAtom
 from pkgcore.ebuild.repository import UnconfiguredTree
+
+from nattka.keyword import update_keywords_in_file
 
 
 class PackageKeywords(typing.NamedTuple):
@@ -104,9 +105,7 @@ def add_keywords(tuples: typing.Iterator[PackageKeywords], stable: bool
     """
 
     for p, keywords in tuples:
-        ebuild = p.path
-        ops = [ekeyword.Op(None if stable else '~', k, None) for k in keywords]
-        ekeyword.process_ebuild(ebuild, ops, quiet=2)
+        update_keywords_in_file(p.path, keywords, stable=stable)
 
 
 def check_dependencies(repo: UnconfiguredTree, tuples: typing.Iterable[

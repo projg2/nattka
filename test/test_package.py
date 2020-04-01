@@ -239,7 +239,7 @@ class KeywordAdderTest(BaseRepoTestCase):
 
                     self.assertEqual(e1.keywords, ('~alpha', '~amd64', '~hppa'))
                     self.assertEqual(e2.keywords, ('~amd64',))
-                    self.assertEqual(e3.keywords, ('~alpha', '~amd64', '~hppa'))
+                    self.assertEqual(e3.keywords, ('~alpha', 'amd64', '~hppa'))
 
     def test_stabilize(self):
         """ Test stabilizing ebuilds. """
