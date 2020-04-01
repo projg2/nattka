@@ -118,6 +118,26 @@ class IntegrationNoActionTestCase(IntegrationTestCase,
             self.reset_msg)
 
 
+class IntegrationEmptyPackagesTests(IntegrationNoActionTestCase,
+                                    unittest.TestCase):
+    """
+    Test for a bug where package list is empty.
+    """
+
+    reset_msg = 'Resetting sanity check; package list is empty.'
+
+    def bug_preset(self, bugz: MagicMock, initial_status: bool = None
+            ) -> MagicMock:
+        bugz_inst = bugz.return_value
+        bugz_inst.fetch_package_list.return_value = {
+            560322: BugInfo(BugCategory.STABLEREQ,
+                            '   \r\n'
+                            '\r\n',
+                            [], [], [], initial_status),
+        }
+        return bugz_inst
+
+
 class IntegrationEmptyKeywordsTests(IntegrationNoActionTestCase,
                                     unittest.TestCase):
     """

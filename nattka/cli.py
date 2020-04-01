@@ -22,6 +22,10 @@ from nattka.package import (find_repository, match_package_list,
 log = logging.getLogger('nattka')
 
 
+class SkipBug(Exception):
+    pass
+
+
 class NattkaCommands(object):
     args: argparse.Namespace
     bz: typing.Optional[NattkaBugzilla]
@@ -114,6 +118,11 @@ class NattkaCommands(object):
                 log.info(f'Bug {bno} ({b.category.name})')
                 try:
                     plist = dict(match_package_list(repo, b.atoms))
+                    if not plist:
+                        log.info('Skipping because of empty package list')
+                        comment = ('Resetting sanity check; package list '
+                                   'is empty.')
+                        raise SkipBug()
 
                     for keywords in plist.values():
                         # skip the bug if at least one package has undefined
@@ -121,11 +130,10 @@ class NattkaCommands(object):
                         # arches CC-ed)
                         if not keywords:
                             log.info('Skipping because of incomplete keywords')
-                            check_res = None
                             comment = ('Resetting sanity check; keywords are '
                                        'not fully specified and arches are not '
                                        'CC-ed.')
-                            break
+                            raise SkipBug()
                     else:
                         with git_repo:
                             add_keywords(plist.items(),
@@ -157,6 +165,8 @@ class NattkaCommands(object):
                     comment = f'Unable to check for sanity:\n\n> {e}'
                 except GitDirtyWorkTree:
                     raise
+                except SkipBug:
+                    check_res = None
                 except Exception as e:
                     log.error(f'TODO: handle exception {e.__class__} {e}')
                     continue
