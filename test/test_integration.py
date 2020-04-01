@@ -272,6 +272,9 @@ class IntegrationSuccessTests(IntegrationTestCase):
             self.get_package('=test/amd64-testing-1').keywords,
             ('~amd64',))
         self.assertEqual(
+            self.get_package('=test/amd64-testing-deps-1').keywords,
+            ('~amd64',))
+        self.assertEqual(
             self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
             ('~alpha', '~amd64', '~hppa'))
 
@@ -299,6 +302,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_not_called()
+        self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_success(self, bugz):
@@ -309,6 +313,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(560322, True, None)
+        self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_success_from_success(self, bugz):
@@ -321,6 +326,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_not_called()
+        self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_success_from_failure(self, bugz):
@@ -332,6 +338,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(
             560322, True, 'All sanity-check issues have been resolved')
+        self.post_verify()
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
@@ -424,6 +431,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(560322, True, None)
+        self.post_verify()
 
 
 class IntegrationFailureTests(IntegrationTestCase):
@@ -463,6 +471,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_not_called()
+        self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_failure(self, bugz):
@@ -474,6 +483,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(
             560322, False, self.fail_msg)
+        self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_failure_no_comment(self, bugz):
@@ -488,6 +498,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(
             560322, False, self.fail_msg)
+        self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_failure_from_other_failure(self, bugz):
@@ -506,6 +517,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(
             560322, False, self.fail_msg)
+        self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_failure_from_same_failure(self, bugz):
@@ -519,6 +531,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_not_called()
+        self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_failure_from_success(self, bugz):
@@ -530,6 +543,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(
             560322, False, self.fail_msg)
+        self.post_verify()
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
