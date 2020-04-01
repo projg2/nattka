@@ -12,6 +12,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pkgcore.ebuild.ebuild_src
 from pkgcore.util import parserestrict
 
 from nattka.bugzilla import BugCategory, BugInfo
@@ -54,7 +55,9 @@ class IntegrationTestCase(object):
     def tearDown(self):
         self.tempdir.cleanup()
 
-    def get_package(self, atom):
+    def get_package(self,
+                    atom: str
+                    ) -> pkgcore.ebuild.ebuild_src.package:
         pkg = self.repo.match(parserestrict.parse_match(atom))
         assert len(pkg) == 1
         return pkg[0]
@@ -67,8 +70,10 @@ class IntegrationNoActionTestCase(IntegrationTestCase,
     """
 
     @abc.abstractmethod
-    def bug_preset(self, bugz: MagicMock, initial_status: bool = None
-            ) -> MagicMock:
+    def bug_preset(self,
+                   bugz: MagicMock,
+                   initial_status: bool = None
+                   ) -> MagicMock:
         """ Preset bugzilla mock. """
         pass
 
@@ -131,8 +136,8 @@ class IntegrationNoActionTestCase(IntegrationTestCase,
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_called_with(560322, None,
-            self.reset_msg)
+        bugz_inst.update_status.assert_called_with(
+            560322, None, self.reset_msg)
 
 
 class IntegrationEmptyPackagesTests(IntegrationNoActionTestCase,
@@ -143,8 +148,10 @@ class IntegrationEmptyPackagesTests(IntegrationNoActionTestCase,
 
     reset_msg = 'Resetting sanity check; package list is empty.'
 
-    def bug_preset(self, bugz: MagicMock, initial_status: bool = None
-            ) -> MagicMock:
+    def bug_preset(self,
+                   bugz: MagicMock,
+                   initial_status: bool = None
+                   ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.fetch_package_list.return_value = {
             560322: BugInfo(BugCategory.STABLEREQ,
@@ -165,8 +172,10 @@ class IntegrationEmptyKeywordsTests(IntegrationNoActionTestCase,
     reset_msg = ('Resetting sanity check; keywords are not fully '
                  'specified and arches are not CC-ed.')
 
-    def bug_preset(self, bugz: MagicMock, initial_status: bool = None
-            ) -> MagicMock:
+    def bug_preset(self,
+                   bugz: MagicMock,
+                   initial_status: bool = None
+                   ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.fetch_package_list.return_value = {
             560322: BugInfo(BugCategory.STABLEREQ,
@@ -183,7 +192,9 @@ class IntegrationWrongCategoryTests(IntegrationTestCase,
     Test for a bug in non-keywordreq/stablereq category.
     """
 
-    def bug_preset(self, bugz: MagicMock) -> MagicMock:
+    def bug_preset(self,
+                   bugz: MagicMock
+                   ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.fetch_package_list.return_value = {
             560322: BugInfo(None,
@@ -221,8 +232,10 @@ class IntegrationSuccessTestCase(IntegrationTestCase,
     """
 
     @abc.abstractmethod
-    def bug_preset(self, bugz: MagicMock, initial_status: bool = None
-            ) -> MagicMock:
+    def bug_preset(self,
+                   bugz: MagicMock,
+                   initial_status: bool = None
+                   ) -> MagicMock:
         """ Preset bugzilla mock. """
         pass
 
@@ -275,13 +288,15 @@ class IntegrationSuccessTestCase(IntegrationTestCase,
             main(self.common_args + ['process-bugs', '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
-        bugz_inst.update_status.assert_called_with(560322, True,
-            'All sanity-check issues have been resolved')
+        bugz_inst.update_status.assert_called_with(
+            560322, True, 'All sanity-check issues have been resolved')
 
 
 class IntegrationSuccessTests(IntegrationSuccessTestCase, unittest.TestCase):
-    def bug_preset(self, bugz: MagicMock, initial_status: bool = None
-            ) -> MagicMock:
+    def bug_preset(self,
+                   bugz: MagicMock,
+                   initial_status: bool = None
+                   ) -> MagicMock:
         """ Preset bugzilla mock. """
         bugz_inst = bugz.return_value
         bugz_inst.fetch_package_list.return_value = {
@@ -337,17 +352,19 @@ class IntegrationFailureTestCase(IntegrationTestCase,
     """
 
     @abc.abstractproperty
-    def fail_msg(self):
+    def fail_msg(self) -> str:
         """ Expected failure message. """
         pass
 
     @abc.abstractmethod
-    def bug_preset(self, bugz: MagicMock, initial_status: bool = None
-            ) -> MagicMock:
+    def bug_preset(self,
+                   bugz: MagicMock,
+                   initial_status: bool = None
+                   ) -> MagicMock:
         """ Preset bugzilla mock. """
         pass
 
-    def post_verify(self):
+    def post_verify(self) -> None:
         """ Verify that the original data has been restored. """
         self.assertEqual(
             self.get_package('=test/amd64-testing-deps-1').keywords,
@@ -371,8 +388,8 @@ class IntegrationFailureTestCase(IntegrationTestCase,
             main(self.common_args + ['process-bugs', '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
-        bugz_inst.update_status.assert_called_with(560322, False,
-            self.fail_msg)
+        bugz_inst.update_status.assert_called_with(
+            560322, False, self.fail_msg)
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_failure_no_comment(self, bugz):
@@ -385,8 +402,8 @@ class IntegrationFailureTestCase(IntegrationTestCase,
             main(self.common_args + ['process-bugs', '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
-        bugz_inst.update_status.assert_called_with(560322, False,
-            self.fail_msg)
+        bugz_inst.update_status.assert_called_with(
+            560322, False, self.fail_msg)
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_failure_from_other_failure(self, bugz):
@@ -403,8 +420,8 @@ class IntegrationFailureTestCase(IntegrationTestCase,
             main(self.common_args + ['process-bugs', '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
-        bugz_inst.update_status.assert_called_with(560322, False,
-            self.fail_msg)
+        bugz_inst.update_status.assert_called_with(
+            560322, False, self.fail_msg)
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_failure_from_same_failure(self, bugz):
@@ -427,8 +444,8 @@ class IntegrationFailureTestCase(IntegrationTestCase,
             main(self.common_args + ['process-bugs', '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
-        bugz_inst.update_status.assert_called_with(560322, False,
-            self.fail_msg)
+        bugz_inst.update_status.assert_called_with(
+            560322, False, self.fail_msg)
 
 
 class IntegrationFailureTests(IntegrationFailureTestCase,

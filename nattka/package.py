@@ -43,8 +43,9 @@ class PackageInvalid(Exception):
     pass
 
 
-def find_repository(path: str, conf_path: str = None
-        ) -> UnconfiguredTree:
+def find_repository(path: str,
+                    conf_path: str = None
+                    ) -> UnconfiguredTree:
     """
     Find an ebuild repository in specified @path, and return initiated
     repo object for it.  If @conf_path is specified, it overrides
@@ -55,8 +56,9 @@ def find_repository(path: str, conf_path: str = None
     return domain.find_repo(path, config=c, configure=False)
 
 
-def match_package_list(repo: UnconfiguredTree, package_list: str
-        ) -> typing.Iterator[PackageKeywords]:
+def match_package_list(repo: UnconfiguredTree,
+                       package_list: str
+                       ) -> typing.Iterator[PackageKeywords]:
     """
     Match @package_list against packages in @repo.  Returns an iterator
     over pairs of PackageKeywords.  If any of the items fails to match,
@@ -97,8 +99,9 @@ def match_package_list(repo: UnconfiguredTree, package_list: str
         yield PackageKeywords(m[0], keywords)
 
 
-def add_keywords(tuples: typing.Iterator[PackageKeywords], stable: bool
-        ) -> None:
+def add_keywords(tuples: typing.Iterator[PackageKeywords],
+                 stable: bool
+                 ) -> None:
     """
     Add testing (stable=False) or stable (stable=True) keywords to
     ebuilds, as specified by package-keyword tuples.
@@ -108,8 +111,9 @@ def add_keywords(tuples: typing.Iterator[PackageKeywords], stable: bool
         update_keywords_in_file(p.path, keywords, stable=stable)
 
 
-def check_dependencies(repo: UnconfiguredTree, tuples: typing.Iterable[
-        PackageKeywords]) -> CheckResult:
+def check_dependencies(repo: UnconfiguredTree,
+                       tuples: typing.Iterable[PackageKeywords]
+                       ) -> CheckResult:
     """
     Check whether dependencies are satisfied for package-arch @tuples,
     in @repo.  Returns a pair of (boolean status, error list).

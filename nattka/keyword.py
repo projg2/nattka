@@ -19,7 +19,8 @@ class KeywordsNotFound(Exception):
     pass
 
 
-def keyword_sort_key(kw):
+def keyword_sort_key(kw: str
+                     ) -> typing.Tuple[str, str, str]:
     """
     Return the keyword sorting key, i.e. sort by os, then arch name.
     """
@@ -27,8 +28,9 @@ def keyword_sort_key(kw):
 
 
 def update_keywords(keywords: typing.List[str],
-        new_keywords: typing.Iterable[str], stable: bool
-        ) -> typing.Optional[typing.List[str]]:
+                    new_keywords: typing.Iterable[str],
+                    stable: bool
+                    ) -> typing.Optional[typing.List[str]]:
     """
     Update list of keywords @keywords using @new_keywords.  @stable
     specifies whether new keywords should be stable or ~arch.  ~arch
@@ -54,8 +56,10 @@ def update_keywords(keywords: typing.List[str],
     return None
 
 
-def update_keywords_in_file(path: Path, keywords: typing.Iterable[str],
-        stable: bool) -> None:
+def update_keywords_in_file(path: Path,
+                            keywords: typing.Iterable[str],
+                            stable: bool
+                            ) -> None:
     """
     Update KEYWORDS entry in the file at @path.  @keywords specifies
     a list of keywords, @stable indicates whether they should be stable

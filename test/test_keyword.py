@@ -216,5 +216,5 @@ src_configure() {
         fn = self.write_ebuild(
             '[[ ${PV} != 9999 ]] && KEYWORDS="~amd64 ~x86"')
         update_keywords_in_file(fn, ['amd64', 'arm'], stable=True)
-        self.check_ebuild(fn,
-            '[[ ${PV} != 9999 ]] && KEYWORDS="amd64 arm ~x86"')
+        self.check_ebuild(
+            fn, '[[ ${PV} != 9999 ]] && KEYWORDS="amd64 arm ~x86"')

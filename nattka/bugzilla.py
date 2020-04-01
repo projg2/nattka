@@ -28,8 +28,10 @@ class BugCategory(enum.Enum):
     STABLEREQ = enum.auto()
 
     @classmethod
-    def from_product_component(cls, product: str, component: str
-            ) -> typing.Optional['BugCategory']:
+    def from_product_component(cls,
+                               product: str,
+                               component: str
+                               ) -> typing.Optional['BugCategory']:
         """
         Return a BugCategory for bug in @product and @component.
         """
@@ -45,8 +47,10 @@ class BugCategory(enum.Enum):
         return None
 
     @classmethod
-    def to_products_components(cls, val: typing.Optional['BugCategory']
-            ) -> typing.Tuple[typing.List[str], typing.List[str]]:
+    def to_products_components(cls,
+                               val: typing.Optional['BugCategory']
+                               ) -> typing.Tuple[typing.List[str],
+                                                 typing.List[str]]:
         """
         Return a tuple of valid bug products and components for a given
         category.
@@ -72,7 +76,8 @@ class BugInfo(typing.NamedTuple):
     sanity_check: typing.Optional[bool]
 
 
-def make_bug_info(bug: typing.Dict[str, typing.Any]) -> BugInfo:
+def make_bug_info(bug: typing.Dict[str, typing.Any]
+                  ) -> BugInfo:
     bcat = BugCategory.from_product_component(bug['product'],
                                               bug['component'])
     atoms = bug['cf_stabilisation_atoms'] + '\r\n'
@@ -89,16 +94,21 @@ def make_bug_info(bug: typing.Dict[str, typing.Any]) -> BugInfo:
 
 
 class NattkaBugzilla(object):
-    def __init__(self, api_key: str, api_url: str = BUGZILLA_API_URL,
+    def __init__(self,
+                 api_key: str,
+                 api_url: str = BUGZILLA_API_URL,
                  auth: typing.Optional[typing.Tuple[str, str]] = None):
         self.api_key = api_key
         self.api_url = api_url
         self.auth = auth
         self.session = requests.Session()
 
-    def _request(self, endpoint: str, params: typing.Mapping[str,
-            typing.Union[typing.Iterable[str], str]] = {}
-            ) -> requests.Response:
+    def _request(self,
+                 endpoint: str,
+                 params: typing.Mapping[str, typing.Union[
+                     typing.Iterable[str], str
+                 ]] = {}
+                 ) -> requests.Response:
         params = dict(params)
         params['Bugzilla_api_key'] = self.api_key
         ret = self.session.get(self.api_url + '/' + endpoint,
@@ -107,7 +117,10 @@ class NattkaBugzilla(object):
         ret.raise_for_status()
         return ret
 
-    def _request_put(self, endpoint: str, data: dict) -> requests.Response:
+    def _request_put(self,
+                     endpoint: str,
+                     data: dict
+                     ) -> requests.Response:
         data = dict(data)
         ret = self.session.put(self.api_url + '/' + endpoint,
                                auth=self.auth,
@@ -124,8 +137,9 @@ class NattkaBugzilla(object):
         """
         return self._request('whoami').json()['name']
 
-    def fetch_package_list(self, bugs: typing.Iterable[int]
-            ) -> typing.Dict[int, BugInfo]:
+    def fetch_package_list(self,
+                           bugs: typing.Iterable[int]
+                           ) -> typing.Dict[int, BugInfo]:
         """
         Fetch specified @bugs (list of bug numbers).  Returns a dict
         of {bugno: buginfo}.
@@ -142,8 +156,10 @@ class NattkaBugzilla(object):
             ret[b['id']] = make_bug_info(b)
         return ret
 
-    def find_bugs(self, category: typing.Optional[BugCategory],
-            limit: int = None) -> typing.Dict[int, BugInfo]:
+    def find_bugs(self,
+                  category: typing.Optional[BugCategory],
+                  limit: int = None
+                  ) -> typing.Dict[int, BugInfo]:
         """
         Find all relevant bugs in @category.  Limit to @limit results
         (None = no limit).
@@ -170,8 +186,10 @@ class NattkaBugzilla(object):
             ret[b['id']] = make_bug_info(b)
         return ret
 
-    def get_latest_comment(self, bugno: int, username: str
-            ) -> typing.Optional[str]:
+    def get_latest_comment(self,
+                           bugno: int,
+                           username: str
+                           ) -> typing.Optional[str]:
         """
         Get the latest comment left by @username on bug @bugno.
         Returns comment's text or None, if no matching comments found.
@@ -183,8 +201,11 @@ class NattkaBugzilla(object):
                 return c['text']
         return None
 
-    def update_status(self, bugno: int, status: typing.Optional[bool],
-            comment: str = None):
+    def update_status(self,
+                      bugno: int,
+                      status: typing.Optional[bool],
+                      comment: str = None
+                      ) -> None:
         """
         Update the sanity-check status of bug @bugno.  @status specifies
         the new status (True, False or None to remove the flag),
@@ -219,8 +240,9 @@ class NattkaBugzilla(object):
         assert resp['bugs'][0]['id'] == bugno
 
 
-def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo], bugno: int
-        ) -> BugInfo:
+def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo],
+                         bugno: int
+                         ) -> BugInfo:
     """
     Combine information from linked (via 'depends on') bugs into
     a single BugInfo.  @bugdict is the dict returned by Bugzilla search,
@@ -246,25 +268,26 @@ def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo], bugno: int
                    topbug.blocks, topbug.sanity_check)
 
 
-def fill_keywords_from_cc(bug: BugInfo, known_arches: typing.Iterable[str]
-        ) -> BugInfo:
+def fill_keywords_from_cc(bug: BugInfo,
+                          known_arches: typing.Iterable[str]
+                          ) -> BugInfo:
     """
     Fill missing keywords in @bug based on CC list.  @known_arches
     specifies the list of valid arches.  Returns a BugInfo with arches
     filled in (if possible).
     """
 
-    arches = sorted(x.split('@')[0] for x in frozenset(f'{x}@gentoo.org'
-                                                       for x
-                                                       in known_arches)
-                                             .intersection(bug.cc))
+    arches = sorted(x.split('@')[0]
+                    for x in frozenset(
+                        f'{x}@gentoo.org' for x in known_arches)
+                    .intersection(bug.cc))
 
     ret = ''
-    for l in bug.atoms.splitlines():
-        sl = l.split()
+    for line in bug.atoms.splitlines():
+        sl = line.split()
         if len(sl) == 1:
-            l += f' {" ".join(arches)}'
-        ret += f'{l}\r\n'
+            line += f' {" ".join(arches)}'
+        ret += f'{line}\r\n'
 
     return BugInfo(bug.category, ret, bug.cc, bug.depends, bug.blocks,
                    bug.sanity_check)

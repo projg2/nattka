@@ -34,7 +34,8 @@ class NattkaCommands(object):
     bz: typing.Optional[NattkaBugzilla]
     repo: typing.Optional[UnconfiguredTree]
 
-    def __init__(self, args):
+    def __init__(self,
+                 args: argparse.Namespace):
         self.args = args
         self.bz = None
         self.repo = None
@@ -179,7 +180,7 @@ class NattkaCommands(object):
                     else:
                         issues = sorted(str(x) for x in issues)
                         comment = ('Sanity check failed:\n\n'
-                            + '\n'.join(f'> {x}' for x in issues))
+                                   + '\n'.join(f'> {x}' for x in issues))
                         log.info('Sanity check failed')
             except (PackageInvalid, PackageNoMatch, KeywordNoMatch) as e:
                 log.error(e)
@@ -204,8 +205,8 @@ class NattkaCommands(object):
             if check_res is False and b.sanity_check is False:
                 old_comment = bz.get_latest_comment(bno, username)
                 # do not add a second identical comment
-                if (old_comment is not None and comment.strip() ==
-                                                old_comment.strip()):
+                if (old_comment is not None
+                        and comment.strip() == old_comment.strip()):
                     log.info('Failure reported already')
                     continue
 
@@ -216,7 +217,7 @@ class NattkaCommands(object):
         return 0
 
 
-def main(argv):
+def main(argv: typing.List[str]) -> int:
     argp = argparse.ArgumentParser()
     argp.add_argument('--api-key',
                       help='Bugzilla API key (read from ~/.bugz_token '
@@ -258,7 +259,7 @@ def main(argv):
         return e.code
 
 
-def setuptools_main():
+def setuptools_main() -> None:
     log.setLevel(logging.INFO)
     sys.exit(main(sys.argv[1:]))
 

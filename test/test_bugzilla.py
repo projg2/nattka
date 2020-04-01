@@ -91,12 +91,13 @@ class BugzillaTests(BugzillaTestCase):
                                                           'sh',
                                                           'sparc')],
                              [], [], None),
-            })
+             })
 
     @rec.use_cassette()
     def test_find_keywordreqs(self):
         """ Test finding keywordreqs. """
-        self.assertEqual(self.bz.find_bugs(BugCategory.KEYWORDREQ, limit=3),
+        self.assertEqual(
+            self.bz.find_bugs(BugCategory.KEYWORDREQ, limit=3),
             {538510: BugInfo(BugCategory.KEYWORDREQ,
                              '=dev-python/pyzor-1.0.0 \r\n'
                              '=dev-python/gevent-1.0.1\r\n'
@@ -105,11 +106,18 @@ class BugzillaTests(BugzillaTestCase):
                               'sparc@gentoo.org'],
                              [], [], False),
              548352: BugInfo(BugCategory.KEYWORDREQ,
-                             'dev-perl/Class-Load-0.230.0 ~amd64-linux ~arm64 ~m68k ~ppc-aix ~ppc-macos ~s390 ~sh ~x64-macos ~x86-fbsd ~x86-freebsd ~x86-linux ~x86-macos ~x86-solaris\r\n'
-                             'dev-perl/Package-Stash-0.370.0 ~amd64-linux\r\n'
-                             'dev-perl/Dist-CheckConflicts-0.110.0 ~amd64-linux\r\n'
-                             'dev-perl/Package-Stash-XS-0.280.0 ~amd64-linux\r\n'
-                             'dev-perl/Test-Requires-0.100.0 ~ppc-aix\r\n',
+                             'dev-perl/Class-Load-0.230.0 ~amd64-linux '
+                             '~arm64 ~m68k ~ppc-aix ~ppc-macos ~s390 '
+                             '~sh ~x64-macos ~x86-fbsd ~x86-freebsd '
+                             '~x86-linux ~x86-macos ~x86-solaris\r\n'
+                             'dev-perl/Package-Stash-0.370.0 '
+                             '~amd64-linux\r\n'
+                             'dev-perl/Dist-CheckConflicts-0.110.0 '
+                             '~amd64-linux\r\n'
+                             'dev-perl/Package-Stash-XS-0.280.0 '
+                             '~amd64-linux\r\n'
+                             'dev-perl/Test-Requires-0.100.0 '
+                             '~ppc-aix\r\n',
                              ['arm64@gentoo.org', 'm68k@gentoo.org',
                               'prefix@gentoo.org', 's390@gentoo.org',
                               'sh@gentoo.org', 'sparc@gentoo.org'],
@@ -118,12 +126,13 @@ class BugzillaTests(BugzillaTestCase):
                              '=media-libs/flac-1.3.2-r1\r\n',
                              ['alpha@gentoo.org', 'amd64@gentoo.org'],
                              [], [], True)
-            })
+             })
 
     @rec.use_cassette()
     def test_find_stablereqs(self):
         """ Test finding stablereqs. """
-        self.assertEqual(self.bz.find_bugs(BugCategory.STABLEREQ, limit=6),
+        self.assertEqual(
+            self.bz.find_bugs(BugCategory.STABLEREQ, limit=6),
             {541500: BugInfo(BugCategory.STABLEREQ,
                              'app-arch/arj-3.10.22-r7 amd64 ppc x86\r\n',
                              ['maintainer-needed@gentoo.org'],
@@ -143,7 +152,7 @@ class BugzillaTests(BugzillaTestCase):
                              ['amd64@gentoo.org', 'arm64@gentoo.org',
                               'arm@gentoo.org'],
                              [560310], [], True)
-            })
+             })
 
     @rec.use_cassette()
     def test_get_latest_comment(self):
@@ -163,8 +172,7 @@ class BugzillaTests(BugzillaTestCase):
     @rec.use_cassette()
     def test_set_status_and_comment(self):
         """ Test setting sanity-check status and commenting. """
-        self.bz.update_status(560310, False,
-            'sanity check failed!\r\n')
+        self.bz.update_status(560310, False, 'sanity check failed!\r\n')
         self.assertEqual(
             self.bz.fetch_package_list([560310])[560310].sanity_check,
             False)
@@ -192,7 +200,7 @@ class BugInfoCombinerTest(unittest.TestCase):
                  2: BugInfo('Stabilization', 'test/bar-2 x86\r\n',
                             ['x86@gentoo.org'],
                             [], [1], True)
-                }, 1),
+                 }, 1),
             BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n'
                                      'test/bar-2 x86\r\n',
                     ['amd64@gentoo.org', 'x86@gentoo.org'], [], [],
@@ -208,7 +216,7 @@ class BugInfoCombinerTest(unittest.TestCase):
                  2: BugInfo('Stabilization', 'test/bar-2 x86\r\n',
                             ['x86@gentoo.org'],
                             [3, 4], [1], True)
-                }, 1),
+                 }, 1),
             BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n'
                                      'test/bar-2 x86\r\n',
                     ['amd64@gentoo.org', 'x86@gentoo.org'], [3, 4], [],
@@ -224,7 +232,7 @@ class BugInfoCombinerTest(unittest.TestCase):
                  2: BugInfo('Keywording', 'test/foo-1 x86\r\n',
                             ['x86@gentoo.org'],
                             [], [1], True)
-                }, 1),
+                 }, 1),
             BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n',
                     ['amd64@gentoo.org', 'x86@gentoo.org'], [2], [],
                     True))

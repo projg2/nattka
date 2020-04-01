@@ -32,8 +32,8 @@ class BaseRepoTestCase(unittest.TestCase):
         return pkg[0]
 
     def ebuild_path(self, cat, pkg, ver):
-        return str(Path(self.repo.location) / cat / pkg /
-                   f'{pkg}-{ver}.ebuild')
+        return str(Path(self.repo.location) / cat / pkg
+                                            / f'{pkg}-{ver}.ebuild')
 
 
 class PackageMatcherTests(BaseRepoTestCase):
@@ -48,7 +48,9 @@ class PackageMatcherTests(BaseRepoTestCase):
                 '''))), [
                 (self.ebuild_path('test', 'amd64-testing', '1'), []),
                 (self.ebuild_path('test', 'amd64-testing', '2'), []),
-                (self.ebuild_path('test', 'amd64-stable-hppa-testing', '1'), []),
+                (self.ebuild_path(
+                    'test', 'amd64-stable-hppa-testing', '1'),
+                    []),
             ])
 
     def test_versioned_package_list_equals(self):
@@ -237,9 +239,11 @@ class KeywordAdderTest(BaseRepoTestCase):
                         (e3, ['amd64', 'alpha']),
                     ], stable=False)
 
-                    self.assertEqual(e1.keywords, ('~alpha', '~amd64', '~hppa'))
+                    self.assertEqual(e1.keywords,
+                                     ('~alpha', '~amd64', '~hppa'))
                     self.assertEqual(e2.keywords, ('~amd64',))
-                    self.assertEqual(e3.keywords, ('~alpha', 'amd64', '~hppa'))
+                    self.assertEqual(e3.keywords,
+                                     ('~alpha', 'amd64', '~hppa'))
 
     def test_stabilize(self):
         """ Test stabilizing ebuilds. """
@@ -287,16 +291,18 @@ def results_to_dict(res):
 class DependencyCheckerTest(BaseRepoTestCase):
     def test_amd64_good(self):
         self.assertEqual(
-            check_dependencies(self.repo,
+            check_dependencies(
+                self.repo,
                 [(self.get_package('=test/amd64-testing-deps-1'),
                   ['amd64'])]),
             (True, []))
 
     def test_amd64_bad(self):
         self.assertEqual(
-            results_to_dict(check_dependencies(self.repo,
-                    [(self.get_package('=test/amd64-stable-deps-1'),
-                     ['amd64'])])),
+            results_to_dict(check_dependencies(
+                self.repo,
+                [(self.get_package('=test/amd64-stable-deps-1'),
+                 ['amd64'])])),
             (False, [
                 {'__class__': 'NonsolvableDepsInStable',
                  'attr': 'rdepend',
@@ -313,9 +319,10 @@ class DependencyCheckerTest(BaseRepoTestCase):
 
     def test_alpha_bad(self):
         self.assertEqual(
-            results_to_dict(check_dependencies(self.repo,
-                    [(self.get_package('=test/alpha-testing-deps-1'),
-                      ['alpha'])])),
+            results_to_dict(check_dependencies(
+                self.repo,
+                [(self.get_package('=test/alpha-testing-deps-1'),
+                  ['alpha'])])),
             (False, [
                 {'__class__': 'NonsolvableDepsInStable',
                  'attr': 'rdepend',
@@ -332,12 +339,13 @@ class DependencyCheckerTest(BaseRepoTestCase):
 
     def test_multiple_reports(self):
         self.assertEqual(
-            results_to_dict(check_dependencies(self.repo,
-                    [(self.get_package('=test/amd64-stable-deps-1'),
-                      ['amd64']),
-                     (self.get_package('=test/amd64-testing-deps-2'),
-                      ['amd64'])
-                    ])),
+            results_to_dict(check_dependencies(
+                self.repo,
+                [(self.get_package('=test/amd64-stable-deps-1'),
+                  ['amd64']),
+                 (self.get_package('=test/amd64-testing-deps-2'),
+                  ['amd64'])
+                 ])),
             (False, [
                 {'__class__': 'NonsolvableDepsInStable',
                  'attr': 'rdepend',
