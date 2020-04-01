@@ -91,8 +91,12 @@ class NattkaCommands(object):
 
     def apply(self) -> int:
         repo = self.get_repository()
-        for bugno, b in self.find_bugs().items():
-            log.info(f'Bug {bugno} ({b.category.name})')
+        for bno, b in self.find_bugs().items():
+            if b.category is None:
+                log.info(f'Bug {bno}: neither stablereq nor keywordreq')
+                continue
+
+            log.info(f'Bug {bno} ({b.category.name})')
             plist = dict(match_package_list(repo, b.atoms))
             for p, keywords in plist.items():
                 log.info(f'Package {p.cpvstr}: {plist[p]}')
@@ -115,6 +119,10 @@ class NattkaCommands(object):
             # start with the newest bugs
             for bno in reversed(sorted(bugs)):
                 b = get_combined_buginfo(bugs, bno)
+                if b.category is None:
+                    log.info(f'Bug {bno}: neither stablereq nor keywordreq')
+                    continue
+
                 log.info(f'Bug {bno} ({b.category.name})')
                 try:
                     plist = dict(match_package_list(repo, b.atoms))

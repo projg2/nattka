@@ -160,6 +160,43 @@ class IntegrationEmptyKeywordsTests(IntegrationNoActionTestCase,
         return bugz_inst
 
 
+class IntegrationWrongCategoryTests(IntegrationTestCase,
+                                    unittest.TestCase):
+    """
+    Test for a bug in non-keywordreq/stablereq category.
+    """
+
+    def bug_preset(self, bugz: MagicMock) -> MagicMock:
+        bugz_inst = bugz.return_value
+        bugz_inst.fetch_package_list.return_value = {
+            560322: BugInfo(None,
+                            '',
+                            [], [], [], None),
+        }
+        return bugz_inst
+
+    @patch('nattka.cli.match_package_list')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_wrong_category_apply(self, bugz, match_package_list):
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['apply', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        match_package_list.assert_not_called()
+
+    @patch('nattka.cli.match_package_list')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_wrong_category_process(self, bugz, match_package_list):
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        match_package_list.assert_not_called()
+        bugz_inst.update_status.assert_not_called()
+
+
 class IntegrationSuccessTestCase(IntegrationTestCase,
                                  metaclass=abc.ABCMeta):
     """
