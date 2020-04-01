@@ -3,7 +3,6 @@
 
 """ Tests for package processing. """
 
-import re
 import shutil
 import tempfile
 import unittest
@@ -12,14 +11,12 @@ from pathlib import Path
 
 from pkgcore.ebuild.atom import atom
 
+from nattka.keyword import KEYWORDS_RE
 from nattka.package import (match_package_list, add_keywords,
                             check_dependencies, PackageNoMatch,
                             KeywordNoMatch, PackageInvalid)
 
 from test import get_test_repo
-
-
-KEYWORDS_RE = re.compile(r'^KEYWORDS="(.*)"$')
 
 
 class BaseRepoTestCase(unittest.TestCase):
@@ -208,7 +205,7 @@ class FakeEbuild(object):
             for l in f.readlines():
                 m = KEYWORDS_RE.match(l)
                 if m:
-                    return tuple(m.group(1).split())
+                    return tuple(m.group('keywords').split())
 
 
 class KeywordAdderTest(BaseRepoTestCase):
