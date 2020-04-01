@@ -160,10 +160,17 @@ class NattkaCommands(object):
         username = bz.whoami()
         bugs = self.find_bugs()
         log.info(f'Found {len(bugs)} bugs')
+        bugs_done = 0
 
         try:
             # start with the newest bugs
             for bno in reversed(sorted(bugs)):
+                if bugs_done > 0 and bugs_done % 10 == 0:
+                    log.info(f'Tested {bugs_done} bugs so far')
+                if self.args.bug_limit and bugs_done >= self.args.bug_limit:
+                    log.info(f'Reached limit of {self.args.bug_limit} bugs')
+                    break
+
                 b = get_combined_buginfo(bugs, bno)
                 if b.category is None:
                     log.info(f'Bug {bno}: neither stablereq nor keywordreq')
@@ -215,6 +222,8 @@ class NattkaCommands(object):
                                      b.category == BugCategory.STABLEREQ)
                         check_res, issues = check_dependencies(
                             repo, plist.items())
+
+                        bugs_done += 1
 
                         # do not update cache when not updating bugzilla
                         if not self.args.no_update:
@@ -305,6 +314,9 @@ def main(argv: typing.List[str]) -> int:
     prop = subp.add_parser('process-bugs',
                            help='Process all open bugs -- apply '
                                 'keywords, test, report results')
+    prop.add_argument('--bug-limit', type=int,
+                      help='Check at most N bugs (only bugs actually '
+                           'tested count, default: unlimited')
     prop.add_argument('-c', '--cache-file', type=Path,
                       help='Path to the file used to cache bug states '
                            '(default: caching disabled)')

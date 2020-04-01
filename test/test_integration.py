@@ -712,3 +712,37 @@ class IntegrationNonMatchedKeywordListTests(IntegrationFailureTestCase,
                             [], [], [], initial_status),
         }
         return bugz_inst
+
+
+class IntegrationLimiterTests(IntegrationTestCase, unittest.TestCase):
+    """
+    Tests for limiting the number of processed bugs.
+    """
+
+    def bug_preset(self,
+                   bugz: MagicMock
+                   ) -> MagicMock:
+        bugs = {}
+        for i in range(10):
+            bugs[100000 + i] = BugInfo(BugCategory.KEYWORDREQ,
+                                       'test/amd64-testing-1 ~amd64\r\n',
+                                       [], [], [], None)
+
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = bugs
+        return bugz_inst
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_bug_limit(self, bugz):
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '--bug-limit', '5']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(None)
+        self.assertEqual(bugz_inst.update_status.call_count, 5)
+        bugz_inst.update_status.assert_has_calls(
+            [unittest.mock.call(100009, True, None),
+             unittest.mock.call(100008, True, None),
+             unittest.mock.call(100007, True, None),
+             unittest.mock.call(100006, True, None),
+             unittest.mock.call(100005, True, None)])
