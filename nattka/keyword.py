@@ -20,7 +20,7 @@ class KeywordsNotFound(Exception):
 
 
 def keyword_sort_key(kw: str
-                     ) -> typing.Tuple[str, str, str]:
+                     ) -> typing.Tuple[str, ...]:
     """
     Return the keyword sorting key, i.e. sort by os, then arch name.
     """

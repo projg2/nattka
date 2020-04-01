@@ -11,7 +11,7 @@ import requests
 
 BUGZILLA_API_URL = 'https://bugs.gentoo.org/rest'
 
-INCLUDE_BUG_FIELDS = (
+INCLUDE_BUG_FIELDS = [
     'id',
     'product',
     'component',
@@ -20,7 +20,7 @@ INCLUDE_BUG_FIELDS = (
     'depends_on',
     'blocks',
     'flags',
-)
+]
 
 
 class BugCategory(enum.Enum):

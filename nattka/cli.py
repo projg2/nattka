@@ -62,7 +62,8 @@ class NattkaCommands(object):
         """
 
         if self.bz is None:
-            kwargs = {}
+            # TODO: restore type checking once we get rid of auth
+            kwargs: typing.Dict[str, typing.Any] = {}
             if self.args.bugzilla_auth is not None:
                 kwargs['auth'] = tuple(self.args.bugzilla_auth.split(':', 1))
             if self.args.bugzilla_endpoint is not None:
@@ -140,6 +141,9 @@ class NattkaCommands(object):
 
             log.info(f'Bug {bno} ({b.category.name})')
             try:
+                comment: typing.Optional[str] = None
+                check_res: typing.Optional[bool] = None
+
                 plist = dict(match_package_list(repo, b.atoms))
                 if not plist:
                     log.info('Skipping because of empty package list')
@@ -175,8 +179,6 @@ class NattkaCommands(object):
                         if b.sanity_check is False:
                             comment = ('All sanity-check issues '
                                        'have been resolved')
-                        else:
-                            comment = None
                     else:
                         issues = sorted(str(x) for x in issues)
                         comment = ('Sanity check failed:\n\n'
@@ -190,7 +192,7 @@ class NattkaCommands(object):
                 log.error(f'{git_repo.path}: working tree is dirty')
                 raise SystemExit(1)
             except SkipBug:
-                check_res = None
+                pass
             except Exception as e:
                 log.error(f'TODO: handle exception {e.__class__} {e}')
                 continue
@@ -203,6 +205,7 @@ class NattkaCommands(object):
             # for negative results, we verify whether the comment
             # needs to change
             if check_res is False and b.sanity_check is False:
+                assert comment is not None
                 old_comment = bz.get_latest_comment(bno, username)
                 # do not add a second identical comment
                 if (old_comment is not None

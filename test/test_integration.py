@@ -366,6 +366,7 @@ class IntegrationFailureTestCase(IntegrationTestCase,
 
     def post_verify(self) -> None:
         """ Verify that the original data has been restored. """
+        assert isinstance(self, unittest.TestCase)
         self.assertEqual(
             self.get_package('=test/amd64-testing-deps-1').keywords,
             ('~amd64',))

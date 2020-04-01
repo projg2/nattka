@@ -11,8 +11,9 @@ import typing
 # need to preload it to fix pkgcheck.reporters import error
 __import__('pkgcheck.checks')
 from pkgcheck.reporters import PickleStream
-import pkgcore.ebuild.ebuild_src
+from pkgcheck.results import Result
 
+import pkgcore.ebuild.ebuild_src
 from pkgcore.config import load_config
 from pkgcore.ebuild.atom import atom
 from pkgcore.ebuild.errors import MalformedAtom
@@ -26,9 +27,14 @@ class PackageKeywords(typing.NamedTuple):
     keywords: typing.List[str]
 
 
+PackageKeywordsIterable = (
+    typing.Iterable[typing.Tuple[pkgcore.ebuild.ebuild_src.package,
+                                 typing.List[str]]])
+
+
 class CheckResult(typing.NamedTuple):
     success: bool
-    output: typing.List[dict]
+    output: typing.List[Result]
 
 
 class PackageNoMatch(Exception):
@@ -99,7 +105,7 @@ def match_package_list(repo: UnconfiguredTree,
         yield PackageKeywords(m[0], keywords)
 
 
-def add_keywords(tuples: typing.Iterator[PackageKeywords],
+def add_keywords(tuples: PackageKeywordsIterable,
                  stable: bool
                  ) -> None:
     """
@@ -112,7 +118,7 @@ def add_keywords(tuples: typing.Iterator[PackageKeywords],
 
 
 def check_dependencies(repo: UnconfiguredTree,
-                       tuples: typing.Iterable[PackageKeywords]
+                       tuples: PackageKeywordsIterable,
                        ) -> CheckResult:
     """
     Check whether dependencies are satisfied for package-arch @tuples,
