@@ -617,8 +617,9 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_called()
 
+    @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_malformed_package_list(self, bugz):
+    def test_malformed_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.fetch_package_list.return_value = {
             560322: BugInfo(BugCategory.KEYWORDREQ,
@@ -629,12 +630,14 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
         bugz_inst.update_status.assert_called_with(
             560322, False, 'Unable to check for sanity:\n\n> invalid '
             'package spec: <>amd64-testing-deps-1')
 
+    @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_disallowed_package_list(self, bugz):
+    def test_disallowed_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.fetch_package_list.return_value = {
             560322: BugInfo(BugCategory.KEYWORDREQ,
@@ -645,12 +648,14 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
         bugz_inst.update_status.assert_called_with(
             560322, False, 'Unable to check for sanity:\n\n> disallowed '
             'package spec (only = allowed): >=test/amd64-testing-deps-1')
 
+    @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_non_matched_package_list(self, bugz):
+    def test_non_matched_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.fetch_package_list.return_value = {
             560322: BugInfo(BugCategory.KEYWORDREQ,
@@ -661,12 +666,14 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
         bugz_inst.update_status.assert_called_with(
             560322, False, 'Unable to check for sanity:\n\n> no match '
             'for package: test/enoent-7')
 
+    @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_non_matched_keyword_list(self, bugz):
+    def test_non_matched_keyword_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.fetch_package_list.return_value = {
             560322: BugInfo(BugCategory.KEYWORDREQ,
@@ -677,6 +684,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
         bugz_inst.update_status.assert_called_with(
             560322, False, 'Unable to check for sanity:\n\n> incorrect '
             'keywords: mysuperarch')
