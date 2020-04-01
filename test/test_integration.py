@@ -24,7 +24,7 @@ from nattka.cli import main
 from test import get_test_repo
 
 
-class IntegrationTestCase(object):
+class IntegrationTestCase(unittest.TestCase):
     """
     A test case for an integration test.  Combines Bugzilla support
     with a temporary clone of the repository.
@@ -94,7 +94,7 @@ class IntegrationTestCase(object):
         return str(fn)
 
 
-class IntegrationNoActionTests(IntegrationTestCase, unittest.TestCase):
+class IntegrationNoActionTests(IntegrationTestCase):
     """
     Test cases for bugs that can not be processed.
     """
@@ -247,7 +247,7 @@ class IntegrationNoActionTests(IntegrationTestCase, unittest.TestCase):
         bugz_inst.update_status.assert_not_called()
 
 
-class IntegrationSuccessTests(IntegrationTestCase, unittest.TestCase):
+class IntegrationSuccessTests(IntegrationTestCase):
     """
     Integration tests that pass sanity-check.
     """
@@ -426,7 +426,7 @@ class IntegrationSuccessTests(IntegrationTestCase, unittest.TestCase):
         bugz_inst.update_status.assert_called_with(560322, True, None)
 
 
-class IntegrationFailureTests(IntegrationTestCase, unittest.TestCase):
+class IntegrationFailureTests(IntegrationTestCase):
     """
     Integration tests that fail sanity-check.
     """
@@ -668,7 +668,7 @@ class IntegrationFailureTests(IntegrationTestCase, unittest.TestCase):
             'keywords: mysuperarch')
 
 
-class IntegrationLimiterTests(IntegrationTestCase, unittest.TestCase):
+class IntegrationLimiterTests(IntegrationTestCase):
     """
     Tests for limiting the number of processed bugs.
     """
