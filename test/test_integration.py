@@ -3,7 +3,6 @@
 
 """ Integration tests. """
 
-import abc
 import datetime
 import json
 import shutil
@@ -95,91 +94,9 @@ class IntegrationTestCase(object):
         return str(fn)
 
 
-class IntegrationNoActionTestCase(IntegrationTestCase,
-                                  metaclass=abc.ABCMeta):
+class IntegrationNoActionTests(IntegrationTestCase, unittest.TestCase):
     """
-    Test case for a bug that can not be processed.
-    """
-
-    @abc.abstractmethod
-    def bug_preset(self,
-                   bugz: MagicMock,
-                   initial_status: typing.Optional[bool] = None
-                   ) -> MagicMock:
-        """ Preset bugzilla mock. """
-        pass
-
-    @abc.abstractproperty
-    def reset_msg(self):
-        """ Expected reset message. """
-        pass
-
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
-    def test_skip_apply(self, bugz, add_keywords):
-        """
-        Test skipping a bug that is not suitable for processing
-        in 'apply' command.
-        """
-        assert isinstance(self, unittest.TestCase)
-        bugz_inst = self.bug_preset(bugz)
-        self.assertEqual(
-            main(self.common_args + ['apply', '560322']),
-            0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
-        add_keywords.assert_not_called()
-
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
-    def test_skip(self, bugz, add_keywords):
-        """
-        Test skipping a bug that is not suitable for processing.
-        """
-        assert isinstance(self, unittest.TestCase)
-        bugz_inst = self.bug_preset(bugz)
-        self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
-            0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
-        add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_not_called()
-
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
-    def test_reset_n(self, bugz, add_keywords):
-        """
-        Test skipping a bug that needs sanity-check reset, with '-n'.
-        """
-        assert isinstance(self, unittest.TestCase)
-        bugz_inst = self.bug_preset(bugz, initial_status=True)
-        self.assertEqual(
-            main(self.common_args + ['process-bugs', '-n', '560322']),
-            0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
-        add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_not_called()
-
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
-    def test_reset(self, bugz, add_keywords):
-        """
-        Test resetting sanity-check for a bug.
-        """
-        assert isinstance(self, unittest.TestCase)
-        bugz_inst = self.bug_preset(bugz, initial_status=True)
-        self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
-            0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
-        add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_called_with(
-            560322, None, self.reset_msg)
-
-
-class IntegrationEmptyPackagesTests(IntegrationNoActionTestCase,
-                                    unittest.TestCase):
-    """
-    Test for a bug where package list is empty.
+    Test cases for bugs that can not be processed.
     """
 
     reset_msg = 'Resetting sanity check; package list is empty.'
@@ -197,40 +114,107 @@ class IntegrationEmptyPackagesTests(IntegrationNoActionTestCase,
         }
         return bugz_inst
 
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_skip_apply(self, bugz, add_keywords):
+        """
+        Test skipping a bug that is not suitable for processing
+        in 'apply' command.
+        """
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['apply', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
 
-class IntegrationEmptyKeywordsTests(IntegrationNoActionTestCase,
-                                    unittest.TestCase):
-    """
-    Test for a bug where keywords can not be determined (neither fully
-    specified nor in CC).
-    """
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_skip(self, bugz, add_keywords):
+        """
+        Test skipping a bug that is not suitable for processing.
+        """
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
+        bugz_inst.update_status.assert_not_called()
 
-    reset_msg = ('Resetting sanity check; keywords are not fully '
-                 'specified and arches are not CC-ed.')
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_reset_n(self, bugz, add_keywords):
+        """
+        Test skipping a bug that needs sanity-check reset, with '-n'.
+        """
+        bugz_inst = self.bug_preset(bugz, initial_status=True)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '-n', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
+        bugz_inst.update_status.assert_not_called()
 
-    def bug_preset(self,
-                   bugz: MagicMock,
-                   initial_status: typing.Optional[bool] = None
-                   ) -> MagicMock:
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_reset(self, bugz, add_keywords):
+        """
+        Test resetting sanity-check for a bug.
+        """
+        bugz_inst = self.bug_preset(bugz, initial_status=True)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
+        bugz_inst.update_status.assert_called_with(
+            560322, None, self.reset_msg)
+
+    def empty_keywords_preset(self,
+                              bugz: MagicMock
+                              ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.fetch_package_list.return_value = {
             560322: BugInfo(BugCategory.STABLEREQ,
                             'test/amd64-testing-1 amd64\r\n'
                             'test/alpha-amd64-hppa-testing-2\r\n',
-                            [], [], [], initial_status),
+                            [], [], [], True),
         }
         return bugz_inst
 
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_empty_keywords_apply(self, bugz, add_keywords):
+        """
+        Test skipping a bug with empty keywords, with 'apply'.
+        """
+        bugz_inst = self.empty_keywords_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['apply', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
 
-class IntegrationWrongCategoryTests(IntegrationTestCase,
-                                    unittest.TestCase):
-    """
-    Test for a bug in non-keywordreq/stablereq category.
-    """
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_empty_keywords(self, bugz, add_keywords):
+        """
+        Test skipping a bug with empty keywords.
+        """
+        bugz_inst = self.empty_keywords_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
+        bugz_inst.update_status.assert_called_with(
+            560322, None, 'Resetting sanity check; keywords are not '
+            'fully specified and arches are not CC-ed.')
 
-    def bug_preset(self,
-                   bugz: MagicMock
-                   ) -> MagicMock:
+    def wrong_category_preset(self,
+                              bugz: MagicMock
+                              ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.fetch_package_list.return_value = {
             560322: BugInfo(None,
@@ -242,7 +226,8 @@ class IntegrationWrongCategoryTests(IntegrationTestCase,
     @patch('nattka.cli.match_package_list')
     @patch('nattka.cli.NattkaBugzilla')
     def test_wrong_category_apply(self, bugz, match_package_list):
-        bugz_inst = self.bug_preset(bugz)
+        """ Test bug in wrong category, with 'apply'. """
+        bugz_inst = self.wrong_category_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['apply', '560322']),
             0)
@@ -252,7 +237,8 @@ class IntegrationWrongCategoryTests(IntegrationTestCase,
     @patch('nattka.cli.match_package_list')
     @patch('nattka.cli.NattkaBugzilla')
     def test_wrong_category_process(self, bugz, match_package_list):
-        bugz_inst = self.bug_preset(bugz)
+        """ Test bug in wrong category. """
+        bugz_inst = self.wrong_category_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['process-bugs', '560322']),
             0)
