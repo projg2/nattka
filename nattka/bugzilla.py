@@ -158,7 +158,7 @@ class NattkaBugzilla(object):
 
     def find_bugs(self,
                   category: typing.Optional[BugCategory],
-                  limit: int = None
+                  limit: typing.Optional[int] = None
                   ) -> typing.Dict[int, BugInfo]:
         """
         Find all relevant bugs in @category.  Limit to @limit results
@@ -204,7 +204,7 @@ class NattkaBugzilla(object):
     def update_status(self,
                       bugno: int,
                       status: typing.Optional[bool],
-                      comment: str = None
+                      comment: typing.Optional[str] = None
                       ) -> None:
         """
         Update the sanity-check status of bug @bugno.  @status specifies

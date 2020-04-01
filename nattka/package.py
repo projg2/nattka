@@ -50,7 +50,7 @@ class PackageInvalid(Exception):
 
 
 def find_repository(path: str,
-                    conf_path: str = None
+                    conf_path: typing.Optional[str] = None
                     ) -> UnconfiguredTree:
     """
     Find an ebuild repository in specified @path, and return initiated

@@ -19,13 +19,13 @@ from nattka.bugzilla import (NattkaBugzilla, BugCategory, BugInfo,
 API_ENDPOINT = 'https://bugstest.gentoo.org/rest'
 # auth data is used only for the initial recording
 API_AUTH_S = os.environ.get('TEST_SERVER_AUTH')
-API_AUTH: typing.Optional[typing.Iterable[str]] = None
+API_AUTH: typing.Optional[typing.Tuple[str, str]] = None
 API_KEY = os.environ.get('TEST_API_KEY')
 BUGZILLA_USERNAME = 'mgorny+nattka' + '@gentoo.org'
 
 if API_AUTH_S is not None and API_KEY is not None:
-    API_AUTH = tuple(API_AUTH_S.split(':'))
-    assert len(API_AUTH) == 2
+    API_AUTH_L = API_AUTH_S.split(':', 1)
+    API_AUTH = (API_AUTH_L[0], API_AUTH_L[1])
     RECORD_MODE = 'once'
 else:
     RECORD_MODE = 'none'
@@ -47,7 +47,8 @@ class BugzillaTestCase(unittest.TestCase):
     bz: NattkaBugzilla
 
     def setUp(self):
-        self.bz = NattkaBugzilla(API_KEY, API_ENDPOINT, API_AUTH)
+        self.bz = NattkaBugzilla(API_KEY or 'no-api-key-provided',
+                                 API_ENDPOINT, API_AUTH)
 
 
 class BugzillaTests(BugzillaTestCase):
@@ -158,7 +159,7 @@ class BugzillaTests(BugzillaTestCase):
     def test_get_latest_comment(self):
         """ Test getting latest self-comment. """
         self.assertEqual(
-            self.bz.get_latest_comment(560310, BUGZILLA_USERNAME).strip(),
+            self.bz.get_latest_comment(560310, BUGZILLA_USERNAME),
             'sanity check failed!')
 
     @rec.use_cassette()
@@ -177,7 +178,7 @@ class BugzillaTests(BugzillaTestCase):
             self.bz.fetch_package_list([560310])[560310].sanity_check,
             False)
         self.assertEqual(
-            self.bz.get_latest_comment(560310, BUGZILLA_USERNAME).strip(),
+            self.bz.get_latest_comment(560310, BUGZILLA_USERNAME),
             'sanity check failed!')
 
     @rec.use_cassette()
@@ -194,15 +195,18 @@ class BugInfoCombinerTest(unittest.TestCase):
         """ Test combining linked bugs. """
         self.assertEqual(
             get_combined_buginfo(
-                {1: BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n',
+                {1: BugInfo(BugCategory.STABLEREQ,
+                            'test/foo-1 amd64 x86\r\n',
                             ['amd64@gentoo.org', 'x86@gentoo.org'],
                             [2], [], True),
-                 2: BugInfo('Stabilization', 'test/bar-2 x86\r\n',
+                 2: BugInfo(BugCategory.STABLEREQ,
+                            'test/bar-2 x86\r\n',
                             ['x86@gentoo.org'],
                             [], [1], True)
                  }, 1),
-            BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n'
-                                     'test/bar-2 x86\r\n',
+            BugInfo(BugCategory.STABLEREQ,
+                    'test/foo-1 amd64 x86\r\n'
+                    'test/bar-2 x86\r\n',
                     ['amd64@gentoo.org', 'x86@gentoo.org'], [], [],
                     True))
 
@@ -210,15 +214,18 @@ class BugInfoCombinerTest(unittest.TestCase):
         """ Test combining stabilization blocked by a regular bug. """
         self.assertEqual(
             get_combined_buginfo(
-                {1: BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n',
+                {1: BugInfo(BugCategory.STABLEREQ,
+                            'test/foo-1 amd64 x86\r\n',
                             ['amd64@gentoo.org', 'x86@gentoo.org'],
                             [2, 3], [], True),
-                 2: BugInfo('Stabilization', 'test/bar-2 x86\r\n',
+                 2: BugInfo(BugCategory.STABLEREQ,
+                            'test/bar-2 x86\r\n',
                             ['x86@gentoo.org'],
                             [3, 4], [1], True)
                  }, 1),
-            BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n'
-                                     'test/bar-2 x86\r\n',
+            BugInfo(BugCategory.STABLEREQ,
+                    'test/foo-1 amd64 x86\r\n'
+                    'test/bar-2 x86\r\n',
                     ['amd64@gentoo.org', 'x86@gentoo.org'], [3, 4], [],
                     True))
 
@@ -226,14 +233,17 @@ class BugInfoCombinerTest(unittest.TestCase):
         """ Test combining keywordreq & stablereq. """
         self.assertEqual(
             get_combined_buginfo(
-                {1: BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n',
+                {1: BugInfo(BugCategory.STABLEREQ,
+                            'test/foo-1 amd64 x86\r\n',
                             ['amd64@gentoo.org', 'x86@gentoo.org'],
                             [2], [], True),
-                 2: BugInfo('Keywording', 'test/foo-1 x86\r\n',
+                 2: BugInfo(BugCategory.KEYWORDREQ,
+                            'test/foo-1 x86\r\n',
                             ['x86@gentoo.org'],
                             [], [1], True)
                  }, 1),
-            BugInfo('Stabilization', 'test/foo-1 amd64 x86\r\n',
+            BugInfo(BugCategory.STABLEREQ,
+                    'test/foo-1 amd64 x86\r\n',
                     ['amd64@gentoo.org', 'x86@gentoo.org'], [2], [],
                     True))
 
@@ -242,14 +252,16 @@ class KeywordFillerTest(unittest.TestCase):
     def test_fill_keywords_cc(self):
         self.assertEqual(
             fill_keywords_from_cc(
-                BugInfo('Stabilization', 'test/foo-1 x86\r\n'
-                                         'test/bar-2\r\n'
-                                         'test/bar-3 \r\n',
+                BugInfo(BugCategory.STABLEREQ,
+                        'test/foo-1 x86\r\n'
+                        'test/bar-2\r\n'
+                        'test/bar-3 \r\n',
                         ['amd64@gentoo.org', 'x86@gentoo.org'], [], [],
                         None),
                 ['amd64', 'arm64', 'x86']),
-            BugInfo('Stabilization', 'test/foo-1 x86\r\n'
-                                     'test/bar-2 amd64 x86\r\n'
-                                     'test/bar-3  amd64 x86\r\n',
+            BugInfo(BugCategory.STABLEREQ,
+                    'test/foo-1 x86\r\n'
+                    'test/bar-2 amd64 x86\r\n'
+                    'test/bar-3  amd64 x86\r\n',
                     ['amd64@gentoo.org', 'x86@gentoo.org'], [], [],
                     None))

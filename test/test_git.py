@@ -27,7 +27,8 @@ class GitTests(unittest.TestCase):
         td = Path(self.tempdir.name)
 
         # should return None or find some containing repository
-        self.assertNotEqual(git_get_toplevel(self.tempdir.name), td)
+        self.assertNotEqual(git_get_toplevel(Path(self.tempdir.name)),
+                            td)
 
         assert subprocess.Popen(['git', 'init'], cwd=td).wait() == 0
         self.assertEqual(git_get_toplevel(td), td)

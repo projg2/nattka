@@ -6,6 +6,8 @@
 import subprocess
 import typing
 
+from types import TracebackType
+
 from pathlib import Path
 
 
@@ -88,5 +90,9 @@ class GitWorkTree(object):
                 f'Git working tree {self.path} is dirty')
         return self
 
-    def __exit__(self, *args) -> None:
+    def __exit__(self,
+                 exc_type: typing.Optional[typing.Type[BaseException]],
+                 exc_val: typing.Optional[BaseException],
+                 exc_tb: typing.Optional[TracebackType]
+                 ) -> None:
         git_reset_changes(self.path)
