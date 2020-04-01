@@ -115,91 +115,90 @@ class NattkaCommands(object):
         username = bz.whoami()
         bugs = self.find_bugs()
         log.info(f'Found {len(bugs)} bugs')
-        try:
-            # start with the newest bugs
-            for bno in reversed(sorted(bugs)):
-                b = get_combined_buginfo(bugs, bno)
-                if b.category is None:
-                    log.info(f'Bug {bno}: neither stablereq nor keywordreq')
-                    continue
 
-                log.info(f'Bug {bno} ({b.category.name})')
-                try:
-                    plist = dict(match_package_list(repo, b.atoms))
-                    if not plist:
-                        log.info('Skipping because of empty package list')
-                        comment = ('Resetting sanity check; package list '
-                                   'is empty.')
+        # start with the newest bugs
+        for bno in reversed(sorted(bugs)):
+            b = get_combined_buginfo(bugs, bno)
+            if b.category is None:
+                log.info(f'Bug {bno}: neither stablereq nor keywordreq')
+                continue
+
+            log.info(f'Bug {bno} ({b.category.name})')
+            try:
+                plist = dict(match_package_list(repo, b.atoms))
+                if not plist:
+                    log.info('Skipping because of empty package list')
+                    comment = ('Resetting sanity check; package list '
+                               'is empty.')
+                    raise SkipBug()
+
+                for keywords in plist.values():
+                    # skip the bug if at least one package has undefined
+                    # keywords (i.e. neither explicitly specified nor
+                    # arches CC-ed)
+                    if not keywords:
+                        log.info('Skipping because of incomplete keywords')
+                        comment = ('Resetting sanity check; keywords are '
+                                   'not fully specified and arches are not '
+                                   'CC-ed.')
                         raise SkipBug()
 
-                    for keywords in plist.values():
-                        # skip the bug if at least one package has undefined
-                        # keywords (i.e. neither explicitly specified nor
-                        # arches CC-ed)
-                        if not keywords:
-                            log.info('Skipping because of incomplete keywords')
-                            comment = ('Resetting sanity check; keywords are '
-                                       'not fully specified and arches are not '
-                                       'CC-ed.')
-                            raise SkipBug()
+                with git_repo:
+                    add_keywords(plist.items(),
+                                 b.category == BugCategory.STABLEREQ)
+
+                    check_res, issues = check_dependencies(
+                        repo, plist.items())
+                    if check_res:
+                        # if nothing changed, do nothing
+                        if b.sanity_check is True:
+                            log.info('Still good')
+                            continue
+
+                        # otherwise, update the bug status
+                        log.info('All good')
+                        # if it was bad before, leave a comment
+                        if b.sanity_check is False:
+                            comment = ('All sanity-check issues '
+                                       'have been resolved')
+                        else:
+                            comment = None
                     else:
-                        with git_repo:
-                            add_keywords(plist.items(),
-                                         b.category == BugCategory.STABLEREQ)
+                        issues = sorted(str(x) for x in issues)
+                        comment = ('Sanity check failed:\n\n'
+                            + '\n'.join(f'> {x}' for x in issues))
+                        log.info('Sanity check failed')
+            except (PackageInvalid, PackageNoMatch, KeywordNoMatch) as e:
+                log.error(e)
+                check_res = False
+                comment = f'Unable to check for sanity:\n\n> {e}'
+            except GitDirtyWorkTree:
+                log.error(f'{git_repo.path}: working tree is dirty')
+                raise SystemExit(1)
+            except SkipBug:
+                check_res = None
+            except Exception as e:
+                log.error(f'TODO: handle exception {e.__class__} {e}')
+                continue
 
-                            check_res, issues = check_dependencies(
-                                    repo, plist.items())
-                            if check_res:
-                                # if nothing changed, do nothing
-                                if b.sanity_check is True:
-                                    log.info('Still good')
-                                    continue
+            # if we can not check it, and it's not been marked
+            # as checked, just skip it;  otherwise, reset the flag
+            if check_res is None and b.sanity_check is None:
+                continue
 
-                                # otherwise, update the bug status
-                                log.info('All good')
-                                # if it was bad before, leave a comment
-                                if b.sanity_check is False:
-                                    comment = 'All sanity-check issues have been resolved'
-                                else:
-                                    comment = None
-                            else:
-                                issues = sorted(str(x) for x in issues)
-                                comment = ('Sanity check failed:\n\n'
-                                    + '\n'.join(f'> {x}' for x in issues))
-                                log.info('Sanity check failed')
-                except (PackageInvalid, PackageNoMatch, KeywordNoMatch) as e:
-                    log.error(e)
-                    check_res = False
-                    comment = f'Unable to check for sanity:\n\n> {e}'
-                except GitDirtyWorkTree:
-                    raise
-                except SkipBug:
-                    check_res = None
-                except Exception as e:
-                    log.error(f'TODO: handle exception {e.__class__} {e}')
+            # for negative results, we verify whether the comment
+            # needs to change
+            if check_res is False and b.sanity_check is False:
+                old_comment = bz.get_latest_comment(bno, username)
+                # do not add a second identical comment
+                if (old_comment is not None and comment.strip() ==
+                                                old_comment.strip()):
+                    log.info('Failure reported already')
                     continue
 
-                # if we can not check it, and it's not been marked
-                # as checked, just skip it;  otherwise, reset the flag
-                if check_res is None and b.sanity_check is None:
-                    continue
-
-                # for negative results, we verify whether the comment
-                # needs to change
-                if check_res is False and b.sanity_check is False:
-                    old_comment = bz.get_latest_comment(bno, username)
-                    # do not add a second identical comment
-                    if (old_comment is not None and comment.strip() ==
-                                                    old_comment.strip()):
-                        log.info('Failure reported already')
-                        continue
-
-                if not self.args.no_update:
-                    bz.update_status(bno, check_res, comment)
-                    log.info('Bug status updated')
-        except GitDirtyWorkTree:
-            log.error(f'{git_repo.path}: working tree is dirty')
-            raise SystemExit(1)
+            if not self.args.no_update:
+                bz.update_status(bno, check_res, comment)
+                log.info('Bug status updated')
 
         return 0
 
