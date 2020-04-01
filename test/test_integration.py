@@ -73,10 +73,9 @@ class IntegrationNoActionTestCase(IntegrationTestCase,
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_empty_keywords(self, bugz, add_keywords):
+    def test_skip(self, bugz, add_keywords):
         """
-        Test skipping a bug with no keywords in package list, and no
-        arches CC-ed.
+        Test skipping a bug that is not suitable for processing.
         """
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
@@ -88,10 +87,9 @@ class IntegrationNoActionTestCase(IntegrationTestCase,
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_empty_keywords_on_checked_bug_n(self, bugz, add_keywords):
+    def test_reset_n(self, bugz, add_keywords):
         """
-        Test skipping a bug with no keywords in package list, no
-        arches CC-ed and sanity-check status set, with '-n'.
+        Test skipping a bug that needs sanity-check reset, with '-n'.
         """
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
@@ -103,10 +101,9 @@ class IntegrationNoActionTestCase(IntegrationTestCase,
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_empty_keywords_on_checked_bug(self, bugz, add_keywords):
+    def test_reset(self, bugz, add_keywords):
         """
-        Test resetting a bug with no keywords in package list, no
-        arches CC-ed but sanity-check status set.
+        Test resetting sanity-check for a bug.
         """
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
