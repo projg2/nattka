@@ -1,3 +1,6 @@
+# (c) 2020 Michał Górny
+# 2-clause BSD license
+
 """ Git repository support. """
 
 import subprocess
