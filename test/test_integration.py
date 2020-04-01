@@ -261,79 +261,11 @@ class IntegrationWrongCategoryTests(IntegrationTestCase,
         bugz_inst.update_status.assert_not_called()
 
 
-class IntegrationSuccessTestCase(IntegrationTestCase,
-                                 metaclass=abc.ABCMeta):
+class IntegrationSuccessTests(IntegrationTestCase, unittest.TestCase):
     """
-    Integration test case that passes sanity-check.
+    Integration tests that pass sanity-check.
     """
 
-    @abc.abstractmethod
-    def bug_preset(self,
-                   bugz: MagicMock,
-                   initial_status: typing.Optional[bool] = None
-                   ) -> MagicMock:
-        """ Preset bugzilla mock. """
-        pass
-
-    def post_verify(self):
-        """ Verify that the original data has been restored. """
-        assert isinstance(self, unittest.TestCase)
-        self.assertEqual(
-            self.get_package('=test/amd64-testing-1').keywords,
-            ('~amd64',))
-        self.assertEqual(
-            self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
-            ('~alpha', '~amd64', '~hppa'))
-
-    @patch('nattka.cli.NattkaBugzilla')
-    def test_process_success_n(self, bugz):
-        """ Test processing with -n. """
-        assert isinstance(self, unittest.TestCase)
-        bugz_inst = self.bug_preset(bugz)
-        self.assertEqual(
-            main(self.common_args + ['process-bugs', '-n', '560322']),
-            0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
-        bugz_inst.update_status.assert_not_called()
-
-    @patch('nattka.cli.NattkaBugzilla')
-    def test_process_success(self, bugz):
-        """ Test setting new success. """
-        assert isinstance(self, unittest.TestCase)
-        bugz_inst = self.bug_preset(bugz)
-        self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
-            0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
-        bugz_inst.update_status.assert_called_with(560322, True, None)
-
-    @patch('nattka.cli.NattkaBugzilla')
-    def test_process_success_from_success(self, bugz):
-        """
-        Test non-update when bug was marked sanity-check+ already.
-        """
-        assert isinstance(self, unittest.TestCase)
-        bugz_inst = self.bug_preset(bugz, initial_status=True)
-        self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
-            0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
-        bugz_inst.update_status.assert_not_called()
-
-    @patch('nattka.cli.NattkaBugzilla')
-    def test_process_success_from_failure(self, bugz):
-        """ Test transition from failure to success. """
-        assert isinstance(self, unittest.TestCase)
-        bugz_inst = self.bug_preset(bugz, initial_status=False)
-        self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
-            0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, 'All sanity-check issues have been resolved')
-
-
-class IntegrationSuccessTests(IntegrationSuccessTestCase, unittest.TestCase):
     def bug_preset(self,
                    bugz: MagicMock,
                    initial_status: typing.Optional[bool] = None
@@ -347,6 +279,15 @@ class IntegrationSuccessTests(IntegrationSuccessTestCase, unittest.TestCase):
                             [], [], [], initial_status),
         }
         return bugz_inst
+
+    def post_verify(self):
+        """ Verify that the original data has been restored. """
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-1').keywords,
+            ('~amd64',))
+        self.assertEqual(
+            self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
+            ('~alpha', '~amd64', '~hppa'))
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply(self, bugz):
@@ -362,6 +303,49 @@ class IntegrationSuccessTests(IntegrationSuccessTestCase, unittest.TestCase):
         self.assertEqual(
             self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
             ('~alpha', 'amd64', 'hppa'))
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_success_n(self, bugz):
+        """ Test processing with -n. """
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '-n', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.update_status.assert_not_called()
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_success(self, bugz):
+        """ Test setting new success. """
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.update_status.assert_called_with(560322, True, None)
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_success_from_success(self, bugz):
+        """
+        Test non-update when bug was marked sanity-check+ already.
+        """
+        bugz_inst = self.bug_preset(bugz, initial_status=True)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.update_status.assert_not_called()
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_success_from_failure(self, bugz):
+        """ Test transition from failure to success. """
+        bugz_inst = self.bug_preset(bugz, initial_status=False)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, True, 'All sanity-check issues have been resolved')
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
@@ -432,14 +416,11 @@ class IntegrationSuccessTests(IntegrationSuccessTestCase, unittest.TestCase):
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_called()
 
-
-class IntegrationDependSuccessTests(IntegrationSuccessTestCase,
-                                    unittest.TestCase):
-    """
-    Tests for sanity-check result depending on dependant bug.
-    """
-
-    def bug_preset(self, bugz, initial_status=None):
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_depend(self, bugz):
+        """
+        Test for sanity-check depending on another bug.
+        """
         bugz_inst = bugz.return_value
         # TODO: we hackily add dependent bug to the return value now
         # this will probably make more sense when fetch_package_list()
@@ -450,9 +431,13 @@ class IntegrationDependSuccessTests(IntegrationSuccessTestCase,
                             [], [], [560322], True),
             560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
-                            [], [560311], [], initial_status),
+                            [], [560311], [], None),
         }
-        return bugz_inst
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.update_status.assert_called_with(560322, True, None)
 
 
 class IntegrationFailureTestCase(IntegrationTestCase,
