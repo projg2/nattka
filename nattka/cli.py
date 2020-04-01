@@ -44,8 +44,11 @@ class NattkaCommands(object):
 
         if self.args.api_key is not None:
             return self.args.api_key
-        with open(Path.home() / '.bugz_token', 'r') as f:
-            return f.read().strip()
+        try:
+            with open(Path.home() / '.bugz_token', 'r') as f:
+                return f.read().strip()
+        except FileNotFoundError:
+            pass
         log.error('Please pass --api-key or put it in ~/.bugz_token')
         raise SystemExit(1)
 
