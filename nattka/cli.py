@@ -98,6 +98,14 @@ class NattkaCommands(object):
 
             log.info(f'Bug {bno} ({b.category.name})')
             plist = dict(match_package_list(repo, b.atoms))
+
+            if not plist:
+                log.info('Skipping because of empty package list')
+                continue
+            if any(not x for x in plist.values()):
+                log.info('Skipping because of incomplete keywords')
+                continue
+
             for p, keywords in plist.items():
                 log.info(f'Package {p.cpvstr}: {plist[p]}')
             add_keywords(plist.items(), b.category == BugCategory.STABLEREQ)
@@ -132,16 +140,15 @@ class NattkaCommands(object):
                                'is empty.')
                     raise SkipBug()
 
-                for keywords in plist.values():
+                if any(not x for x in plist.values()):
                     # skip the bug if at least one package has undefined
                     # keywords (i.e. neither explicitly specified nor
                     # arches CC-ed)
-                    if not keywords:
-                        log.info('Skipping because of incomplete keywords')
-                        comment = ('Resetting sanity check; keywords are '
-                                   'not fully specified and arches are not '
-                                   'CC-ed.')
-                        raise SkipBug()
+                    log.info('Skipping because of incomplete keywords')
+                    comment = ('Resetting sanity check; keywords are '
+                               'not fully specified and arches are not '
+                               'CC-ed.')
+                    raise SkipBug()
 
                 with git_repo:
                     add_keywords(plist.items(),

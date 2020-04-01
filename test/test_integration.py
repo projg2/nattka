@@ -73,6 +73,20 @@ class IntegrationNoActionTestCase(IntegrationTestCase,
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
+    def test_skip_apply(self, bugz, add_keywords):
+        """
+        Test skipping a bug that is not suitable for processing
+        in 'apply' command.
+        """
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['apply', '560322']),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_not_called()
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
     def test_skip(self, bugz, add_keywords):
         """
         Test skipping a bug that is not suitable for processing.
