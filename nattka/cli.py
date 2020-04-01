@@ -258,6 +258,9 @@ def main(argv: typing.List[str]) -> int:
     cmd = NattkaCommands(args)
     try:
         return getattr(cmd, args.command.replace('-', '_'))()
+    except KeyboardInterrupt:
+        log.info('Exiting due to ^c')
+        return 1
     except SystemExit as e:
         return e.code
 
