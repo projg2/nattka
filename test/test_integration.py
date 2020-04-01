@@ -34,7 +34,6 @@ class IntegrationTestCase(object):
     common_args: typing.List[str]
 
     def setUp(self):
-        super().setUp()
         self.tempdir = tempfile.TemporaryDirectory()
         tempdir_path = Path(self.tempdir.name)
         basedir = Path(__file__).parent
