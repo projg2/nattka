@@ -193,75 +193,71 @@ class PackageMatcherTests(BaseRepoTestCase):
                 pass
 
 
-class DuplicatedEbuild(object):
+class FakeEbuild(object):
     """
     Fake ebuild object.  Duplicates original ebuild contents
     for the purpose of testing.
     """
 
-    def __init__(self, orig_path):
-        self.f = tempfile.NamedTemporaryFile('w+')
-        with open(orig_path, 'r') as orig_ebuild:
-            shutil.copyfileobj(orig_ebuild, self.f)
-        self.f.flush()
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        self.f.close()
-
-    @property
-    def path(self):
-        return self.f.name
+    def __init__(self, path: Path):
+        self.path = path
 
     @property
     def keywords(self):
-        self.f.seek(0)
-        for l in self.f.readlines():
-            m = KEYWORDS_RE.match(l)
-            if m:
-                return tuple(m.group(1).split())
+        with open(self.path, 'r') as f:
+            for l in f.readlines():
+                m = KEYWORDS_RE.match(l)
+                if m:
+                    return tuple(m.group(1).split())
 
 
 class KeywordAdderTest(BaseRepoTestCase):
+    def setUp(self):
+        super().setUp()
+        self.tempdir = tempfile.TemporaryDirectory()
+        shutil.copytree(self.repo.location, self.tempdir.name,
+                        dirs_exist_ok=True)
+
+    def tearDown(self):
+        self.tempdir.cleanup()
+
+    def ebuild_path(self, cat, pkg, ver):
+        return str(Path(self.tempdir.name) / cat / pkg
+                                           / f'{pkg}-{ver}.ebuild')
+
     def test_keyword(self):
         """ Test keywording ebuilds. """
-        with DuplicatedEbuild(
-                self.ebuild_path('test', 'amd64-testing', '1')) as e1:
-            with DuplicatedEbuild(self.ebuild_path(
-                    'test', 'amd64-testing', '2')) as e2:
-                with DuplicatedEbuild(self.ebuild_path(
-                        'test', 'amd64-stable-hppa-testing', '1')) as e3:
-                    add_keywords([
-                        (e1, ['alpha', 'hppa']),
-                        (e2, ['amd64']),
-                        (e3, ['amd64', 'alpha']),
-                    ], stable=False)
+        e1 = FakeEbuild(self.ebuild_path('test', 'amd64-testing', '1'))
+        e2 = FakeEbuild(self.ebuild_path('test', 'amd64-testing', '2'))
+        e3 = FakeEbuild(
+            self.ebuild_path('test', 'amd64-stable-hppa-testing', '1'))
 
-                    self.assertEqual(e1.keywords,
-                                     ('~alpha', '~amd64', '~hppa'))
-                    self.assertEqual(e2.keywords, ('~amd64',))
-                    self.assertEqual(e3.keywords,
-                                     ('~alpha', 'amd64', '~hppa'))
+        add_keywords([
+            (e1, ['alpha', 'hppa']),
+            (e2, ['amd64']),
+            (e3, ['amd64', 'alpha']),
+        ], stable=False)
+
+        self.assertEqual(e1.keywords, ('~alpha', '~amd64', '~hppa'))
+        self.assertEqual(e2.keywords, ('~amd64',))
+        self.assertEqual(e3.keywords, ('~alpha', 'amd64', '~hppa'))
 
     def test_stabilize(self):
         """ Test stabilizing ebuilds. """
-        with DuplicatedEbuild(
-                self.ebuild_path('test', 'amd64-testing', '1')) as e1:
-            with DuplicatedEbuild(self.ebuild_path(
-                    'test', 'amd64-testing', '2')) as e2:
-                with DuplicatedEbuild(self.ebuild_path(
-                        'test', 'amd64-stable-hppa-testing', '1')) as e3:
-                    add_keywords([
-                        (e1, ['alpha', 'hppa']),
-                        (e2, ['amd64']),
-                        (e3, ['amd64', 'alpha']),
-                    ], stable=True)
+        e1 = FakeEbuild(self.ebuild_path('test', 'amd64-testing', '1'))
+        e2 = FakeEbuild(self.ebuild_path('test', 'amd64-testing', '2'))
+        e3 = FakeEbuild(
+            self.ebuild_path('test', 'amd64-stable-hppa-testing', '1'))
 
-                    self.assertEqual(e1.keywords, ('alpha', '~amd64', 'hppa'))
-                    self.assertEqual(e2.keywords, ('amd64',))
-                    self.assertEqual(e3.keywords, ('alpha', 'amd64', '~hppa'))
+        add_keywords([
+            (e1, ['alpha', 'hppa']),
+            (e2, ['amd64']),
+            (e3, ['amd64', 'alpha']),
+        ], stable=True)
+
+        self.assertEqual(e1.keywords, ('alpha', '~amd64', 'hppa'))
+        self.assertEqual(e2.keywords, ('amd64',))
+        self.assertEqual(e3.keywords, ('alpha', 'amd64', '~hppa'))
 
 
 def results_to_dict(res):
