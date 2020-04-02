@@ -277,9 +277,6 @@ class NattkaCommands(object):
                     raise SystemExit(1)
                 except SkipBug:
                     assert check_res is None
-                except Exception as e:
-                    log.error(f'TODO: handle exception {e.__class__} {e}')
-                    continue
 
                 # if we can not check it, and it's not been marked
                 # as checked, just skip it;  otherwise, reset the flag
