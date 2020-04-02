@@ -311,37 +311,39 @@ def main(argv: typing.List[str]) -> int:
     argp.add_argument('--bugzilla-endpoint',
                       help='Bugzilla /rest endpoint URL')
     argp.add_argument('--portage-conf', default=None,
-                      help='Override Portage-style configuration directory')
+                      help='override Portage-style configuration directory')
     argp.add_argument('--repo', default='.',
-                      help='Repository path (default: .)')
+                      help='repository path (default: .)')
     subp = argp.add_subparsers(title='commands', dest='command')
 
     appp = subp.add_parser('apply',
-                           help='Keyword/stabilize packages according '
+                           help='keyword/stabilize packages according '
                                 'to a bug')
     appp.add_argument('bug', nargs='+', type=int,
-                      help='Bug(s) to process')
+                      help='bug(s) to process')
 
     prop = subp.add_parser('process-bugs',
-                           help='Process all open bugs -- apply '
+                           help='process all open bugs -- apply '
                                 'keywords, test, report results')
-    prop.add_argument('--bug-limit', type=int,
-                      help='Check at most N bugs (only bugs actually '
-                           'tested count, default: unlimited')
-    prop.add_argument('-c', '--cache-file', type=Path,
-                      help='Path to the file used to cache bug states '
-                           '(default: caching disabled)')
-    prop.add_argument('--cache-max-age', type=int, default=12 * 60 * 60,
-                      help='Max age of cache entries before refreshing '
-                           'in seconds (default: 12 hours)')
-    prop.add_argument('-n', '--no-update', action='store_true',
-                      help='Do not commit updates to the bugs, only '
-                           'check them and report what would be done')
-    prop.add_argument('--time-limit', type=int,
-                      help='Run checks for at most N seconds '
-                           '(default: unlimited')
     prop.add_argument('bug', nargs='*', type=int,
-                      help='Bug(s) to process (default: find all)')
+                      help='bug(s) to process (default: find all)')
+    prop.add_argument('-n', '--no-update', action='store_true',
+                      help='do not commit updates to the bugs, only '
+                           'check them and report what would be done')
+    limp = prop.add_argument_group('limiting')
+    limp.add_argument('--bug-limit', type=int,
+                      help='check at most N bugs (only bugs actually '
+                           'tested count, default: unlimited')
+    limp.add_argument('--time-limit', type=int,
+                      help='run checks for at most N seconds '
+                           '(default: unlimited')
+    cacp = prop.add_argument_group('caching')
+    cacp.add_argument('-c', '--cache-file', type=Path,
+                      help='path to the file used to cache bug states '
+                           '(default: caching disabled)')
+    cacp.add_argument('--cache-max-age', type=int, default=12 * 60 * 60,
+                      help='max age of cache entries before refreshing '
+                           'in seconds (default: 12 hours)')
 
     args = argp.parse_args(argv)
     if args.command is None:
