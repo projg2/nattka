@@ -154,6 +154,10 @@ class NattkaCommands(object):
             log.error(f'{repo.location} does not seem to be a git repository')
             raise SystemExit(1)
 
+        if not self.args.update_bugs:
+            log.warning(f'Running in pretend mode.')
+            log.warning(f'(pass --update-bugs to enable bug updates)')
+
         cache = self.get_cache()
         cache.setdefault('bugs', {})
 
@@ -227,8 +231,8 @@ class NattkaCommands(object):
                                 seconds=self.args.cache_max_age)):
                             log.info('Cache entry is old, will recheck.')
                         elif (not cache_entry.get('updated')
-                              and not self.args.no_update):
-                            log.info('Cache entry from --no-update mode, '
+                              and self.args.update_bugs):
+                            log.info('Cache entry from no-update mode, '
                                      'will recheck.')
                         else:
                             log.info('Cache entry is up-to-date, skipping.')
@@ -296,7 +300,7 @@ class NattkaCommands(object):
                         log.info('Failure reported already')
                         continue
 
-                if not self.args.no_update:
+                if self.args.update_bugs:
                     bz.update_status(bno, check_res, comment)
                     if cache_entry is not None:
                         cache_entry['updated'] = True
@@ -340,9 +344,9 @@ def main(argv: typing.List[str]) -> int:
                            parents=[bugp],
                            help='process all open bugs -- apply '
                                 'keywords, test, report results')
-    prop.add_argument('-n', '--no-update', action='store_true',
-                      help='do not commit updates to the bugs, only '
-                           'check them and report what would be done')
+    prop.add_argument('-u', '--update-bugs', action='store_true',
+                      help='commit updates to bugs (running in pretend '
+                           'mode by default)')
     limp = prop.add_argument_group('limiting')
     limp.add_argument('--bug-limit', type=int,
                       help='check at most N bugs (only bugs actually '

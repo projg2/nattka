@@ -76,7 +76,8 @@ the following options::
 
     nattka --repo <path-to-repo> process-bugs \
         --cache-file <path-to-cache-file> \
-        --time-limit 600
+        --time-limit 600 \
+        --update-bugs
 
 The ``--repo`` option specifies where the git checkout of the ebuild
 repository is to be found.
@@ -84,10 +85,10 @@ repository is to be found.
 ``--cache-file`` is used to store previous check results.  When it is
 used, the checks are rerun every 12 hours rather than on every run.
 
-Finally, ``--time-limit`` indicates that NATTkA should terminate after
+``--time-limit`` indicates that NATTkA should terminate after
 10 minutes.  This ensures that NATTkA does not spend too much time
 rechecking old bugs.  With cronjob set e.g. to 15 minutes, it ensures
 that new bugs are processed timely.
 
-Additionally, ``--no-update`` option can be used to test NATTkA without
-updating bugs.
+Finally, ``--update-bugs`` enables writing to Bugzilla.  You can omit
+it to test NATTkA in pretend mode.

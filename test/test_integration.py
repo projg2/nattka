@@ -139,7 +139,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
         """
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_not_called()
@@ -153,7 +154,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
         """
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '-n', '560322']),
+            main(self.common_args + ['process-bugs', '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_not_called()
@@ -167,7 +168,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
         """
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_not_called()
@@ -207,7 +209,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
         """
         bugz_inst = self.empty_keywords_preset(bugz)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_not_called()
@@ -243,7 +246,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
         """ Test bug in wrong category. """
         bugz_inst = self.wrong_category_preset(bugz)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         match_package_list.assert_not_called()
@@ -301,7 +305,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """ Test processing with -n. """
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '-n', '560322']),
+            main(self.common_args + ['process-bugs', '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_not_called()
@@ -312,7 +316,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """ Test setting new success. """
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(560322, True, None)
@@ -325,7 +330,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_not_called()
@@ -336,7 +342,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """ Test transition from failure to success. """
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(
@@ -352,8 +359,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         cache = self.make_cache(bugz_inst, sanity_check=True)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322',
-                                     '--cache-file', cache]),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322', '--cache-file', cache]),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_not_called()
@@ -371,8 +378,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                 last_check=last_check,
                                 sanity_check=True)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322',
-                                     '--cache-file', cache]),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322', '--cache-file', cache]),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_called()
@@ -389,8 +396,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                 package_list='test/foo',
                                 sanity_check=True)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322',
-                                     '--cache-file', cache]),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322', '--cache-file', cache]),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_called()
@@ -406,8 +413,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         cache = self.make_cache(bugz_inst,
                                 sanity_check=False)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322',
-                                     '--cache-file', cache]),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322', '--cache-file', cache]),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_called()
@@ -424,8 +431,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                 updated=False,
                                 sanity_check=True)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322',
-                                     '--cache-file', cache]),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322', '--cache-file', cache]),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_called()
@@ -448,7 +455,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
                             [], [560311], [], None),
         }
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(560322, True, None)
@@ -488,7 +496,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         """ Test processing with -n. """
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '-n', '560322']),
+            main(self.common_args + ['process-bugs', '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_not_called()
@@ -499,7 +507,8 @@ class IntegrationFailureTests(IntegrationTestCase):
         """ Test setting new failure. """
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(
@@ -514,7 +523,8 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst = self.bug_preset(bugz)
         bugz_inst.get_latest_comment.return_value = None
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(
@@ -533,7 +543,8 @@ class IntegrationFailureTests(IntegrationTestCase):
             'keyword(~alpha) stable profile (alpha) (1 total): '
             'solutions: [ test/frobnicate ]')
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(
@@ -548,7 +559,8 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         bugz_inst.get_latest_comment.return_value = self.fail_msg
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_not_called()
@@ -559,7 +571,8 @@ class IntegrationFailureTests(IntegrationTestCase):
         """ Test transition from success to failure. """
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         bugz_inst.update_status.assert_called_with(
@@ -575,8 +588,8 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         cache = self.make_cache(bugz_inst, sanity_check=False)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322',
-                                     '--cache-file', cache]),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322', '--cache-file', cache]),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_not_called()
@@ -595,8 +608,8 @@ class IntegrationFailureTests(IntegrationTestCase):
                                 last_check=last_check,
                                 sanity_check=False)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322',
-                                     '--cache-file', cache]),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322', '--cache-file', cache]),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_called()
@@ -614,8 +627,8 @@ class IntegrationFailureTests(IntegrationTestCase):
                                 package_list='test/foo',
                                 sanity_check=False)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322',
-                                     '--cache-file', cache]),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322', '--cache-file', cache]),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_called()
@@ -632,8 +645,8 @@ class IntegrationFailureTests(IntegrationTestCase):
         cache = self.make_cache(bugz_inst,
                                 sanity_check=True)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322',
-                                     '--cache-file', cache]),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322', '--cache-file', cache]),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_called()
@@ -648,7 +661,8 @@ class IntegrationFailureTests(IntegrationTestCase):
                             [], [], [], None),
         }
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_not_called()
@@ -666,7 +680,8 @@ class IntegrationFailureTests(IntegrationTestCase):
                             [], [], [], None),
         }
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_not_called()
@@ -684,7 +699,8 @@ class IntegrationFailureTests(IntegrationTestCase):
                             [], [], [], None),
         }
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_not_called()
@@ -702,7 +718,8 @@ class IntegrationFailureTests(IntegrationTestCase):
                             [], [], [], None),
         }
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '560322']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560322']),
             0)
         bugz_inst.fetch_package_list.assert_called_with([560322])
         add_keywords.assert_not_called()
@@ -733,7 +750,8 @@ class IntegrationLimiterTests(IntegrationTestCase):
     def test_bug_limit(self, bugz):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
-            main(self.common_args + ['process-bugs', '--bug-limit', '5']),
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '--bug-limit', '5']),
             0)
         bugz_inst.find_bugs.assert_called_with(None)
         self.assertEqual(bugz_inst.update_status.call_count, 5)
