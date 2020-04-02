@@ -46,7 +46,7 @@ class NattkaCommands(object):
 
     def get_api_key(self,
                     require_api_key: bool = False
-                    ) -> str:
+                    ) -> typing.Optional[str]:
         """
         Find and return the Bugzilla API key.  Raises SystemExit
         if unsuccesful.
@@ -65,6 +65,7 @@ class NattkaCommands(object):
         else:
             log.warning('No API key provided, will run unauthorized queries')
             log.warning('(pass --api-key or put it in ~/.bugz_token)')
+            return None
 
     def get_bugzilla(self,
                      require_api_key: bool = False
