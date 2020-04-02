@@ -4,10 +4,12 @@
 
 from setuptools import setup
 
+from nattka import __version__
+
 
 setup(
     name='nattka',
-    version='0',
+    version=__version__,
     description='A New Arch Tester Toolkit (open source replacement '
                 'for stable-bot)',
 

@@ -2,3 +2,5 @@
 # 2-clause BSD license
 
 """ A New Arch Tester Toolkit """
+
+__version__ = '0'

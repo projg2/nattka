@@ -15,6 +15,7 @@ from pathlib import Path
 from snakeoil.fileutils import AtomicWriteFile
 from pkgcore.ebuild.repository import UnconfiguredTree
 
+from nattka import __version__
 from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
                              get_combined_buginfo,
                              fill_keywords_from_cc)
@@ -314,6 +315,9 @@ def main(argv: typing.List[str]) -> int:
                       help='override Portage-style configuration directory')
     argp.add_argument('--repo', default='.',
                       help='repository path (default: .)')
+    argp.add_argument('--version', action='version',
+                      version=f'nattka {__version__}',
+                      help='print the version and exit')
     subp = argp.add_subparsers(title='commands', dest='command')
 
     appp = subp.add_parser('apply',
