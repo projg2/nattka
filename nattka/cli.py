@@ -44,7 +44,9 @@ class NattkaCommands(object):
         self.bz = None
         self.repo = None
 
-    def get_api_key(self) -> str:
+    def get_api_key(self,
+                    require_api_key: bool = False
+                    ) -> str:
         """
         Find and return the Bugzilla API key.  Raises SystemExit
         if unsuccesful.
@@ -57,12 +59,19 @@ class NattkaCommands(object):
                 return f.read().strip()
         except FileNotFoundError:
             pass
-        log.error('Please pass --api-key or put it in ~/.bugz_token')
-        raise SystemExit(1)
+        if require_api_key:
+            log.error('Please pass --api-key or put it in ~/.bugz_token')
+            raise SystemExit(1)
+        else:
+            log.warning('No API key provided, will run unauthorized queries')
+            log.warning('(pass --api-key or put it in ~/.bugz_token)')
 
-    def get_bugzilla(self) -> NattkaBugzilla:
+    def get_bugzilla(self,
+                     require_api_key: bool = False
+                     ) -> NattkaBugzilla:
         """
         Initialize and return a bugzilla instance.  Caches the result.
+        If @require_api_key is True, requires API key to be provided.
         """
 
         if self.bz is None:
@@ -72,7 +81,9 @@ class NattkaCommands(object):
                 kwargs['auth'] = tuple(self.args.bugzilla_auth.split(':', 1))
             if self.args.bugzilla_endpoint is not None:
                 kwargs['api_url'] = self.args.bugzilla_endpoint
-            self.bz = NattkaBugzilla(self.get_api_key(), **kwargs)
+            self.bz = NattkaBugzilla(
+                self.get_api_key(require_api_key=require_api_key),
+                **kwargs)
         return self.bz
 
     def find_bugs(self) -> typing.Dict[int, BugInfo]:
@@ -161,7 +172,7 @@ class NattkaCommands(object):
         cache = self.get_cache()
         cache.setdefault('bugs', {})
 
-        bz = self.get_bugzilla()
+        bz = self.get_bugzilla(require_api_key=self.args.update_bugs)
         username = bz.whoami()
         bugs = self.find_bugs()
         log.info(f'Found {len(bugs)} bugs')

@@ -95,7 +95,7 @@ def make_bug_info(bug: typing.Dict[str, typing.Any]
 
 class NattkaBugzilla(object):
     def __init__(self,
-                 api_key: str,
+                 api_key: typing.Optional[str],
                  api_url: str = BUGZILLA_API_URL,
                  auth: typing.Optional[typing.Tuple[str, str]] = None):
         self.api_key = api_key
@@ -110,7 +110,8 @@ class NattkaBugzilla(object):
                  ]] = {}
                  ) -> requests.Response:
         params = dict(params)
-        params['Bugzilla_api_key'] = self.api_key
+        if self.api_key is not None:
+            params['Bugzilla_api_key'] = self.api_key
         ret = self.session.get(self.api_url + '/' + endpoint,
                                auth=self.auth,
                                params=params)
@@ -122,12 +123,13 @@ class NattkaBugzilla(object):
                      data: dict
                      ) -> requests.Response:
         data = dict(data)
+        params = {}
+        if self.api_key is not None:
+            params['Bugzilla_api_key'] = self.api_key
         ret = self.session.put(self.api_url + '/' + endpoint,
                                auth=self.auth,
                                json=data,
-                               params={
-                                   'Bugzilla_api_key': self.api_key,
-                               })
+                               params=params)
         ret.raise_for_status()
         return ret
 
