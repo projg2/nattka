@@ -209,7 +209,8 @@ class NattkaCommands(object):
                             log.info('Sanity-check flag changed, '
                                      'will recheck.')
                         elif (datetime.datetime.utcnow()
-                              - datetime.datetime.fromisoformat(last_check)
+                              - datetime.datetime.strptime(
+                                last_check, '%Y-%m-%dT%H:%M:%S')
                               > datetime.timedelta(
                                 seconds=self.args.cache_max_age)):
                             log.info('Cache entry is old, will recheck.')
@@ -229,7 +230,8 @@ class NattkaCommands(object):
                         if not self.args.no_update:
                             cache['bugs'][str(bno)] = {
                                 'last-check':
-                                    datetime.datetime.utcnow().isoformat(),
+                                    datetime.datetime.utcnow().isoformat(
+                                        timespec='seconds'),
                                 'package-list': b.atoms,
                                 'check-res': check_res,
                             }

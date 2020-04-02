@@ -82,7 +82,8 @@ class IntegrationTestCase(unittest.TestCase):
             json.dump({
                 'bugs': {
                     '560322': {
-                        'last-check': last_check.isoformat(),
+                        'last-check':
+                            last_check.isoformat(timespec='seconds'),
                         'package-list':
                             package_list if package_list is not None
                             else bugz_inst.fetch_package_list
