@@ -277,10 +277,11 @@ def fill_keywords_from_cc(bug: BugInfo,
     filled in (if possible).
     """
 
-    arches = sorted(x.split('@')[0]
-                    for x in frozenset(
-                        f'{x}@gentoo.org' for x in known_arches)
-                    .intersection(bug.cc))
+    # bug.cc may contain full emails when authorized with an API key
+    # or just login names
+    bug_cc = frozenset(x.split('@', 1)[0] for x in bug.cc
+                       if x.endswith('@gentoo.org') or '@' not in x)
+    arches = sorted(bug_cc.intersection(known_arches))
 
     ret = ''
     for line in bug.atoms.splitlines():

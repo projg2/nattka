@@ -265,3 +265,25 @@ class KeywordFillerTest(unittest.TestCase):
                     'test/bar-3  amd64 x86\r\n',
                     ['amd64@gentoo.org', 'x86@gentoo.org'], [], [],
                     None))
+
+    def test_fill_keywords_cc_no_email(self):
+        """
+        Test filling keywords from CC containing only login parts
+        of e-mail addresses (i.e. obtained without API key).
+        """
+
+        self.assertEqual(
+            fill_keywords_from_cc(
+                BugInfo(BugCategory.STABLEREQ,
+                        'test/foo-1 x86\r\n'
+                        'test/bar-2\r\n'
+                        'test/bar-3 \r\n',
+                        ['amd64', 'x86'], [], [],
+                        None),
+                ['amd64', 'arm64', 'x86']),
+            BugInfo(BugCategory.STABLEREQ,
+                    'test/foo-1 x86\r\n'
+                    'test/bar-2 amd64 x86\r\n'
+                    'test/bar-3  amd64 x86\r\n',
+                    ['amd64', 'x86'], [], [],
+                    None))
