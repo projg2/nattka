@@ -161,6 +161,11 @@ class NattkaCommands(object):
         bugs = self.find_bugs()
         log.info(f'Found {len(bugs)} bugs')
         bugs_done = 0
+        end_time = None
+        if self.args.time_limit is not None:
+            end_time = (datetime.datetime.utcnow()
+                        + datetime.timedelta(seconds=self.args.time_limit))
+            log.info(f'Will process until {end_time}')
 
         try:
             # start with the newest bugs
@@ -169,6 +174,10 @@ class NattkaCommands(object):
                     log.info(f'Tested {bugs_done} bugs so far')
                 if self.args.bug_limit and bugs_done >= self.args.bug_limit:
                     log.info(f'Reached limit of {self.args.bug_limit} bugs')
+                    break
+                if (end_time is not None
+                        and datetime.datetime.utcnow() > end_time):
+                    log.info(f'Reached time limit')
                     break
 
                 b = get_combined_buginfo(bugs, bno)
@@ -328,6 +337,9 @@ def main(argv: typing.List[str]) -> int:
     prop.add_argument('-n', '--no-update', action='store_true',
                       help='Do not commit updates to the bugs, only '
                            'check them and report what would be done')
+    prop.add_argument('--time-limit', type=int,
+                      help='Run checks for at most N seconds '
+                           '(default: unlimited')
     prop.add_argument('bug', nargs='*', type=int,
                       help='Bug(s) to process (default: find all)')
 
