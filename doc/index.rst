@@ -6,6 +6,7 @@ Welcome to nattka's documentation!
    :caption: Contents:
 
    intro
+   quickstart
    bug
 
 
