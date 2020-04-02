@@ -191,6 +191,7 @@ class NattkaCommands(object):
                 try:
                     comment: typing.Optional[str] = None
                     check_res: typing.Optional[bool] = None
+                    cache_entry: typing.Optional[dict] = None
 
                     plist = dict(match_package_list(repo, b.atoms))
                     if not plist:
@@ -210,6 +211,7 @@ class NattkaCommands(object):
                         raise SkipBug()
 
                     cache_entry = cache['bugs'].get(str(bno), {})
+                    assert cache_entry is not None
                     last_check = cache_entry.get('last-check')
                     if last_check is not None:
                         if cache_entry.get('package-list', '') != b.atoms:
@@ -224,6 +226,10 @@ class NattkaCommands(object):
                               > datetime.timedelta(
                                 seconds=self.args.cache_max_age)):
                             log.info('Cache entry is old, will recheck.')
+                        elif (not cache_entry.get('updated')
+                              and not self.args.no_update):
+                            log.info('Cache entry from --no-update mode, '
+                                     'will recheck.')
                         else:
                             log.info('Cache entry is up-to-date, skipping.')
                             continue
@@ -236,19 +242,18 @@ class NattkaCommands(object):
 
                         bugs_done += 1
 
-                        # do not update cache when not updating bugzilla
-                        if not self.args.no_update:
-                            cache['bugs'][str(bno)] = {
-                                'last-check':
-                                    datetime.datetime.utcnow().isoformat(
-                                        timespec='seconds'),
-                                'package-list': b.atoms,
-                                'check-res': check_res,
-                            }
+                        cache_entry = cache['bugs'][str(bno)] = {
+                            'last-check':
+                                datetime.datetime.utcnow().isoformat(
+                                    timespec='seconds'),
+                            'package-list': b.atoms,
+                            'check-res': check_res,
+                        }
 
                         if check_res:
                             # if nothing changed, do nothing
                             if b.sanity_check is True:
+                                cache_entry['updated'] = True
                                 log.info('Still good')
                                 continue
 
@@ -271,7 +276,7 @@ class NattkaCommands(object):
                     log.error(f'{git_repo.path}: working tree is dirty')
                     raise SystemExit(1)
                 except SkipBug:
-                    pass
+                    assert check_res is None
                 except Exception as e:
                     log.error(f'TODO: handle exception {e.__class__} {e}')
                     continue
@@ -289,11 +294,15 @@ class NattkaCommands(object):
                     # do not add a second identical comment
                     if (old_comment is not None
                             and comment.strip() == old_comment.strip()):
+                        assert cache_entry is not None
+                        cache_entry['updated'] = True
                         log.info('Failure reported already')
                         continue
 
                 if not self.args.no_update:
                     bz.update_status(bno, check_res, comment)
+                    if cache_entry is not None:
+                        cache_entry['updated'] = True
                     log.info('Bug status updated')
         finally:
             self.write_cache(cache)

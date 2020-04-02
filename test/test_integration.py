@@ -72,7 +72,8 @@ class IntegrationTestCase(unittest.TestCase):
                    bugz_inst: MagicMock,
                    last_check: datetime.datetime = datetime.datetime.utcnow(),
                    package_list: typing.Optional[str] = None,
-                   sanity_check: typing.Optional[bool] = None
+                   sanity_check: typing.Optional[bool] = None,
+                   updated: bool = True
                    ) -> str:
         """
         Write a cache file and return the path to it.
@@ -89,6 +90,7 @@ class IntegrationTestCase(unittest.TestCase):
                             else bugz_inst.fetch_package_list
                             .return_value[560322].atoms,
                         'check-res': sanity_check,
+                        'updated': updated,
                     },
                 },
             }, f)
@@ -403,6 +405,24 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         cache = self.make_cache(bugz_inst,
                                 sanity_check=False)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '560322',
+                                     '--cache-file', cache]),
+            0)
+        bugz_inst.fetch_package_list.assert_called_with([560322])
+        add_keywords.assert_called()
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_cache_from_noupdate(self, bugz, add_keywords):
+        """
+        Test that cached entry from --no-update mode for sanity-check+
+        is ignored.
+        """
+        bugz_inst = self.bug_preset(bugz, initial_status=True)
+        cache = self.make_cache(bugz_inst,
+                                updated=False,
+                                sanity_check=True)
         self.assertEqual(
             main(self.common_args + ['process-bugs', '560322',
                                      '--cache-file', cache]),
