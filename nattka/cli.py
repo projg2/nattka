@@ -326,17 +326,20 @@ def main(argv: typing.List[str]) -> int:
                       help='print the version and exit')
     subp = argp.add_subparsers(title='commands', dest='command')
 
-    appp = subp.add_parser('apply',
-                           help='keyword/stabilize packages according '
-                                'to a bug')
-    appp.add_argument('bug', nargs='+', type=int,
+    bugp = argparse.ArgumentParser(add_help=False)
+    bugg = bugp.add_argument_group('bug selection')
+    bugg.add_argument('bug', nargs='*', type=int,
                       help='bug(s) to process')
 
+    subp.add_parser('apply',
+                    parents=[bugp],
+                    help='keyword/stabilize packages according '
+                         'to a bug')
+
     prop = subp.add_parser('process-bugs',
+                           parents=[bugp],
                            help='process all open bugs -- apply '
                                 'keywords, test, report results')
-    prop.add_argument('bug', nargs='*', type=int,
-                      help='bug(s) to process (default: find all)')
     prop.add_argument('-n', '--no-update', action='store_true',
                       help='do not commit updates to the bugs, only '
                            'check them and report what would be done')
