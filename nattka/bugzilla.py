@@ -159,12 +159,10 @@ class NattkaBugzilla(object):
         return ret
 
     def find_bugs(self,
-                  category: typing.Optional[BugCategory],
-                  limit: typing.Optional[int] = None
+                  category: typing.Optional[BugCategory]
                   ) -> typing.Dict[int, BugInfo]:
         """
-        Find all relevant bugs in @category.  Limit to @limit results
-        (None = no limit).
+        Find all relevant bugs in @category.
         """
 
         product, component = BugCategory.to_products_components(category)
@@ -174,8 +172,6 @@ class NattkaBugzilla(object):
             'resolution': '---',
             'include_fields': INCLUDE_BUG_FIELDS,
         }
-        if limit is not None:
-            search_params['limit'] = str(limit)
 
         resp = self._request('bug', params=search_params).json()
 
