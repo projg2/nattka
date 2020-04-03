@@ -11,11 +11,10 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://bugstest.gentoo.org/rest/whoami
+    uri: http://127.0.0.1:33113/rest/whoami
   response:
     body:
-      string: '{"id":93306,"name":"mgorny+nattka@gentoo.org","real_name":"NATTkA test
-        user"}'
+      string: '{"name":"nattka@gentoo.org","id":2,"real_name":"NATTkA"}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -28,15 +27,13 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Mon, 30 Mar 2020 14:04:48 GMT
+      - Fri, 03 Apr 2020 13:35:06 GMT
       Etag:
-      - Rnlt7MO6BUygG57OCA39XQ
+      - mVytJ9+Su1npSL9ztIqPVQ
       Keep-Alive:
       - timeout=15, max=100
       Server:
       - Apache
-      Strict-transport-security:
-      - max-age=15768000; includeSubDomains
       Transfer-Encoding:
       - chunked
       X-content-type-options:

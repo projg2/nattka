@@ -11,32 +11,16 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://bugstest.gentoo.org/rest/bug?component=Kernel&component=Stabilization&component=Vulnerabilities&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&limit=6&product=Gentoo+Linux&product=Gentoo+Security&resolution=---
+    uri: http://127.0.0.1:33113/rest/bug?component=Kernel&component=Stabilization&component=Vulnerabilities&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&product=Gentoo+Linux&product=Gentoo+Security&resolution=---
   response:
     body:
-      string: '{"bugs":[{"cc_detail":[{"id":31762,"name":"maintainer-needed@gentoo.org","email":"maintainer-needed@gentoo.org","real_name":"No
-        maintainer - Look at https://wiki.gentoo.org/wiki/Project:Proxy_Maintainers
-        if you want to take care of it"}],"component":"Vulnerabilities","depends_on":[],"product":"Gentoo
-        Security","cc":["maintainer-needed@gentoo.org"],"blocks":[],"id":541500,"flags":[],"cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7
-        amd64 ppc x86"},{"product":"Gentoo Security","cc":[],"cc_detail":[],"component":"Kernel","depends_on":[],"flags":[],"cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6","blocks":[],"id":556804},{"blocks":[],"id":560240,"cf_stabilisation_atoms":"","flags":[{"status":"+","creation_date":"2016-12-15T08:18:02Z","setter":"kensington@gentoo.org","name":"sanity-check","id":410,"modification_date":"2016-12-15T12:47:58Z","type_id":16}],"component":"Stabilization","depends_on":[560242],"cc_detail":[{"id":10249,"name":"amd64@gentoo.org","real_name":"AMD64
-        Project","email":"amd64@gentoo.org"},{"email":"arm@gentoo.org","real_name":"Gentoo
-        ARM Porters","name":"arm@gentoo.org","id":17102},{"id":11597,"name":"ia64@gentoo.org","real_name":"IA-64
-        team","email":"ia64@gentoo.org"},{"email":"ppc64@gentoo.org","real_name":"ppc64
-        architecture team","id":17485,"name":"ppc64@gentoo.org"},{"name":"ppc@gentoo.org","id":4125,"email":"ppc@gentoo.org","real_name":"PPC
-        Porters"},{"email":"x86@gentoo.org","real_name":"Gentoo Developers for the
-        x86 Architecture","id":16261,"name":"x86@gentoo.org"}],"product":"Gentoo Linux","cc":["amd64@gentoo.org","arm@gentoo.org","ia64@gentoo.org","ppc64@gentoo.org","ppc@gentoo.org","x86@gentoo.org"]},{"cc":["arm@gentoo.org","hppa@gentoo.org","ia64@gentoo.org","ppc64@gentoo.org","sparc@gentoo.org","x86@gentoo.org"],"product":"Gentoo
-        Linux","depends_on":[],"component":"Stabilization","cc_detail":[{"real_name":"Gentoo
-        ARM Porters","email":"arm@gentoo.org","name":"arm@gentoo.org","id":17102},{"email":"hppa@gentoo.org","real_name":"HPPA
-        Porters","id":11016,"name":"hppa@gentoo.org"},{"id":11597,"name":"ia64@gentoo.org","email":"ia64@gentoo.org","real_name":"IA-64
-        team"},{"email":"ppc64@gentoo.org","real_name":"ppc64 architecture team","name":"ppc64@gentoo.org","id":17485},{"real_name":"Sparc
-        Porters","email":"sparc@gentoo.org","name":"sparc@gentoo.org","id":3398},{"email":"x86@gentoo.org","real_name":"Gentoo
-        Developers for the x86 Architecture","name":"x86@gentoo.org","id":16261}],"cf_stabilisation_atoms":"=dev-libs/libebml-1.3.4    hppa
-        amd64\r\nmedia-plugins/vdr-beep-0.1.2 arm hppa","flags":[{"creation_date":"2016-12-15T08:18:30Z","status":"-","type_id":16,"modification_date":"2017-01-05T10:53:36Z","id":412,"name":"sanity-check","setter":"kensington@gentoo.org"}],"id":560242,"blocks":[560240]},{"id":560244,"blocks":[],"cf_stabilisation_atoms":"","flags":[],"component":"Stabilization","depends_on":[],"cc_detail":[{"name":"amd64@gentoo.org","id":10249,"email":"amd64@gentoo.org","real_name":"AMD64
-        Project"},{"real_name":"HPPA Porters","email":"hppa@gentoo.org","name":"hppa@gentoo.org","id":11016}],"cc":["amd64@gentoo.org","hppa@gentoo.org"],"product":"Gentoo
-        Linux"},{"component":"Stabilization","depends_on":[560310],"cc_detail":[{"name":"amd64@gentoo.org","id":10249,"email":"amd64@gentoo.org","real_name":"AMD64
-        Project"},{"id":90198,"name":"arm64@gentoo.org","real_name":"ARM64 Project","email":"arm64@gentoo.org"},{"id":17102,"name":"arm@gentoo.org","real_name":"Gentoo
-        ARM Porters","email":"arm@gentoo.org"}],"cc":["amd64@gentoo.org","arm64@gentoo.org","arm@gentoo.org"],"product":"Gentoo
-        Linux","id":560308,"blocks":[],"cf_stabilisation_atoms":"dev-python/pytest-5.4.1","flags":[{"name":"sanity-check","modification_date":"2020-03-30T09:42:37Z","id":442,"type_id":16,"setter":"mgorny@gentoo.org","creation_date":"2020-03-30T09:37:50Z","status":"+"}]}]}'
+      string: '{"bugs":[{"blocks":[],"cc_detail":[{"id":4,"real_name":"AMD64 arch
+        team","name":"amd64@gentoo.org","email":"amd64@gentoo.org"}],"product":"Gentoo
+        Linux","cf_stabilisation_atoms":"dev-python/mako-1.1.0 amd64","depends_on":[7],"component":"Stabilization","cc":["amd64@gentoo.org"],"flags":[{"name":"sanity-check","setter":"nattka@gentoo.org","id":3,"modification_date":"2020-04-03T13:35:02Z","status":"-","creation_date":"2020-04-03T13:35:02Z","type_id":1}],"id":3},{"component":"Vulnerabilities","cc":["test@example.com"],"id":5,"flags":[],"depends_on":[],"cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7
+        amd64 hppa","cc_detail":[{"email":"test@example.com","name":"test@example.com","real_name":"Test
+        developer","id":1}],"product":"Gentoo Security","blocks":[]},{"cc_detail":[],"product":"Gentoo
+        Security","blocks":[],"flags":[],"id":6,"component":"Kernel","cc":[],"depends_on":[],"cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6"},{"cc_detail":[],"product":"Gentoo
+        Linux","blocks":[3],"flags":[],"id":7,"cc":[],"component":"Stabilization","cf_stabilisation_atoms":"dev-python/pytest-5.4.1","depends_on":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -49,15 +33,13 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Mon, 30 Mar 2020 09:49:07 GMT
+      - Fri, 03 Apr 2020 13:47:34 GMT
       Etag:
-      - w00lTQI58yU9iN1x8wt6Eg
+      - ZQEAryogeDjisPA2uar4tA
       Keep-Alive:
       - timeout=15, max=100
       Server:
       - Apache
-      Strict-transport-security:
-      - max-age=15768000; includeSubDomains
       Transfer-Encoding:
       - chunked
       X-content-type-options:

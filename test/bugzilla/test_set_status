@@ -1,6 +1,6 @@
 interactions:
 - request:
-    body: '{"ids": [560308], "flags": [{"name": "sanity-check", "status": "+"}]}'
+    body: '{"ids": [2], "flags": [{"name": "sanity-check", "status": "+"}]}'
     headers:
       Accept:
       - '*/*'
@@ -9,16 +9,16 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '69'
+      - '64'
       Content-Type:
       - application/json
       User-Agent:
       - python-requests/2.23.0
     method: PUT
-    uri: https://bugstest.gentoo.org/rest/bug/560308
+    uri: http://127.0.0.1:33113/rest/bug/2
   response:
     body:
-      string: '{"bugs":[{"changes":{},"last_change_time":"2020-03-30T09:51:28Z","alias":[],"id":560308}]}'
+      string: '{"bugs":[{"last_change_time":"2020-04-03T13:34:59Z","alias":[],"changes":{},"id":2}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -31,15 +31,13 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Mon, 30 Mar 2020 09:52:41 GMT
+      - Fri, 03 Apr 2020 13:44:30 GMT
       Etag:
-      - cd0gjD+wy9iesoSuDdd+Kw
+      - zAqxbb+IgNbIddjs4v0aXQ
       Keep-Alive:
       - timeout=15, max=100
       Server:
       - Apache
-      Strict-transport-security:
-      - max-age=15768000; includeSubDomains
       Transfer-Encoding:
       - chunked
       X-content-type-options:
@@ -63,13 +61,13 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://bugstest.gentoo.org/rest/bug?id=560308&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product
+    uri: http://127.0.0.1:33113/rest/bug?id=2&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product
   response:
     body:
-      string: '{"bugs":[{"product":"Gentoo Linux","flags":[{"name":"sanity-check","status":"+","type_id":16,"creation_date":"2020-03-30T09:37:50Z","id":442,"setter":"mgorny+nattka@gentoo.org","modification_date":"2020-03-30T09:51:28Z"}],"cf_stabilisation_atoms":"dev-python/pytest-5.4.1","depends_on":[560310],"component":"Stabilization","cc":["amd64@gentoo.org","arm64@gentoo.org","arm@gentoo.org"],"blocks":[],"id":560308,"cc_detail":[{"name":"amd64@gentoo.org","email":"amd64@gentoo.org","id":10249,"real_name":"AMD64
-        Project"},{"name":"arm64@gentoo.org","email":"arm64@gentoo.org","real_name":"ARM64
-        Project","id":90198},{"email":"arm@gentoo.org","name":"arm@gentoo.org","real_name":"Gentoo
-        ARM Porters","id":17102}]}]}'
+      string: '{"bugs":[{"component":"Keywording","flags":[{"creation_date":"2020-04-03T13:34:59Z","setter":"nattka@gentoo.org","modification_date":"2020-04-03T13:34:59Z","status":"+","id":2,"type_id":1,"name":"sanity-check"}],"cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","product":"Gentoo
+        Linux","blocks":[],"depends_on":[1],"cc":["alpha@gentoo.org","hppa@gentoo.org"],"id":2,"cc_detail":[{"real_name":"ALPHA
+        arch team","name":"alpha@gentoo.org","email":"alpha@gentoo.org","id":3},{"real_name":"HPPA
+        arch team","name":"hppa@gentoo.org","email":"hppa@gentoo.org","id":5}]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -82,15 +80,13 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Mon, 30 Mar 2020 09:52:42 GMT
+      - Fri, 03 Apr 2020 13:44:31 GMT
       Etag:
-      - gQOBw+bkzfv95cUBGtXf9g
+      - GXN/bTATgO/lSkNEBX8ILg
       Keep-Alive:
       - timeout=15, max=99
       Server:
       - Apache
-      Strict-transport-security:
-      - max-age=15768000; includeSubDomains
       Transfer-Encoding:
       - chunked
       X-content-type-options:

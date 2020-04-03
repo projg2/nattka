@@ -11,16 +11,15 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://bugstest.gentoo.org/rest/bug/560310/comment
+    uri: http://127.0.0.1:33113/rest/bug/3/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"560310":{"comments":[{"is_private":false,"tags":[],"creator":"mgorny@gentoo.org","text":"bllaz","count":0,"creation_time":"2020-03-29T13:02:57Z","bug_id":560310,"id":5129848,"attachment_id":null,"time":"2020-03-29T13:02:57Z"},{"time":"2020-03-30T09:53:38Z","bug_id":560310,"id":5129856,"attachment_id":null,"count":1,"text":"sanity
-        check failed","creation_time":"2020-03-30T09:53:38Z","is_private":false,"tags":[],"creator":"mgorny+nattka@gentoo.org"},{"id":5129858,"attachment_id":null,"bug_id":560310,"time":"2020-03-30T09:54:08Z","is_private":false,"tags":[],"creator":"mgorny+nattka@gentoo.org","creation_time":"2020-03-30T09:54:08Z","count":2,"text":"sanity
-        check failed"},{"bug_id":560310,"id":5129860,"attachment_id":null,"time":"2020-03-30T12:00:17Z","is_private":false,"creator":"mgorny@gentoo.org","tags":[],"text":"(In
-        reply to NATTkA test user from comment #2)\n> sanity check failed\n\nSome
-        other comment.","count":3,"creation_time":"2020-03-30T12:00:17Z"},{"tags":[],"creator":"mgorny+nattka@gentoo.org","is_private":false,"creation_time":"2020-03-30T12:01:22Z","count":4,"text":"some
-        other comment","attachment_id":null,"id":5129862,"bug_id":560310,"time":"2020-03-30T12:01:22Z"},{"creation_time":"2020-03-30T12:02:52Z","text":"sanity
-        check failed!","count":5,"creator":"mgorny+nattka@gentoo.org","tags":[],"is_private":false,"time":"2020-03-30T12:02:52Z","attachment_id":null,"id":5129864,"bug_id":560310}]}}}'
+      string: '{"comments":{},"bugs":{"3":{"comments":[{"tags":[],"id":3,"creation_time":"2020-04-03T13:19:04Z","bug_id":3,"time":"2020-04-03T13:19:04Z","is_private":false,"creator":"test@example.com","count":0,"attachment_id":null,"text":""},{"tags":[],"id":8,"bug_id":3,"creation_time":"2020-04-03T13:35:02Z","is_private":false,"time":"2020-04-03T13:35:02Z","creator":"nattka@gentoo.org","count":1,"attachment_id":null,"text":"sanity
+        check failed!"},{"is_private":false,"time":"2020-04-03T13:35:33Z","bug_id":3,"id":9,"creation_time":"2020-04-03T13:35:33Z","text":"sanity
+        check failed!","attachment_id":null,"count":2,"creator":"nattka@gentoo.org","tags":[]},{"creator":"nattka@gentoo.org","count":3,"attachment_id":null,"text":"sanity
+        check failed!","id":10,"bug_id":3,"creation_time":"2020-04-03T13:37:04Z","time":"2020-04-03T13:37:04Z","is_private":false,"tags":[]},{"creation_time":"2020-04-03T13:38:16Z","bug_id":3,"id":11,"time":"2020-04-03T13:38:16Z","is_private":false,"count":4,"creator":"nattka@gentoo.org","text":"sanity
+        check failed!","attachment_id":null,"tags":[]},{"id":12,"creation_time":"2020-04-03T13:43:55Z","bug_id":3,"is_private":false,"time":"2020-04-03T13:43:55Z","creator":"nattka@gentoo.org","count":5,"attachment_id":null,"text":"sanity
+        check failed!","tags":[]}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -33,15 +32,13 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Mon, 30 Mar 2020 12:04:15 GMT
+      - Fri, 03 Apr 2020 13:44:25 GMT
       Etag:
-      - NpkXRQuuDnuL7nzBxEZA6Q
+      - B4iVrILqFOIOZa8+zMHX3Q
       Keep-Alive:
       - timeout=15, max=100
       Server:
       - Apache
-      Strict-transport-security:
-      - max-age=15768000; includeSubDomains
       Transfer-Encoding:
       - chunked
       X-content-type-options:
