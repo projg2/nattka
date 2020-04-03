@@ -18,7 +18,7 @@ from pkgcore.ebuild.repository import UnconfiguredTree
 from nattka import __version__
 from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
                              get_combined_buginfo,
-                             fill_keywords_from_cc)
+                             update_keywords_from_cc)
 from nattka.git import GitWorkTree, GitDirtyWorkTree
 from nattka.package import (find_repository, match_package_list,
                             add_keywords, check_dependencies,
@@ -93,7 +93,7 @@ class NattkaCommands(object):
         else:
             bugs = bz.find_bugs(None)
         for bno, b in bugs.items():
-            bugs[bno] = fill_keywords_from_cc(
+            bugs[bno] = update_keywords_from_cc(
                 b, self.get_repository().known_arches)
         return bugs
 

@@ -11,7 +11,7 @@ import vcr
 
 from nattka.bugzilla import (NattkaBugzilla, BugCategory, BugInfo,
                              get_combined_buginfo,
-                             fill_keywords_from_cc)
+                             update_keywords_from_cc)
 
 
 API_ENDPOINT = 'http://127.0.0.1:33113/rest'
@@ -203,8 +203,10 @@ class BugInfoCombinerTest(unittest.TestCase):
 
 class KeywordFillerTest(unittest.TestCase):
     def test_fill_keywords_cc(self):
+        """ Test that missing keywords are copied from CC. """
+
         self.assertEqual(
-            fill_keywords_from_cc(
+            update_keywords_from_cc(
                 BugInfo(BugCategory.STABLEREQ,
                         'test/foo-1 x86\r\n'
                         'test/bar-2\r\n'
@@ -215,8 +217,48 @@ class KeywordFillerTest(unittest.TestCase):
             BugInfo(BugCategory.STABLEREQ,
                     'test/foo-1 x86\r\n'
                     'test/bar-2 amd64 x86\r\n'
-                    'test/bar-3  amd64 x86\r\n',
+                    'test/bar-3 amd64 x86\r\n',
                     ['amd64@gentoo.org', 'x86@gentoo.org'], [], [],
+                    None))
+
+    def test_filter_keywords_cc(self):
+        """ Test filtering keywords based on CC. """
+
+        self.assertEqual(
+            update_keywords_from_cc(
+                BugInfo(BugCategory.STABLEREQ,
+                        'test/foo-1 amd64 x86 arm\r\n'
+                        'test/bar-2 amd64 x86\r\n'
+                        'test/bar-3 arm\r\n',
+                        ['amd64@gentoo.org', 'x86@gentoo.org'], [], [],
+                        None),
+                ['amd64', 'arm64', 'x86']),
+            BugInfo(BugCategory.STABLEREQ,
+                    'test/foo-1 amd64 x86\r\n'
+                    'test/bar-2 amd64 x86\r\n',
+                    ['amd64@gentoo.org', 'x86@gentoo.org'], [], [],
+                    None))
+
+    def test_no_cc(self):
+        """
+        Test that packages are not dropped if no arches are CC-ed
+        and no keywords are provided.
+        """
+
+        self.assertEqual(
+            update_keywords_from_cc(
+                BugInfo(BugCategory.STABLEREQ,
+                        'test/foo-1 amd64 x86 arm\r\n'
+                        'test/bar-2 amd64 x86\r\n'
+                        'test/bar-3\r\n',
+                        [], [], [],
+                        None),
+                ['amd64', 'arm64', 'x86']),
+            BugInfo(BugCategory.STABLEREQ,
+                    'test/foo-1 amd64 x86 arm\r\n'
+                    'test/bar-2 amd64 x86\r\n'
+                    'test/bar-3\r\n',
+                    [], [], [],
                     None))
 
     def test_fill_keywords_cc_no_email(self):
@@ -226,7 +268,7 @@ class KeywordFillerTest(unittest.TestCase):
         """
 
         self.assertEqual(
-            fill_keywords_from_cc(
+            update_keywords_from_cc(
                 BugInfo(BugCategory.STABLEREQ,
                         'test/foo-1 x86\r\n'
                         'test/bar-2\r\n'
@@ -237,6 +279,6 @@ class KeywordFillerTest(unittest.TestCase):
             BugInfo(BugCategory.STABLEREQ,
                     'test/foo-1 x86\r\n'
                     'test/bar-2 amd64 x86\r\n'
-                    'test/bar-3  amd64 x86\r\n',
+                    'test/bar-3 amd64 x86\r\n',
                     ['amd64', 'x86'], [], [],
                     None))

@@ -262,13 +262,15 @@ def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo],
                    topbug.blocks, topbug.sanity_check)
 
 
-def fill_keywords_from_cc(bug: BugInfo,
-                          known_arches: typing.Iterable[str]
-                          ) -> BugInfo:
+def update_keywords_from_cc(bug: BugInfo,
+                            known_arches: typing.Iterable[str]
+                            ) -> BugInfo:
     """
-    Fill missing keywords in @bug based on CC list.  @known_arches
-    specifies the list of valid arches.  Returns a BugInfo with arches
-    filled in (if possible).
+    Update package package list's keywords in @bug based on CC.
+    If at least one arch is CC-ed, the package's keywords are filtered
+    to intersect with CC.  If package's keyword are not specified,
+    they are defaulted to CC list.  Returns a BugInfo with updated
+    package list.
     """
 
     # bug.cc may contain full emails when authorized with an API key
@@ -277,12 +279,21 @@ def fill_keywords_from_cc(bug: BugInfo,
                        if x.endswith('@gentoo.org') or '@' not in x)
     arches = sorted(bug_cc.intersection(known_arches))
 
+    # if no arches were CC-ed, we can't do anything
+    if not arches:
+        return bug
+
     ret = ''
     for line in bug.atoms.splitlines():
         sl = line.split()
         if len(sl) == 1:
-            line += f' {" ".join(arches)}'
-        ret += f'{line}\r\n'
+            sl += arches
+        else:
+            sl[1:] = (x for x in sl[1:] if x.lstrip('~') in arches)
+            # all arches filtered out? skip the package then
+            if len(sl) == 1:
+                continue
+        ret += f'{" ".join(sl)}\r\n'
 
     return BugInfo(bug.category, ret, bug.cc, bug.depends, bug.blocks,
                    bug.sanity_check)
