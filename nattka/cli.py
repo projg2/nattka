@@ -76,15 +76,9 @@ class NattkaCommands(object):
         """
 
         if self.bz is None:
-            # TODO: restore type checking once we get rid of auth
-            kwargs: typing.Dict[str, typing.Any] = {}
-            if self.args.bugzilla_auth is not None:
-                kwargs['auth'] = tuple(self.args.bugzilla_auth.split(':', 1))
-            if self.args.bugzilla_endpoint is not None:
-                kwargs['api_url'] = self.args.bugzilla_endpoint
             self.bz = NattkaBugzilla(
                 self.get_api_key(require_api_key=require_api_key),
-                **kwargs)
+                api_url=self.args.bugzilla_endpoint)
         return self.bz
 
     def find_bugs(self) -> typing.Dict[int, BugInfo]:
@@ -342,9 +336,6 @@ def main(argv: typing.List[str]) -> int:
     bugg.add_argument('--api-key',
                       help='Bugzilla API key (read from ~/.bugz_token '
                            'by default')
-    bugg.add_argument('--bugzilla-auth',
-                      help='Bugzilla HTTP server username:password '
-                           '(for HTTP auth protected sites, e.g. bugstest)')
     bugg.add_argument('--bugzilla-endpoint',
                       help='Bugzilla /rest endpoint URL')
 
