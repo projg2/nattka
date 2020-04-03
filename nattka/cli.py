@@ -332,8 +332,11 @@ def main(argv: typing.List[str]) -> int:
                       help='print the version and exit')
 
     logg = argp.add_argument_group('logging')
+    logg = logg.add_mutually_exclusive_group()
     logg.add_argument('-q', '--quiet', action='store_true',
                       help='Disable logging')
+    logg.add_argument('--log-file',
+                      help='Log to specified file')
 
     bugg = argp.add_argument_group('Bugzilla configuration')
     bugg.add_argument('--api-key',
@@ -389,8 +392,19 @@ def main(argv: typing.List[str]) -> int:
     if args.command is None:
         argp.error('Command must be specified')
 
+    log.setLevel(logging.CRITICAL)
     if args.quiet:
-        log.setLevel(logging.CRITICAL)
+        log.setLevel(logging.INFO)
+
+    if args.log_file:
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.CRITICAL)
+        log.addHandler(ch)
+        fh = logging.FileHandler(args.log_file)
+        ff = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+        fh.setFormatter(ff)
+        log.propagate = False
+        log.addHandler(fh)
 
     cmd = NattkaCommands(args)
     try:
@@ -403,7 +417,6 @@ def main(argv: typing.List[str]) -> int:
 
 
 def setuptools_main() -> None:
-    log.setLevel(logging.INFO)
     sys.exit(main(sys.argv[1:]))
 
 
