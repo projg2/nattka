@@ -105,6 +105,14 @@ class NattkaCommands(object):
         if self.repo is None:
             self.repo = find_repository(self.args.repo,
                                         self.args.portage_conf)
+            if self.repo is None:
+                log.critical(
+                    'Ebuild repository not found in {self.args.repo}')
+                log.critical(
+                    'Please run from inside the ebuild repository or '
+                    'pass correct --repo')
+                raise SystemExit(1)
+
         return self.repo
 
     def get_cache(self) -> dict:
