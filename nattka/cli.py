@@ -383,9 +383,9 @@ def main(argv: typing.List[str]) -> int:
     if args.command is None:
         argp.error('Command must be specified')
 
-    log.setLevel(logging.CRITICAL)
+    log.setLevel(logging.INFO)
     if args.quiet:
-        log.setLevel(logging.INFO)
+        log.setLevel(logging.CRITICAL)
 
     if args.log_file:
         ch = logging.StreamHandler()
