@@ -96,9 +96,9 @@ def make_bug_info(bug: typing.Dict[str, typing.Any]
 class NattkaBugzilla(object):
     def __init__(self,
                  api_key: typing.Optional[str],
-                 api_url: str = BUGZILLA_API_URL):
+                 api_url: typing.Optional[str] = None):
         self.api_key = api_key
-        self.api_url = api_url
+        self.api_url = api_url or BUGZILLA_API_URL
         self.session = requests.Session()
 
     def _request(self,
