@@ -325,21 +325,26 @@ class NattkaCommands(object):
 
 def main(argv: typing.List[str]) -> int:
     argp = argparse.ArgumentParser()
-    argp.add_argument('--api-key',
-                      help='Bugzilla API key (read from ~/.bugz_token '
-                           'by default')
-    argp.add_argument('--bugzilla-auth',
-                      help='Bugzilla HTTP server username:password '
-                           '(for HTTP auth protected sites, e.g. bugstest)')
-    argp.add_argument('--bugzilla-endpoint',
-                      help='Bugzilla /rest endpoint URL')
-    argp.add_argument('--portage-conf', default=None,
-                      help='override Portage-style configuration directory')
-    argp.add_argument('--repo', default='.',
-                      help='repository path (default: .)')
     argp.add_argument('--version', action='version',
                       version=f'nattka {__version__}',
                       help='print the version and exit')
+
+    bugg = argp.add_argument_group('Bugzilla configuration')
+    bugg.add_argument('--api-key',
+                      help='Bugzilla API key (read from ~/.bugz_token '
+                           'by default')
+    bugg.add_argument('--bugzilla-auth',
+                      help='Bugzilla HTTP server username:password '
+                           '(for HTTP auth protected sites, e.g. bugstest)')
+    bugg.add_argument('--bugzilla-endpoint',
+                      help='Bugzilla /rest endpoint URL')
+
+    repg = argp.add_argument_group('repository')
+    repg.add_argument('--portage-conf', default=None,
+                      help='override Portage-style configuration directory')
+    repg.add_argument('--repo', default='.',
+                      help='repository path (default: .)')
+
     subp = argp.add_subparsers(title='commands', dest='command')
 
     bugp = argparse.ArgumentParser(add_help=False)
