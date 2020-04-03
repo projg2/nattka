@@ -60,7 +60,7 @@ class NattkaCommands(object):
         except FileNotFoundError:
             pass
         if require_api_key:
-            log.error('Please pass --api-key or put it in ~/.bugz_token')
+            log.critical('Please pass --api-key or put it in ~/.bugz_token')
             raise SystemExit(1)
         else:
             log.warning('No API key provided, will run unauthorized queries')
@@ -163,7 +163,8 @@ class NattkaCommands(object):
         repo = self.get_repository()
         git_repo = GitWorkTree(repo.location)
         if git_repo.path != Path(repo.location):
-            log.error(f'{repo.location} does not seem to be a git repository')
+            log.critical(
+                f'{repo.location} does not seem to be a git repository')
             raise SystemExit(1)
 
         if not self.args.update_bugs:
@@ -289,7 +290,8 @@ class NattkaCommands(object):
                     check_res = False
                     comment = f'Unable to check for sanity:\n\n> {e}'
                 except GitDirtyWorkTree:
-                    log.error(f'{git_repo.path}: working tree is dirty')
+                    log.critical(
+                        f'{git_repo.path}: working tree is dirty')
                     raise SystemExit(1)
                 except SkipBug:
                     assert check_res is None
@@ -328,6 +330,10 @@ def main(argv: typing.List[str]) -> int:
     argp.add_argument('--version', action='version',
                       version=f'nattka {__version__}',
                       help='print the version and exit')
+
+    logg = argp.add_argument_group('logging')
+    logg.add_argument('-q', '--quiet', action='store_true',
+                      help='Disable logging')
 
     bugg = argp.add_argument_group('Bugzilla configuration')
     bugg.add_argument('--api-key',
@@ -382,6 +388,9 @@ def main(argv: typing.List[str]) -> int:
     args = argp.parse_args(argv)
     if args.command is None:
         argp.error('Command must be specified')
+
+    if args.quiet:
+        log.setLevel(logging.CRITICAL)
 
     cmd = NattkaCommands(args)
     try:
