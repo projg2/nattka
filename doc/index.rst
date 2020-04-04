@@ -7,6 +7,7 @@ Welcome to nattka's documentation!
 
    intro
    quickstart
+   usage
    bug
 
 
