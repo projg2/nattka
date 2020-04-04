@@ -142,6 +142,7 @@ class NattkaBugzilla(object):
     def find_bugs(self,
                   bugs: typing.Iterable[int] = [],
                   category: typing.Iterable[BugCategory] = [],
+                  security: typing.Optional[bool] = None,
                   cc: typing.Iterable[str] = []
                   ) -> typing.Dict[int, BugInfo]:
         """
@@ -156,6 +157,9 @@ class NattkaBugzilla(object):
         to include in the results.  Otherwise, all bugs are included
         (including bugs not belonging to any category, if `bugs`
         are specified as well).
+
+        If `security` is True, only security bugs are returned.  If it
+        is False, only non-security bugs are returned.
 
         If `cc` is not empty, only bugs with specific e-mail addresses
         in CC will be returned.
@@ -186,6 +190,11 @@ class NattkaBugzilla(object):
                 components.update(comp)
             search_params['product'] = list(products)
             search_params['component'] = list(components)
+
+        if security is not None:
+            # note: this deliberately overrides category
+            search_params['product'] = [
+                'Gentoo Security' if security else 'Gentoo Linux']
 
         if cc:
             search_params['cc'] = list(cc)

@@ -135,6 +135,17 @@ class BugzillaTests(BugzillaTestCase):
              })
 
     @rec.use_cassette()
+    def test_fetch_bugs_security(self):
+        """Test getting and filtering to security bugs."""
+        self.assertEqual(
+            self.bz.find_bugs([3, 4, 6, 8],
+                              security=True),
+            {6: BugInfo(BugCategory.STABLEREQ, True,
+                        'sys-kernel/gentoo-sources-4.1.6\r\n',
+                        [], [], [], None),
+             })
+
+    @rec.use_cassette()
     def test_fetch_bugs_cc(self):
         """Test filtering bugs by CC."""
         self.assertEqual(
@@ -183,6 +194,95 @@ class BugzillaTests(BugzillaTestCase):
              6: BugInfo(BugCategory.STABLEREQ, True,
                         'sys-kernel/gentoo-sources-4.1.6\r\n',
                         [], [], [], None),
+             7: BugInfo(BugCategory.STABLEREQ, False,
+                        'dev-python/pytest-5.4.1\r\n',
+                        [],
+                        [], [3], None)
+             })
+
+    @rec.use_cassette()
+    def test_find_security(self):
+        """ Test finding security bugs. """
+        self.assertEqual(
+            self.bz.find_bugs(security=True),
+            {5: BugInfo(BugCategory.STABLEREQ, True,
+                        'app-arch/arj-3.10.22-r7 amd64 hppa\r\n',
+                        ['test@example.com'],
+                        [], [], None),
+             6: BugInfo(BugCategory.STABLEREQ, True,
+                        'sys-kernel/gentoo-sources-4.1.6\r\n',
+                        [], [], [], None),
+             })
+
+    @rec.use_cassette()
+    def test_find_security_keywordreq(self):
+        """ Test finding security keywordreq bugs (no such thing). """
+        self.assertEqual(
+            self.bz.find_bugs(category=[BugCategory.KEYWORDREQ],
+                              security=True),
+            {})
+
+    @rec.use_cassette()
+    def test_find_security_stablereq(self):
+        """ Test finding security stablereq bugs (all of them). """
+        self.assertEqual(
+            self.bz.find_bugs(category=[BugCategory.STABLEREQ],
+                              security=True),
+            {5: BugInfo(BugCategory.STABLEREQ, True,
+                        'app-arch/arj-3.10.22-r7 amd64 hppa\r\n',
+                        ['test@example.com'],
+                        [], [], None),
+             6: BugInfo(BugCategory.STABLEREQ, True,
+                        'sys-kernel/gentoo-sources-4.1.6\r\n',
+                        [], [], [], None),
+             })
+
+    @rec.use_cassette()
+    def test_find_security_both(self):
+        """ Test finding security keywordreq and stablereq bugs. """
+        self.assertEqual(
+            self.bz.find_bugs(category=[BugCategory.KEYWORDREQ,
+                                        BugCategory.STABLEREQ],
+                              security=True),
+            {5: BugInfo(BugCategory.STABLEREQ, True,
+                        'app-arch/arj-3.10.22-r7 amd64 hppa\r\n',
+                        ['test@example.com'],
+                        [], [], None),
+             6: BugInfo(BugCategory.STABLEREQ, True,
+                        'sys-kernel/gentoo-sources-4.1.6\r\n',
+                        [], [], [], None),
+             })
+
+    @rec.use_cassette()
+    def test_find_nonsecurity_keywordreqs(self):
+        """ Test finding keywordreqs that are not security bugs. """
+        self.assertEqual(
+            self.bz.find_bugs(category=[BugCategory.KEYWORDREQ],
+                              security=False),
+            {2: BugInfo(BugCategory.KEYWORDREQ, False,
+                        'dev-python/unittest-mixins-1.6\r\n'
+                        'dev-python/coverage-4.5.4\r\n',
+                        [f'{x}@gentoo.org' for x in ('alpha',
+                                                     'hppa')],
+                        [1], [], True),
+             4: BugInfo(BugCategory.KEYWORDREQ, False,
+                        'dev-python/urllib3-1.25.8\r\n'
+                        'dev-python/trustme-0.6.0\r\n'
+                        'dev-python/brotlipy-0.7.0\r\n',
+                        [f'{x}@gentoo.org' for x in ('hppa',)],
+                        [], [], None),
+             })
+
+    @rec.use_cassette()
+    def test_find_nonsecurity_stablereqs(self):
+        """ Test finding non-security stablereqs. """
+        self.assertEqual(
+            self.bz.find_bugs(category=[BugCategory.STABLEREQ],
+                              security=False),
+            {3: BugInfo(BugCategory.STABLEREQ, False,
+                        'dev-python/mako-1.1.0 amd64\r\n',
+                        [f'{x}@gentoo.org' for x in ('amd64',)],
+                        [7], [], False),
              7: BugInfo(BugCategory.STABLEREQ, False,
                         'dev-python/pytest-5.4.1\r\n',
                         [],
