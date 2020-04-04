@@ -135,6 +135,20 @@ class BugzillaTests(BugzillaTestCase):
              })
 
     @rec.use_cassette()
+    def test_fetch_bugs_cc(self):
+        """Test filtering bugs by CC."""
+        self.assertEqual(
+            self.bz.find_bugs([1, 3, 4, 8],
+                              cc=['hppa@gentoo.org']),
+            {4: BugInfo(BugCategory.KEYWORDREQ,
+                        'dev-python/urllib3-1.25.8\r\n'
+                        'dev-python/trustme-0.6.0\r\n'
+                        'dev-python/brotlipy-0.7.0\r\n',
+                        [f'{x}@gentoo.org' for x in ('hppa',)],
+                        [], [], None),
+             })
+
+    @rec.use_cassette()
     def test_find_keywordreqs(self):
         """ Test finding keywordreqs. """
         self.assertEqual(
@@ -173,6 +187,25 @@ class BugzillaTests(BugzillaTestCase):
                         'dev-python/pytest-5.4.1\r\n',
                         [],
                         [], [3], None)
+             })
+
+    @rec.use_cassette()
+    def test_find_bugs_cc(self):
+        """Test finding bugs by CC."""
+        self.assertEqual(
+            self.bz.find_bugs(cc=['hppa@gentoo.org']),
+            {2: BugInfo(BugCategory.KEYWORDREQ,
+                        'dev-python/unittest-mixins-1.6\r\n'
+                        'dev-python/coverage-4.5.4\r\n',
+                        [f'{x}@gentoo.org' for x in ('alpha',
+                                                     'hppa')],
+                        [1], [], True),
+             4: BugInfo(BugCategory.KEYWORDREQ,
+                        'dev-python/urllib3-1.25.8\r\n'
+                        'dev-python/trustme-0.6.0\r\n'
+                        'dev-python/brotlipy-0.7.0\r\n',
+                        [f'{x}@gentoo.org' for x in ('hppa',)],
+                        [], [], None),
              })
 
     @rec.use_cassette()

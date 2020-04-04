@@ -137,7 +137,8 @@ class NattkaBugzilla(object):
 
     def find_bugs(self,
                   bugs: typing.Iterable[int] = [],
-                  category: typing.Iterable[BugCategory] = []
+                  category: typing.Iterable[BugCategory] = [],
+                  cc: typing.Iterable[BugCategory] = []
                   ) -> typing.Dict[int, BugInfo]:
         """
         Fetch and return all bugs relevant to the query.
@@ -151,6 +152,9 @@ class NattkaBugzilla(object):
         to include in the results.  Otherwise, all bugs are included
         (including bugs not belonging to any category, if `bugs`
         are specified as well).
+
+        If `cc` is not empty, only bugs with specific e-mail addresses
+        in CC will be returned.
 
         Return a dict mapping bug numbers to `BugInfo` instances.
         The keys include only successfully fetched bugs.  If `bugs`
@@ -178,6 +182,9 @@ class NattkaBugzilla(object):
                 components.update(comp)
             search_params['product'] = list(products)
             search_params['component'] = list(components)
+
+        if cc:
+            search_params['cc'] = list(cc)
 
         resp = self._request('bug', params=search_params).json()
 
