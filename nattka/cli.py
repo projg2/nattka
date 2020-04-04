@@ -93,6 +93,8 @@ class NattkaCommands(object):
             kwargs['bugs'] = self.args.bug
         if self.args.category:
             kwargs['category'] = self.args.category
+        if self.args.security:
+            kwargs['security'] = True
         bugs = bz.find_bugs(**kwargs)
         for bno, b in bugs.items():
             bugs[bno] = update_keywords_from_cc(
@@ -365,6 +367,8 @@ def main(argv: typing.List[str]) -> int:
     bugg.add_argument('--stablereq', dest='category',
                       action='append_const', const=BugCategory.STABLEREQ,
                       help='Filter results to STABLEREQs')
+    bugg.add_argument('--security', action='store_true',
+                      help='Process security bugs only')
     bugg.add_argument('bug', nargs='*', type=int,
                       help='bug(s) to process (defaults to all open '
                            'keywording and stabilization bugs if not '

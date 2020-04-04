@@ -795,3 +795,12 @@ class SearchFilterTests(IntegrationTestCase):
             0)
         bugz_inst.find_bugs.assert_called_with(
             category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ])
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_security(self, bugz):
+        bugz_inst = bugz.return_value
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '--security']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            security=True)
