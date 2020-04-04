@@ -48,7 +48,71 @@ class BugzillaTests(BugzillaTestCase):
     def test_fetch_bugs(self):
         """ Test getting simple bugs. """
         self.assertEqual(
-            self.bz.fetch_package_list([2, 3, 4]),
+            self.bz.find_bugs([1, 2, 3, 4, 8]),
+            {1: BugInfo(None, '\r\n', [], [], [2], None),
+             2: BugInfo(BugCategory.KEYWORDREQ,
+                        'dev-python/unittest-mixins-1.6\r\n'
+                        'dev-python/coverage-4.5.4\r\n',
+                        [f'{x}@gentoo.org' for x in ('alpha',
+                                                     'hppa')],
+                        [1], [], True),
+             3: BugInfo(BugCategory.STABLEREQ,
+                        'dev-python/mako-1.1.0 amd64\r\n',
+                        [f'{x}@gentoo.org' for x in ('amd64',)],
+                        [7], [], False),
+             4: BugInfo(BugCategory.KEYWORDREQ,
+                        'dev-python/urllib3-1.25.8\r\n'
+                        'dev-python/trustme-0.6.0\r\n'
+                        'dev-python/brotlipy-0.7.0\r\n',
+                        [f'{x}@gentoo.org' for x in ('hppa',)],
+                        [], [], None),
+             8: BugInfo(BugCategory.STABLEREQ,
+                        'dev-lang/python-3.7.7\r\n',
+                        [], [], [], None),
+             })
+
+    @rec.use_cassette()
+    def test_fetch_bugs_keywordreq(self):
+        """Test getting and filtering to keywordreqs."""
+        self.assertEqual(
+            self.bz.find_bugs([1, 2, 3, 4, 8],
+                              category=[BugCategory.KEYWORDREQ]),
+            {2: BugInfo(BugCategory.KEYWORDREQ,
+                        'dev-python/unittest-mixins-1.6\r\n'
+                        'dev-python/coverage-4.5.4\r\n',
+                        [f'{x}@gentoo.org' for x in ('alpha',
+                                                     'hppa')],
+                        [1], [], True),
+             4: BugInfo(BugCategory.KEYWORDREQ,
+                        'dev-python/urllib3-1.25.8\r\n'
+                        'dev-python/trustme-0.6.0\r\n'
+                        'dev-python/brotlipy-0.7.0\r\n',
+                        [f'{x}@gentoo.org' for x in ('hppa',)],
+                        [], [], None),
+             })
+
+    @rec.use_cassette()
+    def test_fetch_bugs_stablereq(self):
+        """Test getting and filtering to stablereqs."""
+        self.assertEqual(
+            self.bz.find_bugs([1, 2, 3, 4, 8],
+                              category=[BugCategory.STABLEREQ]),
+            {3: BugInfo(BugCategory.STABLEREQ,
+                        'dev-python/mako-1.1.0 amd64\r\n',
+                        [f'{x}@gentoo.org' for x in ('amd64',)],
+                        [7], [], False),
+             8: BugInfo(BugCategory.STABLEREQ,
+                        'dev-lang/python-3.7.7\r\n',
+                        [], [], [], None),
+             })
+
+    @rec.use_cassette()
+    def test_fetch_bugs_any(self):
+        """Test getting and filtering to keywordreqs and stablereqs."""
+        self.assertEqual(
+            self.bz.find_bugs([1, 2, 3, 4, 8],
+                              category=[BugCategory.KEYWORDREQ,
+                                        BugCategory.STABLEREQ]),
             {2: BugInfo(BugCategory.KEYWORDREQ,
                         'dev-python/unittest-mixins-1.6\r\n'
                         'dev-python/coverage-4.5.4\r\n',
@@ -65,13 +129,16 @@ class BugzillaTests(BugzillaTestCase):
                         'dev-python/brotlipy-0.7.0\r\n',
                         [f'{x}@gentoo.org' for x in ('hppa',)],
                         [], [], None),
+             8: BugInfo(BugCategory.STABLEREQ,
+                        'dev-lang/python-3.7.7\r\n',
+                        [], [], [], None),
              })
 
     @rec.use_cassette()
     def test_find_keywordreqs(self):
         """ Test finding keywordreqs. """
         self.assertEqual(
-            self.bz.find_bugs(BugCategory.KEYWORDREQ),
+            self.bz.find_bugs(category=[BugCategory.KEYWORDREQ]),
             {2: BugInfo(BugCategory.KEYWORDREQ,
                         'dev-python/unittest-mixins-1.6\r\n'
                         'dev-python/coverage-4.5.4\r\n',
@@ -90,7 +157,7 @@ class BugzillaTests(BugzillaTestCase):
     def test_find_stablereqs(self):
         """ Test finding stablereqs. """
         self.assertEqual(
-            self.bz.find_bugs(BugCategory.STABLEREQ),
+            self.bz.find_bugs(category=[BugCategory.STABLEREQ]),
             {3: BugInfo(BugCategory.STABLEREQ,
                         'dev-python/mako-1.1.0 amd64\r\n',
                         [f'{x}@gentoo.org' for x in ('amd64',)],
@@ -120,7 +187,7 @@ class BugzillaTests(BugzillaTestCase):
         """ Test setting sanity-check status. """
         self.bz.update_status(2, True)
         self.assertEqual(
-            self.bz.fetch_package_list([2])[2].sanity_check,
+            self.bz.find_bugs([2])[2].sanity_check,
             True)
 
     @rec.use_cassette()
@@ -128,7 +195,7 @@ class BugzillaTests(BugzillaTestCase):
         """ Test setting sanity-check status and commenting. """
         self.bz.update_status(3, False, 'sanity check failed!\r\n')
         self.assertEqual(
-            self.bz.fetch_package_list([3])[3].sanity_check,
+            self.bz.find_bugs([3])[3].sanity_check,
             False)
         self.assertEqual(
             self.bz.get_latest_comment(3, BUGZILLA_USERNAME),
@@ -139,7 +206,7 @@ class BugzillaTests(BugzillaTestCase):
         """ Test resetting sanity-check status. """
         self.bz.update_status(4, None)
         self.assertEqual(
-            self.bz.fetch_package_list([4])[4].sanity_check,
+            self.bz.find_bugs([4])[4].sanity_check,
             None)
 
 

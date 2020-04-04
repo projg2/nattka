@@ -1,0 +1,55 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: GET
+    uri: http://127.0.0.1:33113/rest/bug?component=Kernel&component=Keywording&component=Stabilization&component=Vulnerabilities&id=1&id=2&id=3&id=4&id=8&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&product=Gentoo+Linux&product=Gentoo+Security
+  response:
+    body:
+      string: '{"bugs":[{"cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","flags":[{"type_id":1,"creation_date":"2020-04-03T13:34:59Z","id":2,"setter":"nattka@gentoo.org","name":"sanity-check","status":"+","modification_date":"2020-04-03T13:34:59Z"}],"product":"Gentoo
+        Linux","id":2,"component":"Keywording","cc_detail":[{"name":"alpha@gentoo.org","id":3,"real_name":"ALPHA
+        arch team","email":"alpha@gentoo.org"},{"email":"hppa@gentoo.org","real_name":"HPPA
+        arch team","id":5,"name":"hppa@gentoo.org"}],"cc":["alpha@gentoo.org","hppa@gentoo.org"],"depends_on":[1],"blocks":[]},{"flags":[{"type_id":1,"id":3,"creation_date":"2020-04-03T13:35:02Z","setter":"nattka@gentoo.org","modification_date":"2020-04-03T13:35:02Z","name":"sanity-check","status":"-"}],"cf_stabilisation_atoms":"dev-python/mako-1.1.0
+        amd64","blocks":[],"product":"Gentoo Linux","id":3,"cc_detail":[{"real_name":"AMD64
+        arch team","email":"amd64@gentoo.org","id":4,"name":"amd64@gentoo.org"}],"component":"Stabilization","cc":["amd64@gentoo.org"],"depends_on":[7]},{"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","flags":[],"cc_detail":[{"real_name":"HPPA
+        arch team","email":"hppa@gentoo.org","id":5,"name":"hppa@gentoo.org"}],"component":"Keywording","cc":["hppa@gentoo.org"],"depends_on":[],"product":"Gentoo
+        Linux","id":4,"blocks":[]},{"blocks":[],"product":"Gentoo Linux","id":8,"cc_detail":[],"component":"Stabilization","depends_on":[],"cc":[],"flags":[],"cf_stabilisation_atoms":"dev-lang/python-3.7.7"}]}'
+    headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
+      Date:
+      - Sat, 04 Apr 2020 07:13:27 GMT
+      Etag:
+      - 4ONB9C/Uc/ONziQAlSg4DA
+      Keep-Alive:
+      - timeout=15, max=100
+      Server:
+      - Apache
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
+      - nosniff
+      X-frame-options:
+      - SAMEORIGIN
+      X-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

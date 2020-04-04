@@ -88,10 +88,7 @@ class NattkaCommands(object):
         """
 
         bz = self.get_bugzilla()
-        if self.args.bug:
-            bugs = bz.fetch_package_list(self.args.bug)
-        else:
-            bugs = bz.find_bugs(None)
+        bugs = bz.find_bugs(bugs=(self.args.bug or []))
         for bno, b in bugs.items():
             bugs[bno] = update_keywords_from_cc(
                 b, self.get_repository().known_arches)

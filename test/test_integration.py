@@ -87,7 +87,7 @@ class IntegrationTestCase(unittest.TestCase):
                             last_check.isoformat(timespec='seconds'),
                         'package-list':
                             package_list if package_list is not None
-                            else bugz_inst.fetch_package_list
+                            else bugz_inst.find_bugs
                             .return_value[560322].atoms,
                         'check-res': sanity_check,
                         'updated': updated,
@@ -109,7 +109,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
                    initial_status: typing.Optional[bool] = None
                    ) -> MagicMock:
         bugz_inst = bugz.return_value
-        bugz_inst.fetch_package_list.return_value = {
+        bugz_inst.find_bugs.return_value = {
             560322: BugInfo(BugCategory.STABLEREQ,
                             '   \r\n'
                             '\r\n',
@@ -128,7 +128,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
         self.assertEqual(
             main(self.common_args + ['apply', '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
 
     @patch('nattka.cli.add_keywords')
@@ -142,7 +142,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_not_called()
 
@@ -156,7 +156,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
         self.assertEqual(
             main(self.common_args + ['process-bugs', '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_not_called()
 
@@ -171,7 +171,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_called_with(
             560322, None, self.reset_msg)
@@ -180,7 +180,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
                               bugz: MagicMock
                               ) -> MagicMock:
         bugz_inst = bugz.return_value
-        bugz_inst.fetch_package_list.return_value = {
+        bugz_inst.find_bugs.return_value = {
             560322: BugInfo(BugCategory.STABLEREQ,
                             'test/amd64-testing-1 amd64\r\n'
                             'test/alpha-amd64-hppa-testing-2\r\n',
@@ -198,7 +198,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
         self.assertEqual(
             main(self.common_args + ['apply', '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
 
     @patch('nattka.cli.add_keywords')
@@ -212,7 +212,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_called_with(
             560322, None, 'Resetting sanity check; keywords are not '
@@ -222,7 +222,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
                               bugz: MagicMock
                               ) -> MagicMock:
         bugz_inst = bugz.return_value
-        bugz_inst.fetch_package_list.return_value = {
+        bugz_inst.find_bugs.return_value = {
             560322: BugInfo(None,
                             '',
                             [], [], [], None),
@@ -237,7 +237,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
         self.assertEqual(
             main(self.common_args + ['apply', '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         match_package_list.assert_not_called()
 
     @patch('nattka.cli.match_package_list')
@@ -249,7 +249,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         match_package_list.assert_not_called()
         bugz_inst.update_status.assert_not_called()
 
@@ -265,7 +265,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
                    ) -> MagicMock:
         """ Preset bugzilla mock. """
         bugz_inst = bugz.return_value
-        bugz_inst.fetch_package_list.return_value = {
+        bugz_inst.find_bugs.return_value = {
             560322: BugInfo(BugCategory.STABLEREQ,
                             'test/amd64-testing-1 amd64\r\n'
                             'test/alpha-amd64-hppa-testing-2 amd64 hppa\r\n',
@@ -291,7 +291,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.assertEqual(
             main(self.common_args + ['apply', '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -307,7 +307,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.assertEqual(
             main(self.common_args + ['process-bugs', '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_not_called()
         self.post_verify()
 
@@ -319,7 +319,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_called_with(560322, True, None)
         self.post_verify()
 
@@ -333,7 +333,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_not_called()
         self.post_verify()
 
@@ -345,7 +345,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_called_with(
             560322, True, 'All sanity-check issues have been resolved')
         self.post_verify()
@@ -362,7 +362,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322', '--cache-file', cache]),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_not_called()
 
@@ -381,7 +381,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322', '--cache-file', cache]),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_called()
 
     @patch('nattka.cli.add_keywords')
@@ -399,7 +399,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322', '--cache-file', cache]),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_called()
 
     @patch('nattka.cli.add_keywords')
@@ -416,7 +416,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322', '--cache-file', cache]),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_called()
 
     @patch('nattka.cli.add_keywords')
@@ -434,7 +434,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322', '--cache-file', cache]),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_called()
 
     @patch('nattka.cli.NattkaBugzilla')
@@ -444,9 +444,9 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """
         bugz_inst = bugz.return_value
         # TODO: we hackily add dependent bug to the return value now
-        # this will probably make more sense when fetch_package_list()
+        # this will probably make more sense when find_bugs()
         # has recursive fetching support
-        bugz_inst.fetch_package_list.return_value = {
+        bugz_inst.find_bugs.return_value = {
             560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 ~alpha\r\n',
                             [], [], [560322], True),
@@ -458,7 +458,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_called_with(560322, True, None)
         self.post_verify()
 
@@ -478,7 +478,7 @@ class IntegrationFailureTests(IntegrationTestCase):
                    ) -> MagicMock:
         """ Instantiate Bugzilla mock. """
         bugz_inst = bugz.return_value
-        bugz_inst.fetch_package_list.return_value = {
+        bugz_inst.find_bugs.return_value = {
             560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             [], [], [], initial_status),
@@ -498,7 +498,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         self.assertEqual(
             main(self.common_args + ['process-bugs', '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_not_called()
         self.post_verify()
 
@@ -510,7 +510,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_called_with(
             560322, False, self.fail_msg)
         self.post_verify()
@@ -526,7 +526,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_called_with(
             560322, False, self.fail_msg)
         self.post_verify()
@@ -546,7 +546,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_called_with(
             560322, False, self.fail_msg)
         self.post_verify()
@@ -562,7 +562,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_not_called()
         self.post_verify()
 
@@ -574,7 +574,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_called_with(
             560322, False, self.fail_msg)
         self.post_verify()
@@ -591,7 +591,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322', '--cache-file', cache]),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_not_called()
 
@@ -611,7 +611,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322', '--cache-file', cache]),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_called()
 
     @patch('nattka.cli.add_keywords')
@@ -630,7 +630,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322', '--cache-file', cache]),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_called()
 
     @patch('nattka.cli.add_keywords')
@@ -648,14 +648,14 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322', '--cache-file', cache]),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_called()
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
     def test_malformed_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.fetch_package_list.return_value = {
+        bugz_inst.find_bugs.return_value = {
             560322: BugInfo(BugCategory.KEYWORDREQ,
                             '<>amd64-testing-deps-1 ~alpha\r\n',
                             [], [], [], None),
@@ -664,7 +664,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_called_with(
             560322, False, 'Unable to check for sanity:\n\n> invalid '
@@ -674,7 +674,7 @@ class IntegrationFailureTests(IntegrationTestCase):
     @patch('nattka.cli.NattkaBugzilla')
     def test_disallowed_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.fetch_package_list.return_value = {
+        bugz_inst.find_bugs.return_value = {
             560322: BugInfo(BugCategory.KEYWORDREQ,
                             '>=test/amd64-testing-deps-1 ~alpha\r\n',
                             [], [], [], None),
@@ -683,7 +683,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_called_with(
             560322, False, 'Unable to check for sanity:\n\n> disallowed '
@@ -693,7 +693,7 @@ class IntegrationFailureTests(IntegrationTestCase):
     @patch('nattka.cli.NattkaBugzilla')
     def test_non_matched_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.fetch_package_list.return_value = {
+        bugz_inst.find_bugs.return_value = {
             560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/enoent-7 ~alpha\r\n',
                             [], [], [], None),
@@ -702,7 +702,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_called_with(
             560322, False, 'Unable to check for sanity:\n\n> no match '
@@ -712,7 +712,7 @@ class IntegrationFailureTests(IntegrationTestCase):
     @patch('nattka.cli.NattkaBugzilla')
     def test_non_matched_keyword_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.fetch_package_list.return_value = {
+        bugz_inst.find_bugs.return_value = {
             560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 amd64 ~mysuperarch\r\n',
                             [], [], [], None),
@@ -721,7 +721,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.fetch_package_list.assert_called_with([560322])
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_called_with(
             560322, False, 'Unable to check for sanity:\n\n> incorrect '
@@ -753,7 +753,7 @@ class IntegrationLimiterTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '--bug-limit', '5']),
             0)
-        bugz_inst.find_bugs.assert_called_with(None)
+        bugz_inst.find_bugs.assert_called_with(bugs=[])
         self.assertEqual(bugz_inst.update_status.call_count, 5)
         bugz_inst.update_status.assert_has_calls(
             [unittest.mock.call(100009, True, None),

@@ -135,39 +135,49 @@ class NattkaBugzilla(object):
         """
         return self._request('whoami').json()['name']
 
-    def fetch_package_list(self,
-                           bugs: typing.Iterable[int]
-                           ) -> typing.Dict[int, BugInfo]:
-        """
-        Fetch specified @bugs (list of bug numbers).  Returns a dict
-        of {bugno: buginfo}.
-        """
-
-        resp = self._request('bug',
-                             params={
-                                 'id': ','.join(str(x) for x in bugs),
-                                 'include_fields': INCLUDE_BUG_FIELDS,
-                             }).json()
-
-        ret = {}
-        for b in resp['bugs']:
-            ret[b['id']] = make_bug_info(b)
-        return ret
-
     def find_bugs(self,
-                  category: typing.Optional[BugCategory]
+                  bugs: typing.Iterable[int] = [],
+                  category: typing.Iterable[BugCategory] = []
                   ) -> typing.Dict[int, BugInfo]:
         """
-        Find all relevant bugs in @category.
+        Fetch and return all bugs relevant to the query.
+
+        If `bugs` list is not empty, bugs listed in it are fetched.
+        If it is empty, the function searches for all open keywording
+        and stabilization bugs.  In both cases, results are further
+        filtered by the conditions specified in other parameters.
+
+        If `category` is not empty, it specifies the bug categories
+        to include in the results.  Otherwise, all bugs are included
+        (including bugs not belonging to any category, if `bugs`
+        are specified as well).
+
+        Return a dict mapping bug numbers to `BugInfo` instances.
+        The keys include only successfully fetched bugs.  If `bugs`
+        specifies bugs that do not exist or do not match the criteria,
+        they will not be included in the result.
         """
 
-        product, component = BugCategory.to_products_components(category)
         search_params = {
-            'product': product,
-            'component': component,
-            'resolution': '---',
             'include_fields': INCLUDE_BUG_FIELDS,
         }
+        if bugs:
+            search_params['id'] = list(str(x) for x in bugs)
+        else:
+            # if no bugs specified, limit to open keywordreqs & stablereqs
+            search_params['resolution'] = ['---']
+            if not category:
+                category = [BugCategory.KEYWORDREQ, BugCategory.STABLEREQ]
+
+        if category:
+            products = set()
+            components = set()
+            for cat in category:
+                prod, comp = BugCategory.to_products_components(cat)
+                products.update(prod)
+                components.update(comp)
+            search_params['product'] = list(products)
+            search_params['component'] = list(components)
 
         resp = self._request('bug', params=search_params).json()
 
@@ -175,7 +185,8 @@ class NattkaBugzilla(object):
         for b in resp['bugs']:
             # skip empty bugs (likely security issues that are not
             # stabilization requests)
-            if not b['cf_stabilisation_atoms'].strip():
+            # TODO: move this later in the pipeline
+            if not bugs and not b['cf_stabilisation_atoms'].strip():
                 continue
             ret[b['id']] = make_bug_info(b)
         return ret
