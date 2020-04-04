@@ -138,7 +138,7 @@ class NattkaBugzilla(object):
     def find_bugs(self,
                   bugs: typing.Iterable[int] = [],
                   category: typing.Iterable[BugCategory] = [],
-                  cc: typing.Iterable[BugCategory] = []
+                  cc: typing.Iterable[str] = []
                   ) -> typing.Dict[int, BugInfo]:
         """
         Fetch and return all bugs relevant to the query.
