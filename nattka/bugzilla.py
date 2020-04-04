@@ -143,7 +143,8 @@ class NattkaBugzilla(object):
                   bugs: typing.Iterable[int] = [],
                   category: typing.Iterable[BugCategory] = [],
                   security: typing.Optional[bool] = None,
-                  cc: typing.Iterable[str] = []
+                  cc: typing.Iterable[str] = [],
+                  sanity_check: typing.Iterable[bool] = []
                   ) -> typing.Dict[int, BugInfo]:
         """
         Fetch and return all bugs relevant to the query.
@@ -160,6 +161,11 @@ class NattkaBugzilla(object):
 
         If `security` is True, only security bugs are returned.  If it
         is False, only non-security bugs are returned.
+
+        If `sanity-check` is not empty, only bugs matching specified
+        sanity-check status will be returned.  The list can contain
+        True for passing sanity check, or False for failing it.
+        Finding bugs without sanity-check flag is not supported.
 
         If `cc` is not empty, only bugs with specific e-mail addresses
         in CC will be returned.
@@ -198,6 +204,14 @@ class NattkaBugzilla(object):
 
         if cc:
             search_params['cc'] = list(cc)
+
+        if sanity_check:
+            search_params['f1'] = ['flagtypes.name']
+            search_params['o1'] = ['anywords']
+            search_params['v1'] = []
+            for f in sanity_check:
+                search_params['v1'].append(
+                    'sanity-check' + ('+' if f else '-'))
 
         resp = self._request('bug', params=search_params).json()
 

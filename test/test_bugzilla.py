@@ -146,6 +146,50 @@ class BugzillaTests(BugzillaTestCase):
              })
 
     @rec.use_cassette()
+    def test_fetch_sanity_check_passed(self):
+        """Test filtering bugs by sanity-check+."""
+        self.assertEqual(
+            self.bz.find_bugs(bugs=[2, 3, 4, 6],
+                              sanity_check=[True]),
+            {2: BugInfo(BugCategory.KEYWORDREQ, False,
+                        'dev-python/unittest-mixins-1.6\r\n'
+                        'dev-python/coverage-4.5.4\r\n',
+                        [f'{x}@gentoo.org' for x in ('alpha',
+                                                     'hppa')],
+                        [1], [], True),
+             })
+
+    @rec.use_cassette()
+    def test_fetch_sanity_check_failed(self):
+        """Test filtering bugs by sanity-check-."""
+        self.assertEqual(
+            self.bz.find_bugs(bugs=[2, 3, 4, 6],
+                              sanity_check=[False]),
+            {3: BugInfo(BugCategory.STABLEREQ, False,
+                        'dev-python/mako-1.1.0 amd64\r\n',
+                        [f'{x}@gentoo.org' for x in ('amd64',)],
+                        [7], [], False),
+             })
+
+    @rec.use_cassette()
+    def test_fetch_sanity_check_both(self):
+        """Test filtering bugs by sanity-check+/-."""
+        self.assertEqual(
+            self.bz.find_bugs(bugs=[2, 3, 4, 6],
+                              sanity_check=[True, False]),
+            {2: BugInfo(BugCategory.KEYWORDREQ, False,
+                        'dev-python/unittest-mixins-1.6\r\n'
+                        'dev-python/coverage-4.5.4\r\n',
+                        [f'{x}@gentoo.org' for x in ('alpha',
+                                                     'hppa')],
+                        [1], [], True),
+             3: BugInfo(BugCategory.STABLEREQ, False,
+                        'dev-python/mako-1.1.0 amd64\r\n',
+                        [f'{x}@gentoo.org' for x in ('amd64',)],
+                        [7], [], False),
+             })
+
+    @rec.use_cassette()
     def test_fetch_bugs_cc(self):
         """Test filtering bugs by CC."""
         self.assertEqual(
@@ -306,6 +350,47 @@ class BugzillaTests(BugzillaTestCase):
                         'dev-python/brotlipy-0.7.0\r\n',
                         [f'{x}@gentoo.org' for x in ('hppa',)],
                         [], [], None),
+             })
+
+    @rec.use_cassette()
+    def test_find_sanity_check_passed(self):
+        """Test finding bugs that are flagged sanity-check+."""
+        self.assertEqual(
+            self.bz.find_bugs(sanity_check=[True]),
+            {2: BugInfo(BugCategory.KEYWORDREQ, False,
+                        'dev-python/unittest-mixins-1.6\r\n'
+                        'dev-python/coverage-4.5.4\r\n',
+                        [f'{x}@gentoo.org' for x in ('alpha',
+                                                     'hppa')],
+                        [1], [], True),
+             })
+
+    @rec.use_cassette()
+    def test_find_sanity_check_failed(self):
+        """Test finding bugs that are flagged sanity-check-."""
+        self.assertEqual(
+            self.bz.find_bugs(sanity_check=[False]),
+            {3: BugInfo(BugCategory.STABLEREQ, False,
+                        'dev-python/mako-1.1.0 amd64\r\n',
+                        [f'{x}@gentoo.org' for x in ('amd64',)],
+                        [7], [], False),
+             })
+
+    @rec.use_cassette()
+    def test_find_sanity_check_both(self):
+        """Test finding bugs that are flagged sanity-check+ or -."""
+        self.assertEqual(
+            self.bz.find_bugs(sanity_check=[True, False]),
+            {2: BugInfo(BugCategory.KEYWORDREQ, False,
+                        'dev-python/unittest-mixins-1.6\r\n'
+                        'dev-python/coverage-4.5.4\r\n',
+                        [f'{x}@gentoo.org' for x in ('alpha',
+                                                     'hppa')],
+                        [1], [], True),
+             3: BugInfo(BugCategory.STABLEREQ, False,
+                        'dev-python/mako-1.1.0 amd64\r\n',
+                        [f'{x}@gentoo.org' for x in ('amd64',)],
+                        [7], [], False),
              })
 
     @rec.use_cassette()
