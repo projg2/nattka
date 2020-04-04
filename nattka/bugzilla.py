@@ -48,7 +48,7 @@ class BugCategory(enum.Enum):
 
     @classmethod
     def to_products_components(cls,
-                               val: typing.Optional['BugCategory']
+                               val: 'BugCategory'
                                ) -> typing.Tuple[typing.List[str],
                                                  typing.List[str]]:
         """
@@ -62,9 +62,7 @@ class BugCategory(enum.Enum):
             return (['Gentoo Linux', 'Gentoo Security'],
                     ['Stabilization', 'Vulnerabilities', 'Kernel'])
         else:
-            return (['Gentoo Linux', 'Gentoo Security'],
-                    ['Keywording', 'Stabilization', 'Vulnerabilities',
-                     'Kernel'])
+            assert False, f'Incorrect BugCategory: {val}'
 
 
 class BugInfo(typing.NamedTuple):
