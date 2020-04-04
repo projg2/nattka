@@ -67,6 +67,7 @@ class BugCategory(enum.Enum):
 
 class BugInfo(typing.NamedTuple):
     category: typing.Optional[BugCategory]
+    security: bool
     atoms: str
     cc: typing.List[str]
     depends: typing.List[int]
@@ -87,8 +88,13 @@ def make_bug_info(bug: typing.Dict[str, typing.Any]
             elif f['status'] == '-':
                 sanity_check = False
 
-    return BugInfo(bcat, atoms, bug['cc'], bug['depends_on'],
-                   bug['blocks'], sanity_check)
+    return BugInfo(category=bcat,
+                   security=(bug['product'] == 'Gentoo Security'),
+                   atoms=atoms,
+                   cc=bug['cc'],
+                   depends=bug['depends_on'],
+                   blocks=bug['blocks'],
+                   sanity_check=sanity_check)
 
 
 class NattkaBugzilla(object):
@@ -274,8 +280,13 @@ def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo],
                 deps.add(b)
         i += 1
 
-    return BugInfo(topbug.category, atoms, topbug.cc, sorted(deps),
-                   topbug.blocks, topbug.sanity_check)
+    return BugInfo(category=topbug.category,
+                   security=topbug.security,
+                   atoms=atoms,
+                   cc=topbug.cc,
+                   depends=sorted(deps),
+                   blocks=topbug.blocks,
+                   sanity_check=topbug.sanity_check)
 
 
 def update_keywords_from_cc(bug: BugInfo,
@@ -311,5 +322,10 @@ def update_keywords_from_cc(bug: BugInfo,
                 continue
         ret += f'{" ".join(sl)}\r\n'
 
-    return BugInfo(bug.category, ret, bug.cc, bug.depends, bug.blocks,
-                   bug.sanity_check)
+    return BugInfo(category=bug.category,
+                   security=bug.security,
+                   atoms=ret,
+                   cc=bug.cc,
+                   depends=bug.depends,
+                   blocks=bug.blocks,
+                   sanity_check=bug.sanity_check)

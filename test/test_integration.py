@@ -110,7 +110,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
                    ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ, False,
                             '   \r\n'
                             '\r\n',
                             [], [], [], initial_status),
@@ -181,7 +181,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
                               ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ, False,
                             'test/amd64-testing-1 amd64\r\n'
                             'test/alpha-amd64-hppa-testing-2\r\n',
                             [], [], [], True),
@@ -223,7 +223,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
                               ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(None,
+            560322: BugInfo(None, False,
                             '',
                             [], [], [], None),
         }
@@ -266,7 +266,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """ Preset bugzilla mock. """
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ, False,
                             'test/amd64-testing-1 amd64\r\n'
                             'test/alpha-amd64-hppa-testing-2 amd64 hppa\r\n',
                             [], [], [], initial_status),
@@ -447,10 +447,10 @@ class IntegrationSuccessTests(IntegrationTestCase):
         # this will probably make more sense when find_bugs()
         # has recursive fetching support
         bugz_inst.find_bugs.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ, False,
                             'test/amd64-testing-1 ~alpha\r\n',
                             [], [], [560322], True),
-            560322: BugInfo(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ, False,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             [], [560311], [], None),
         }
@@ -479,7 +479,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         """ Instantiate Bugzilla mock. """
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ, False,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             [], [], [], initial_status),
         }
@@ -656,7 +656,7 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_malformed_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ, False,
                             '<>amd64-testing-deps-1 ~alpha\r\n',
                             [], [], [], None),
         }
@@ -675,7 +675,7 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_disallowed_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ, False,
                             '>=test/amd64-testing-deps-1 ~alpha\r\n',
                             [], [], [], None),
         }
@@ -694,7 +694,7 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_non_matched_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ, False,
                             'test/enoent-7 ~alpha\r\n',
                             [], [], [], None),
         }
@@ -713,7 +713,7 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_non_matched_keyword_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ, False,
                             'test/amd64-testing-1 amd64 ~mysuperarch\r\n',
                             [], [], [], None),
         }
@@ -738,7 +738,7 @@ class IntegrationLimiterTests(IntegrationTestCase):
                    ) -> MagicMock:
         bugs = {}
         for i in range(10):
-            bugs[100000 + i] = BugInfo(BugCategory.KEYWORDREQ,
+            bugs[100000 + i] = BugInfo(BugCategory.KEYWORDREQ, False,
                                        'test/amd64-testing-1 ~amd64\r\n',
                                        [], [], [], None)
 
