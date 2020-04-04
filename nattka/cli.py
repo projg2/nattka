@@ -88,7 +88,12 @@ class NattkaCommands(object):
         """
 
         bz = self.get_bugzilla()
-        bugs = bz.find_bugs(bugs=(self.args.bug or []))
+        kwargs = {}
+        if self.args.bug:
+            kwargs['bugs'] = self.args.bug
+        if self.args.category:
+            kwargs['category'] = self.args.category
+        bugs = bz.find_bugs(**kwargs)
         for bno, b in bugs.items():
             bugs[bno] = update_keywords_from_cc(
                 b, self.get_repository().known_arches)
@@ -354,8 +359,16 @@ def main(argv: typing.List[str]) -> int:
 
     bugp = argparse.ArgumentParser(add_help=False)
     bugg = bugp.add_argument_group('bug selection')
+    bugg.add_argument('--keywordreq', dest='category',
+                      action='append_const', const=BugCategory.KEYWORDREQ,
+                      help='Filter results to KEYWORDREQs')
+    bugg.add_argument('--stablereq', dest='category',
+                      action='append_const', const=BugCategory.STABLEREQ,
+                      help='Filter results to STABLEREQs')
     bugg.add_argument('bug', nargs='*', type=int,
-                      help='bug(s) to process')
+                      help='bug(s) to process (defaults to all open '
+                           'keywording and stabilization bugs if not '
+                           'specified')
 
     subp.add_parser('apply',
                     parents=[bugp],

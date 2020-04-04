@@ -753,7 +753,7 @@ class IntegrationLimiterTests(IntegrationTestCase):
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '--bug-limit', '5']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[])
+        bugz_inst.find_bugs.assert_called_with()
         self.assertEqual(bugz_inst.update_status.call_count, 5)
         bugz_inst.update_status.assert_has_calls(
             [unittest.mock.call(100009, True, None),
@@ -761,3 +761,37 @@ class IntegrationLimiterTests(IntegrationTestCase):
              unittest.mock.call(100007, True, None),
              unittest.mock.call(100006, True, None),
              unittest.mock.call(100005, True, None)])
+
+
+class SearchFilterTests(IntegrationTestCase):
+    """
+    Tests for passing search filters over to find_bugs().
+    """
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_keywordreq(self, bugz):
+        bugz_inst = bugz.return_value
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '--keywordreq']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            category=[BugCategory.KEYWORDREQ])
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_stablereq(self, bugz):
+        bugz_inst = bugz.return_value
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '--stablereq']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            category=[BugCategory.STABLEREQ])
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_keywordreq_and_stablereq(self, bugz):
+        bugz_inst = bugz.return_value
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '--keywordreq',
+                                     '--stablereq']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ])
