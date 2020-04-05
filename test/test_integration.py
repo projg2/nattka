@@ -22,7 +22,7 @@ from pkgcore.util import parserestrict
 from nattka.bugzilla import BugCategory, BugInfo
 from nattka.cli import main
 
-from test import get_test_repo
+from test.test_package import get_test_repo
 
 
 class IntegrationTestCase(unittest.TestCase):

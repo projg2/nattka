@@ -14,9 +14,14 @@ from pkgcore.ebuild.atom import atom
 from nattka.keyword import KEYWORDS_RE
 from nattka.package import (match_package_list, add_keywords,
                             check_dependencies, PackageNoMatch,
-                            KeywordNoMatch, PackageInvalid)
+                            KeywordNoMatch, PackageInvalid,
+                            find_repository)
 
-from test import get_test_repo
+
+def get_test_repo(path: Path = Path(__file__).parent):
+    conf_path = path / 'conf'
+    data_path = path / 'data'
+    return find_repository(str(data_path), str(conf_path)).repo
 
 
 class BaseRepoTestCase(unittest.TestCase):
