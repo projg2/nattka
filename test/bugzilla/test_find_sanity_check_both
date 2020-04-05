@@ -14,11 +14,11 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug?component=Kernel&component=Keywording&component=Stabilization&component=Vulnerabilities&f1=flagtypes.name&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&include_fields=resolution&o1=anywords&product=Gentoo+Linux&product=Gentoo+Security&resolution=---&v1=sanity-check%2B&v1=sanity-check-
   response:
     body:
-      string: '{"bugs":[{"flags":[{"name":"sanity-check","id":2,"type_id":1,"status":"+","setter":"nattka@gentoo.org","modification_date":"2020-04-03T13:34:59Z","creation_date":"2020-04-03T13:34:59Z"}],"cc":["alpha@gentoo.org","hppa@gentoo.org"],"component":"Keywording","blocks":[],"depends_on":[1],"resolution":"","id":2,"cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","cc_detail":[{"real_name":"ALPHA
-        arch team","id":3,"email":"alpha@gentoo.org","name":"alpha@gentoo.org"},{"email":"hppa@gentoo.org","name":"hppa@gentoo.org","id":5,"real_name":"HPPA
-        arch team"}],"product":"Gentoo Linux"},{"depends_on":[7],"blocks":[],"component":"Stabilization","cc":["amd64@gentoo.org"],"flags":[{"modification_date":"2020-04-03T13:35:02Z","creation_date":"2020-04-03T13:35:02Z","setter":"nattka@gentoo.org","type_id":1,"status":"-","id":3,"name":"sanity-check"}],"id":3,"cf_stabilisation_atoms":"dev-python/mako-1.1.0
-        amd64","cc_detail":[{"real_name":"AMD64 arch team","id":4,"email":"amd64@gentoo.org","name":"amd64@gentoo.org"}],"product":"Gentoo
-        Linux","resolution":""}]}'
+      string: '{"bugs":[{"component":"Keywording","blocks":[9],"resolution":"","flags":[{"name":"sanity-check","status":"+","type_id":1,"setter":"nattka@gentoo.org","modification_date":"2020-04-03T13:34:59Z","creation_date":"2020-04-03T13:34:59Z","id":2}],"id":2,"depends_on":[1],"cc_detail":[{"name":"alpha@gentoo.org","real_name":"ALPHA
+        arch team","email":"alpha@gentoo.org","id":3},{"real_name":"HPPA arch team","name":"hppa@gentoo.org","id":5,"email":"hppa@gentoo.org"}],"product":"Gentoo
+        Linux","cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","cc":["alpha@gentoo.org","hppa@gentoo.org"]},{"component":"Stabilization","blocks":[],"resolution":"","flags":[{"setter":"nattka@gentoo.org","id":3,"modification_date":"2020-04-03T13:35:02Z","status":"-","creation_date":"2020-04-03T13:35:02Z","name":"sanity-check","type_id":1}],"id":3,"depends_on":[7],"cc_detail":[{"name":"amd64@gentoo.org","real_name":"AMD64
+        arch team","id":4,"email":"amd64@gentoo.org"}],"product":"Gentoo Linux","cf_stabilisation_atoms":"dev-python/mako-1.1.0
+        amd64","cc":["amd64@gentoo.org"]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -31,9 +31,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Sun, 05 Apr 2020 09:57:51 GMT
+      - Sun, 05 Apr 2020 14:49:38 GMT
       Etag:
-      - c8QEwnggyH4DO7zHjRHNxg
+      - IHd1Ba+cBd9uo0qlKPnzrA
       Keep-Alive:
       - timeout=15, max=100
       Server:

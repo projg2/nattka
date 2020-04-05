@@ -14,12 +14,11 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug?component=Keywording&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&include_fields=resolution&product=Gentoo+Linux&resolution=---
   response:
     body:
-      string: '{"bugs":[{"depends_on":[1],"blocks":[],"cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","cc_detail":[{"real_name":"ALPHA
-        arch team","id":3,"name":"alpha@gentoo.org","email":"alpha@gentoo.org"},{"email":"hppa@gentoo.org","name":"hppa@gentoo.org","id":5,"real_name":"HPPA
-        arch team"}],"flags":[{"type_id":1,"name":"sanity-check","setter":"nattka@gentoo.org","modification_date":"2020-04-03T13:34:59Z","id":2,"status":"+","creation_date":"2020-04-03T13:34:59Z"}],"id":2,"component":"Keywording","product":"Gentoo
-        Linux","cc":["alpha@gentoo.org","hppa@gentoo.org"],"resolution":""},{"depends_on":[],"flags":[],"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","blocks":[],"cc_detail":[{"email":"hppa@gentoo.org","real_name":"HPPA
-        arch team","id":5,"name":"hppa@gentoo.org"}],"cc":["hppa@gentoo.org"],"product":"Gentoo
-        Linux","resolution":"","component":"Keywording","id":4}]}'
+      string: '{"bugs":[{"product":"Gentoo Linux","component":"Keywording","id":2,"resolution":"","cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","cc":["alpha@gentoo.org","hppa@gentoo.org"],"flags":[{"modification_date":"2020-04-03T13:34:59Z","setter":"nattka@gentoo.org","name":"sanity-check","type_id":1,"id":2,"status":"+","creation_date":"2020-04-03T13:34:59Z"}],"blocks":[9],"cc_detail":[{"name":"alpha@gentoo.org","id":3,"real_name":"ALPHA
+        arch team","email":"alpha@gentoo.org"},{"email":"hppa@gentoo.org","real_name":"HPPA
+        arch team","id":5,"name":"hppa@gentoo.org"}],"depends_on":[1]},{"depends_on":[],"cc_detail":[{"id":5,"real_name":"HPPA
+        arch team","email":"hppa@gentoo.org","name":"hppa@gentoo.org"}],"blocks":[],"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","flags":[],"cc":["hppa@gentoo.org"],"resolution":"","component":"Keywording","id":4,"product":"Gentoo
+        Linux"},{"id":9,"component":"Keywording","product":"Gentoo Linux","resolution":"","blocks":[],"cc":[],"flags":[],"cf_stabilisation_atoms":"dev-python/frobnicate-11","depends_on":[2],"cc_detail":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -32,9 +31,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Sun, 05 Apr 2020 09:57:47 GMT
+      - Sun, 05 Apr 2020 14:49:35 GMT
       Etag:
-      - HLBGUfrtnhi3ZChJPz769Q
+      - 499mmPi2te/AeQ2SXbdHug
       Keep-Alive:
       - timeout=15, max=100
       Server:

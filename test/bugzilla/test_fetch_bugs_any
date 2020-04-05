@@ -14,14 +14,14 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug?component=Kernel&component=Keywording&component=Stabilization&component=Vulnerabilities&id=1&id=2&id=3&id=4&id=8&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&include_fields=resolution&product=Gentoo+Linux&product=Gentoo+Security
   response:
     body:
-      string: '{"bugs":[{"product":"Gentoo Linux","cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","blocks":[],"flags":[{"modification_date":"2020-04-03T13:34:59Z","name":"sanity-check","setter":"nattka@gentoo.org","creation_date":"2020-04-03T13:34:59Z","status":"+","id":2,"type_id":1}],"component":"Keywording","cc":["alpha@gentoo.org","hppa@gentoo.org"],"id":2,"resolution":"","depends_on":[1],"cc_detail":[{"email":"alpha@gentoo.org","id":3,"real_name":"ALPHA
-        arch team","name":"alpha@gentoo.org"},{"name":"hppa@gentoo.org","real_name":"HPPA
-        arch team","email":"hppa@gentoo.org","id":5}]},{"component":"Stabilization","flags":[{"id":3,"type_id":1,"status":"-","setter":"nattka@gentoo.org","creation_date":"2020-04-03T13:35:02Z","modification_date":"2020-04-03T13:35:02Z","name":"sanity-check"}],"cf_stabilisation_atoms":"dev-python/mako-1.1.0
-        amd64","blocks":[],"product":"Gentoo Linux","cc_detail":[{"name":"amd64@gentoo.org","real_name":"AMD64
-        arch team","email":"amd64@gentoo.org","id":4}],"depends_on":[7],"resolution":"","id":3,"cc":["amd64@gentoo.org"]},{"component":"Keywording","product":"Gentoo
-        Linux","blocks":[],"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","flags":[],"depends_on":[],"cc_detail":[{"name":"hppa@gentoo.org","real_name":"HPPA
-        arch team","id":5,"email":"hppa@gentoo.org"}],"cc":["hppa@gentoo.org"],"id":4,"resolution":""},{"cc_detail":[],"depends_on":[],"resolution":"FIXED","id":8,"cc":[],"component":"Stabilization","flags":[],"cf_stabilisation_atoms":"dev-lang/python-3.7.7","blocks":[],"product":"Gentoo
-        Linux"}]}'
+      string: '{"bugs":[{"flags":[{"status":"+","name":"sanity-check","creation_date":"2020-04-03T13:34:59Z","setter":"nattka@gentoo.org","id":2,"modification_date":"2020-04-03T13:34:59Z","type_id":1}],"cc":["alpha@gentoo.org","hppa@gentoo.org"],"resolution":"","cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","id":2,"blocks":[9],"depends_on":[1],"product":"Gentoo
+        Linux","component":"Keywording","cc_detail":[{"name":"alpha@gentoo.org","email":"alpha@gentoo.org","real_name":"ALPHA
+        arch team","id":3},{"id":5,"real_name":"HPPA arch team","email":"hppa@gentoo.org","name":"hppa@gentoo.org"}]},{"cc_detail":[{"email":"amd64@gentoo.org","real_name":"AMD64
+        arch team","name":"amd64@gentoo.org","id":4}],"component":"Stabilization","depends_on":[7],"blocks":[],"product":"Gentoo
+        Linux","id":3,"cf_stabilisation_atoms":"dev-python/mako-1.1.0 amd64","resolution":"","cc":["amd64@gentoo.org"],"flags":[{"setter":"nattka@gentoo.org","modification_date":"2020-04-03T13:35:02Z","id":3,"type_id":1,"status":"-","creation_date":"2020-04-03T13:35:02Z","name":"sanity-check"}]},{"cc":["hppa@gentoo.org"],"flags":[],"component":"Keywording","depends_on":[],"blocks":[],"product":"Gentoo
+        Linux","cc_detail":[{"id":5,"name":"hppa@gentoo.org","real_name":"HPPA arch
+        team","email":"hppa@gentoo.org"}],"resolution":"","id":4,"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0"},{"cc":[],"flags":[],"depends_on":[],"product":"Gentoo
+        Linux","blocks":[],"component":"Stabilization","cc_detail":[],"resolution":"FIXED","cf_stabilisation_atoms":"dev-lang/python-3.7.7","id":8}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -34,9 +34,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Sun, 05 Apr 2020 09:57:01 GMT
+      - Sun, 05 Apr 2020 14:49:18 GMT
       Etag:
-      - 1sNeO5y75quntjhoX+iL0Q
+      - ZMOQnJSBA+7pgP8448iw3g
       Keep-Alive:
       - timeout=15, max=100
       Server:

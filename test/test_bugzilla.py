@@ -70,6 +70,7 @@ class BugzillaTests(BugzillaTestCase):
                            [f'{x}@gentoo.org' for x in ('alpha',
                                                         'hppa')],
                            depends=[1],
+                           blocks=[9],
                            sanity_check=True),
                 3: makebug(BugCategory.STABLEREQ,
                            'dev-python/mako-1.1.0 amd64\r\n',
@@ -94,6 +95,9 @@ class BugzillaTests(BugzillaTestCase):
                 8: makebug(BugCategory.STABLEREQ,
                            'dev-lang/python-3.7.7\r\n',
                            resolved=True),
+                9: makebug(BugCategory.KEYWORDREQ,
+                           'dev-python/frobnicate-11\r\n',
+                           depends=[2]),
                 }
         for k in list(bugs):
             if k not in req:
@@ -182,7 +186,7 @@ class BugzillaTests(BugzillaTestCase):
         """ Test finding keywordreqs. """
         self.assertEqual(
             self.bz.find_bugs(category=[BugCategory.KEYWORDREQ]),
-            self.get_bugs([2, 4]))
+            self.get_bugs([2, 4, 9]))
 
     @rec.use_cassette()
     def test_find_stablereqs(self):
@@ -229,7 +233,7 @@ class BugzillaTests(BugzillaTestCase):
         self.assertEqual(
             self.bz.find_bugs(category=[BugCategory.KEYWORDREQ],
                               security=False),
-            self.get_bugs([2, 4]))
+            self.get_bugs([2, 4, 9]))
 
     @rec.use_cassette()
     def test_find_nonsecurity_stablereqs(self):
