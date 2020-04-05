@@ -117,6 +117,14 @@ Normally, NATTkA applies keywords only when the bug in question passed
 sanity-check.  To disable this filter and process any bugs, pass
 ``--ignore-sanity-check``.
 
+NATTkA fetches dependencies of all bugs automatically.  If this is
+undesirable, it can be disabled using ``--no-fetch-dependencies``.
+
+Any bug having unresolved dependencies is skipped.  To ignore unresolved
+dependencies, use ``--ignore-dependencies``.  The recommended approach
+is to process and commit the dependencies first, and rerun the ``apply``
+command once the blocking bug is marked fixed.
+
 
 process-bugs command
 ====================

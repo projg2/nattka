@@ -471,6 +471,112 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/alpha-amd64-hppa-testing-2 amd64 hppa''')
 
     @patch('nattka.cli.NattkaBugzilla')
+    def test_apply_skip_dependencies(self, bugz):
+        """Test that apply skips bug with unresolved dependencies."""
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-deps-1 ~alpha\r\n',
+                            depends=[560311], sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value = {
+            560311: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-1 ~alpha\r\n',
+                            blocks=[560322], sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value.update(
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', '*', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+        bugz_inst.resolve_dependencies.assert_called()
+
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-deps-1').keywords,
+            ('~amd64',))
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-1').keywords,
+            ('~amd64',))
+
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_apply_resolved_dependencies(self, bugz, sout):
+        """Test that apply does not block on resolved dependencies."""
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-deps-1 ~alpha\r\n',
+                            depends=[560311], sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value = {
+            560311: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-1 ~alpha\r\n',
+                            blocks=[560322], resolved=True),
+        }
+        bugz_inst.resolve_dependencies.return_value.update(
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', '*', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+        bugz_inst.resolve_dependencies.assert_called()
+
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-deps-1').keywords,
+            ('~alpha', '~amd64'))
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-1').keywords,
+            ('~amd64',))
+
+        self.assertEqual(
+            sout.getvalue().strip(),
+            '''# bug 560322 (KEYWORDREQ)
+=test/amd64-testing-deps-1 ~alpha''')
+
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_apply_ignore_dependencies(self, bugz, sout):
+        """Test that apply --ignore-dependencies works."""
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-deps-1 ~alpha\r\n',
+                            depends=[560311], sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value = {
+            560311: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-1 ~alpha\r\n',
+                            blocks=[560322], sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value.update(
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', '*', '560322',
+                                     '--ignore-dependencies']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+        bugz_inst.resolve_dependencies.assert_called()
+
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-deps-1').keywords,
+            ('~alpha', '~amd64'))
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-1').keywords,
+            ('~amd64',))
+
+        self.assertEqual(
+            sout.getvalue().strip(),
+            '''# bug 560322 (KEYWORDREQ)
+=test/amd64-testing-deps-1 ~alpha''')
+
+    @patch('nattka.cli.NattkaBugzilla')
     def test_process_success_n(self, bugz):
         """ Test processing with -n. """
         bugz_inst = self.bug_preset(bugz, True)

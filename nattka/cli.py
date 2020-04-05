@@ -194,6 +194,10 @@ class NattkaCommands(object):
                 else:
                     print(f'# bug {bno}: no sanity check result\n')
                 continue
+            if (any(not bugs[depno].resolved for depno in b.depends)
+                    and not self.args.ignore_dependencies):
+                print(f'# bug {bno}: unresolved dependencies\n')
+                continue
 
             print(f'# bug {bno} ({b.category.name})')
             prefix = '~' if b.category == BugCategory.KEYWORDREQ else ''
@@ -436,6 +440,9 @@ def main(argv: typing.List[str]) -> int:
                       help='Process specified arch (default: current '
                            'according to pkgcore config, accepts '
                            'fnmatch-style wildcards)')
+    appp.add_argument('--ignore-dependencies', action='store_true',
+                      help='do not skip bugs that have unresolved '
+                           'dependencies')
     appp.add_argument('--ignore-sanity-check', action='store_true',
                       help='do not skip bugs that are not marked '
                            'as passing sanity-check')
