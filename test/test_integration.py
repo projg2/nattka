@@ -632,8 +632,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560311, 560322])
         self.assertEqual(bugz_inst.update_status.call_count, 2)
         bugz_inst.update_status.assert_has_calls(
-            [unittest.mock.call(560322, True, None),
-             unittest.mock.call(560311, True, None)])
+            [unittest.mock.call(560311, True, None),
+             unittest.mock.call(560322, True, None)])
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')

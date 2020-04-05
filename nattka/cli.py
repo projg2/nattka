@@ -105,6 +105,10 @@ class NattkaCommands(object):
             kwargs['cc'] = sorted([f'{x}@gentoo.org' for x in arch])
         bugs = bz.find_bugs(**kwargs)
         bugnos = list(bugs)
+        # if user did not specify explicit list of bugs, start with
+        # newest
+        if not self.args.bug:
+            bugnos = list(reversed(sorted(bugnos)))
         if not self.args.no_fetch_dependencies:
             bugs = bz.resolve_dependencies(bugs)
         for bno, b in bugs.items():
@@ -235,8 +239,7 @@ class NattkaCommands(object):
             log.info(f'Will process until {end_time}')
 
         try:
-            # start with the newest bugs
-            for bno in reversed(sorted(bugnos)):
+            for bno in bugnos:
                 if bugs_done > 0 and bugs_done % 10 == 0:
                     log.info(f'Tested {bugs_done} bugs so far')
                 if self.args.bug_limit and bugs_done >= self.args.bug_limit:
