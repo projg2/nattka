@@ -112,10 +112,10 @@ class IntegrationNoActionTests(IntegrationTestCase):
                    ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ, False,
+            560322: makebug(BugCategory.STABLEREQ,
                             '   \r\n'
                             '\r\n',
-                            [], [], [], initial_status),
+                            sanity_check=initial_status),
         }
         return bugz_inst
 
@@ -185,10 +185,10 @@ class IntegrationNoActionTests(IntegrationTestCase):
                               ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ, False,
+            560322: makebug(BugCategory.STABLEREQ,
                             'test/amd64-testing-1 amd64\r\n'
                             'test/alpha-amd64-hppa-testing-2\r\n',
-                            [], [], [], True),
+                            sanity_check=True),
         }
         return bugz_inst
 
@@ -229,9 +229,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
                               ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(None, False,
-                            '',
-                            [], [], [], None),
+            560322: makebug(None, ''),
         }
         return bugz_inst
 
@@ -274,10 +272,10 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """ Preset bugzilla mock. """
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ, False,
+            560322: makebug(BugCategory.STABLEREQ,
                             'test/amd64-testing-1 amd64\r\n'
                             'test/alpha-amd64-hppa-testing-2 amd64 hppa\r\n',
-                            [], [], [], initial_status),
+                            sanity_check=initial_status),
         }
         return bugz_inst
 
@@ -324,9 +322,9 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """Test apply with KEYWORDREQ."""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ, False,
+            560322: makebug(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 alpha ~hppa\r\n',
-                            [], [], [], True),
+                            sanity_check=True),
         }
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
@@ -565,12 +563,12 @@ class IntegrationSuccessTests(IntegrationTestCase):
         # this will probably make more sense when find_bugs()
         # has recursive fetching support
         bugz_inst.find_bugs.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ, False,
+            560311: makebug(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 ~alpha\r\n',
-                            [], [], [560322], True),
-            560322: makebug(BugCategory.KEYWORDREQ, False,
+                            blocks=[560322], sanity_check=True),
+            560322: makebug(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
-                            [], [560311], [], None),
+                            depends=[560311]),
         }
         self.assertEqual(
             main(self.common_args + ['process-bugs', '--update-bugs',
@@ -597,9 +595,9 @@ class IntegrationFailureTests(IntegrationTestCase):
         """ Instantiate Bugzilla mock. """
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ, False,
+            560322: makebug(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
-                            [], [], [], initial_status),
+                            sanity_check=initial_status),
         }
         return bugz_inst
 
@@ -774,9 +772,8 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_malformed_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ, False,
-                            '<>amd64-testing-deps-1 ~alpha\r\n',
-                            [], [], [], None),
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            '<>amd64-testing-deps-1 ~alpha\r\n'),
         }
         self.assertEqual(
             main(self.common_args + ['process-bugs', '--update-bugs',
@@ -793,9 +790,8 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_disallowed_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ, False,
-                            '>=test/amd64-testing-deps-1 ~alpha\r\n',
-                            [], [], [], None),
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            '>=test/amd64-testing-deps-1 ~alpha\r\n'),
         }
         self.assertEqual(
             main(self.common_args + ['process-bugs', '--update-bugs',
@@ -812,9 +808,8 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_non_matched_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ, False,
-                            'test/enoent-7 ~alpha\r\n',
-                            [], [], [], None),
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            'test/enoent-7 ~alpha\r\n'),
         }
         self.assertEqual(
             main(self.common_args + ['process-bugs', '--update-bugs',
@@ -831,9 +826,8 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_non_matched_keyword_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ, False,
-                            'test/amd64-testing-1 amd64 ~mysuperarch\r\n',
-                            [], [], [], None),
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-1 amd64 ~mysuperarch\r\n'),
         }
         self.assertEqual(
             main(self.common_args + ['process-bugs', '--update-bugs',
@@ -856,9 +850,8 @@ class IntegrationLimiterTests(IntegrationTestCase):
                    ) -> MagicMock:
         bugs = {}
         for i in range(10):
-            bugs[100000 + i] = makebug(BugCategory.KEYWORDREQ, False,
-                                       'test/amd64-testing-1 ~amd64\r\n',
-                                       [], [], [], None)
+            bugs[100000 + i] = makebug(BugCategory.KEYWORDREQ,
+                                       'test/amd64-testing-1 ~amd64\r\n')
 
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = bugs
