@@ -21,7 +21,7 @@ from nattka.package import (match_package_list, add_keywords,
 def get_test_repo(path: Path = Path(__file__).parent):
     conf_path = path / 'conf'
     data_path = path / 'data'
-    return find_repository(str(data_path), str(conf_path))
+    return find_repository(data_path, conf_path)
 
 
 class FindRepositoryTests(unittest.TestCase):

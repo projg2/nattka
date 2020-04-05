@@ -8,6 +8,8 @@ import itertools
 import subprocess
 import typing
 
+from pathlib import Path
+
 # need to preload it to fix pkgcheck.reporters import error
 __import__('pkgcheck.checks')
 from pkgcheck.reporters import PickleStream
@@ -55,8 +57,8 @@ class PackageInvalid(Exception):
     pass
 
 
-def find_repository(path: str,
-                    conf_path: typing.Optional[str] = None
+def find_repository(path: Path,
+                    conf_path: typing.Optional[Path] = None
                     ) -> RepoTuple:
     """
     Find an ebuild repository in specified `path`.
@@ -65,10 +67,25 @@ def find_repository(path: str,
     a tuple of (domain, repo object).  If `conf_path` is specified,
     it overrides config location.
     """
-    c = load_config(location=conf_path)
+    c = load_config(
+        location=str(conf_path) if conf_path is not None else None)
     domain = c.get_default('domain')
-    return RepoTuple(domain,
-                     domain.find_repo(path, config=c, configure=False))
+
+    # if it's a configured repository, we need to handle it explicitly
+    # started with longest paths in case of nested repos
+    for repo in reversed(sorted(domain.ebuild_repos_raw,
+                                key=lambda x: len(x.location))):
+        try:
+            path.relative_to(repo.location)
+        except ValueError:
+            pass
+        else:
+            return RepoTuple(domain, repo)
+
+    # fallback to unconfigured repo search
+    return RepoTuple(domain, domain.find_repo(str(path),
+                                              config=c,
+                                              configure=False))
 
 
 def match_package_list(repo: UnconfiguredTree,
