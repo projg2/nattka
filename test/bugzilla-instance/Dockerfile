@@ -3,7 +3,8 @@
 
 FROM gentoo/stage3-amd64-nomultilib
 
-RUN echo "www-servers/apache apache2_modules_version apache2_mpms_prefork" > /etc/portage/package.use/apache \
+RUN echo "FEATURES=\"parallel-install -ebuild-locks\"" >> /etc/portage/make.conf \
+ && echo "www-servers/apache apache2_modules_version apache2_mpms_prefork" > /etc/portage/package.use/apache \
  && echo "dev-perl/Crypt-SMIME ~amd64" >> /etc/portage/package.accept_keywords \
  && echo "dev-perl/ExtUtils-CChecker ~amd64" >> /etc/portage/package.accept_keywords \
  && echo "dev-perl/GDGraph ~amd64" >> /etc/portage/package.accept_keywords \
