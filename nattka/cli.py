@@ -146,22 +146,26 @@ class NattkaCommands(object):
         repo = self.get_repository()
         for bno, b in self.find_bugs().items():
             if b.category is None:
-                log.info(f'Bug {bno}: neither stablereq nor keywordreq')
+                print(f'# bug {bno}: neither stablereq nor keywordreq\n')
                 continue
 
-            log.info(f'Bug {bno} ({b.category.name})')
             plist = dict(match_package_list(repo, b.atoms))
 
             if not plist:
-                log.info('Skipping because of empty package list')
+                print(f'# bug {bno}: empty package list\n')
                 continue
             if any(not x for x in plist.values()):
-                log.info('Skipping because of incomplete keywords')
+                print(f'# bug {bno}: incomplete keywords\n')
                 continue
 
+            print(f'# bug {bno} ({b.category.name})')
+            prefix = '~' if b.category == BugCategory.KEYWORDREQ else ''
             for p, keywords in plist.items():
-                log.info(f'Package {p.cpvstr}: {plist[p]}')
-            add_keywords(plist.items(), b.category == BugCategory.STABLEREQ)
+                print(f'={p.cpvstr} {" ".join(prefix + k for k in keywords)}')
+            print()
+            if not self.args.no_update:
+                add_keywords(plist.items(), b.category
+                                            == BugCategory.STABLEREQ)
 
         return 0
 
@@ -374,10 +378,13 @@ def main(argv: typing.List[str]) -> int:
                            'keywording and stabilization bugs if not '
                            'specified')
 
-    subp.add_parser('apply',
-                    parents=[bugp],
-                    help='keyword/stabilize packages according '
-                         'to a bug')
+    appp = subp.add_parser('apply',
+                           parents=[bugp],
+                           help='keyword/stabilize packages according '
+                                'to a bug and print their list')
+    appp.add_argument('-n', '--no-update', action='store_true',
+                      help='Do not update KEYWORDS in packages, only '
+                           'output the list')
 
     prop = subp.add_parser('process-bugs',
                            parents=[bugp],

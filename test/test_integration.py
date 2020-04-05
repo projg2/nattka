@@ -4,6 +4,7 @@
 """ Integration tests. """
 
 import datetime
+import io
 import json
 import shutil
 import subprocess
@@ -285,8 +286,10 @@ class IntegrationSuccessTests(IntegrationTestCase):
             self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
             ('~alpha', '~amd64', '~hppa'))
 
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
-    def test_apply(self, bugz):
+    def test_apply(self, bugz, sout):
+        """Test apply with STABLEREQ."""
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['apply', '560322']),
@@ -299,6 +302,59 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.assertEqual(
             self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
             ('~alpha', 'amd64', 'hppa'))
+
+        self.assertEqual(
+            sout.getvalue().strip(),
+            '''# bug 560322 (STABLEREQ)
+=test/amd64-testing-1 amd64
+=test/alpha-amd64-hppa-testing-2 amd64 hppa''')
+
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_apply_keywordreq(self, bugz, sout):
+        """Test apply with KEYWORDREQ."""
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: BugInfo(BugCategory.KEYWORDREQ, False,
+                            'test/amd64-testing-1 alpha ~hppa\r\n',
+                            [], [], [], True),
+        }
+        self.assertEqual(
+            main(self.common_args + ['apply', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-1').keywords,
+            ('~alpha', '~amd64', '~hppa'))
+
+        self.assertEqual(
+            sout.getvalue().strip(),
+            '''# bug 560322 (KEYWORDREQ)
+=test/amd64-testing-1 ~alpha ~hppa''')
+
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_apply_n(self, bugz, sout):
+        """Test apply with '-n' option."""
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-n', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-1').keywords,
+            ('~amd64',))
+        self.assertEqual(
+            self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
+            ('~alpha', '~amd64', '~hppa'))
+
+        self.assertEqual(
+            sout.getvalue().strip(),
+            '''# bug 560322 (STABLEREQ)
+=test/amd64-testing-1 amd64
+=test/alpha-amd64-hppa-testing-2 amd64 hppa''')
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_success_n(self, bugz):

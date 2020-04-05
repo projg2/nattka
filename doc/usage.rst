@@ -80,7 +80,11 @@ apply command
 Basic usage
 -----------
 The ``apply`` command is used to apply keywords from a keywording
-or stabilization bug to the local checkout.
+or stabilization bug to the local checkout, and print the list for
+arch tester's use.
+
+If you do not wish for NATTkA to apply keywords locally, and just print
+the list for you, pass ``-n`` (``--no-update``).
 
 Specific bug numbers can be specified as positional arguments
 to the command, e.g.::
