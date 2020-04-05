@@ -175,6 +175,13 @@ class NattkaCommands(object):
             if any(not x for x in plist.values()):
                 print(f'# bug {bno}: incomplete keywords\n')
                 continue
+            if (b.sanity_check is not True
+                    and not self.args.ignore_sanity_check):
+                if b.sanity_check is False:
+                    print(f'# bug {bno}: sanity check failed\n')
+                else:
+                    print(f'# bug {bno}: no sanity check result\n')
+                continue
 
             print(f'# bug {bno} ({b.category.name})')
             prefix = '~' if b.category == BugCategory.KEYWORDREQ else ''
@@ -410,6 +417,9 @@ def main(argv: typing.List[str]) -> int:
                       help='Process specified arch (default: current '
                            'according to pkgcore config, accepts '
                            'fnmatch-style wildcards)')
+    appp.add_argument('--ignore-sanity-check', action='store_true',
+                      help='do not skip bugs that are not marked '
+                           'as passing sanity-check')
     appp.add_argument('-n', '--no-update', action='store_true',
                       help='Do not update KEYWORDS in packages, only '
                            'output the list')

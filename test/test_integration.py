@@ -295,7 +295,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply(self, bugz, sout):
         """Test apply with STABLEREQ."""
-        bugz_inst = self.bug_preset(bugz)
+        bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
             0)
@@ -346,7 +346,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_n(self, bugz, sout):
         """Test apply with '-n' option."""
-        bugz_inst = self.bug_preset(bugz)
+        bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '-n', '560322']),
             0)
@@ -371,7 +371,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_filter_arch(self, bugz, sout):
         """Test apply with arch filtering."""
-        bugz_inst = self.bug_preset(bugz)
+        bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', 'amd64', '560322']),
             0)
@@ -396,7 +396,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_filter_host_arch(self, bugz, sout):
         """Test apply with host arch filtering."""
-        bugz_inst = self.bug_preset(bugz)
+        bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
             main(self.common_args + ['apply', '560322']),
             0)
@@ -417,9 +417,53 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/alpha-amd64-hppa-testing-2 hppa''')
 
     @patch('nattka.cli.NattkaBugzilla')
+    def test_apply_skip_sanity_check(self, bugz):
+        """Test that apply skips bug with failing sanity check."""
+        bugz_inst = self.bug_preset(bugz, False)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', '*', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-1').keywords,
+            ('~amd64',))
+        self.assertEqual(
+            self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
+            ('~alpha', '~amd64', '~hppa'))
+
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_apply_ignore_sanity_check(self, bugz, sout):
+        """Test that apply --ignore-sanity-check works."""
+        bugz_inst = self.bug_preset(bugz, False)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', '*', '560322',
+                                     '--ignore-sanity-check']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-1').keywords,
+            ('amd64',))
+        self.assertEqual(
+            self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
+            ('~alpha', 'amd64', 'hppa'))
+
+        self.assertEqual(
+            sout.getvalue().strip(),
+            '''# bug 560322 (STABLEREQ)
+=test/amd64-testing-1 amd64
+=test/alpha-amd64-hppa-testing-2 amd64 hppa''')
+
+    @patch('nattka.cli.NattkaBugzilla')
     def test_process_success_n(self, bugz):
         """ Test processing with -n. """
-        bugz_inst = self.bug_preset(bugz)
+        bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
             main(self.common_args + ['process-bugs', '560322']),
             0)

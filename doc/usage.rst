@@ -113,6 +113,10 @@ different values for the same group of conditions are OR-ed together
 ``--stablereq`` limits it to stabilization requests.  Additionally,
 ``--security`` option can be used to limit results to security bugs.
 
+Normally, NATTkA applies keywords only when the bug in question passed
+sanity-check.  To disable this filter and process any bugs, pass
+``--ignore-sanity-check``.
+
 
 process-bugs command
 ====================
