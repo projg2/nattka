@@ -11,7 +11,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?component=Keywording&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&product=Gentoo+Security&resolution=---
+    uri: http://127.0.0.1:33113/rest/bug?component=Keywording&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&include_fields=resolution&product=Gentoo+Security&resolution=---
   response:
     body:
       string: '{"bugs":[]}'
@@ -27,7 +27,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Sat, 04 Apr 2020 16:11:22 GMT
+      - Sun, 05 Apr 2020 09:58:00 GMT
       Etag:
       - MiQPxvkqecldlG5tcvevvw
       Keep-Alive:

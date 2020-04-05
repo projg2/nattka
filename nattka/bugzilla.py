@@ -20,6 +20,7 @@ INCLUDE_BUG_FIELDS = [
     'depends_on',
     'blocks',
     'flags',
+    'resolution',
 ]
 
 
@@ -73,6 +74,7 @@ class BugInfo(typing.NamedTuple):
     depends: typing.List[int]
     blocks: typing.List[int]
     sanity_check: typing.Optional[bool]
+    resolved: bool
 
 
 def make_bug_info(bug: typing.Dict[str, typing.Any]
@@ -94,7 +96,8 @@ def make_bug_info(bug: typing.Dict[str, typing.Any]
                    cc=bug['cc'],
                    depends=bug['depends_on'],
                    blocks=bug['blocks'],
-                   sanity_check=sanity_check)
+                   sanity_check=sanity_check,
+                   resolved=bool(bug['resolution']))
 
 
 class NattkaBugzilla(object):
@@ -309,7 +312,8 @@ def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo],
                    cc=topbug.cc,
                    depends=sorted(deps),
                    blocks=topbug.blocks,
-                   sanity_check=topbug.sanity_check)
+                   sanity_check=topbug.sanity_check,
+                   resolved=topbug.resolved)
 
 
 def update_keywords_from_cc(bug: BugInfo,
@@ -351,4 +355,5 @@ def update_keywords_from_cc(bug: BugInfo,
                    cc=bug.cc,
                    depends=bug.depends,
                    blocks=bug.blocks,
-                   sanity_check=bug.sanity_check)
+                   sanity_check=bug.sanity_check,
+                   resolved=bug.resolved)

@@ -11,12 +11,13 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?component=Kernel&component=Keywording&component=Stabilization&component=Vulnerabilities&f1=flagtypes.name&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&o1=anywords&product=Gentoo+Linux&product=Gentoo+Security&resolution=---&v1=sanity-check-
+    uri: http://127.0.0.1:33113/rest/bug?component=Kernel&component=Keywording&component=Stabilization&component=Vulnerabilities&f1=flagtypes.name&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&include_fields=resolution&o1=anywords&product=Gentoo+Linux&product=Gentoo+Security&resolution=---&v1=sanity-check-
   response:
     body:
-      string: '{"bugs":[{"blocks":[],"flags":[{"creation_date":"2020-04-03T13:35:02Z","name":"sanity-check","type_id":1,"setter":"nattka@gentoo.org","modification_date":"2020-04-03T13:35:02Z","id":3,"status":"-"}],"component":"Stabilization","cc":["amd64@gentoo.org"],"depends_on":[7],"cf_stabilisation_atoms":"dev-python/mako-1.1.0
-        amd64","product":"Gentoo Linux","id":3,"cc_detail":[{"id":4,"real_name":"AMD64
-        arch team","name":"amd64@gentoo.org","email":"amd64@gentoo.org"}]}]}'
+      string: '{"bugs":[{"component":"Stabilization","flags":[{"id":3,"name":"sanity-check","status":"-","creation_date":"2020-04-03T13:35:02Z","type_id":1,"setter":"nattka@gentoo.org","modification_date":"2020-04-03T13:35:02Z"}],"resolution":"","cc":["amd64@gentoo.org"],"id":3,"cf_stabilisation_atoms":"dev-python/mako-1.1.0
+        amd64","depends_on":[7],"blocks":[],"cc_detail":[{"real_name":"AMD64 arch
+        team","email":"amd64@gentoo.org","name":"amd64@gentoo.org","id":4}],"product":"Gentoo
+        Linux"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -29,9 +30,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Sat, 04 Apr 2020 17:06:29 GMT
+      - Sun, 05 Apr 2020 09:57:53 GMT
       Etag:
-      - Cc+OGM/NQdocXr/BAewvig
+      - 7vpKaaVh6tA9zRW0chMk2A
       Keep-Alive:
       - timeout=15, max=100
       Server:

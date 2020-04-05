@@ -11,13 +11,14 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?component=Kernel&component=Keywording&component=Stabilization&component=Vulnerabilities&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&product=Gentoo+Security&resolution=---
+    uri: http://127.0.0.1:33113/rest/bug?component=Kernel&component=Keywording&component=Stabilization&component=Vulnerabilities&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&include_fields=resolution&product=Gentoo+Security&resolution=---
   response:
     body:
-      string: '{"bugs":[{"blocks":[],"flags":[],"depends_on":[],"id":5,"cc_detail":[{"email":"test@example.com","id":1,"real_name":"Test
-        developer","name":"test@example.com"}],"component":"Vulnerabilities","cc":["test@example.com"],"product":"Gentoo
-        Security","cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7 amd64 hppa"},{"component":"Kernel","cc":[],"product":"Gentoo
-        Security","cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6","blocks":[],"flags":[],"id":6,"depends_on":[],"cc_detail":[]}]}'
+      string: '{"bugs":[{"cc":["test@example.com"],"resolution":"","id":5,"cc_detail":[{"name":"test@example.com","real_name":"Test
+        developer","id":1,"email":"test@example.com"}],"flags":[],"blocks":[],"product":"Gentoo
+        Security","component":"Vulnerabilities","cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7
+        amd64 hppa","depends_on":[]},{"id":6,"resolution":"","cc":[],"depends_on":[],"blocks":[],"component":"Kernel","cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6","product":"Gentoo
+        Security","flags":[],"cc_detail":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -30,9 +31,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Sat, 04 Apr 2020 16:11:20 GMT
+      - Sun, 05 Apr 2020 09:57:58 GMT
       Etag:
-      - HS7+SRvl8Sf4XK34qz4zBg
+      - wMPf9wWmhL7cYvg4qers9g
       Keep-Alive:
       - timeout=15, max=100
       Server:

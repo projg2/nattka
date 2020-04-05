@@ -11,13 +11,13 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?f1=flagtypes.name&id=2&id=3&id=4&id=6&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&o1=anywords&v1=sanity-check%2B
+    uri: http://127.0.0.1:33113/rest/bug?f1=flagtypes.name&id=2&id=3&id=4&id=6&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&include_fields=resolution&o1=anywords&v1=sanity-check%2B
   response:
     body:
-      string: '{"bugs":[{"cc":["alpha@gentoo.org","hppa@gentoo.org"],"component":"Keywording","product":"Gentoo
-        Linux","id":2,"depends_on":[1],"blocks":[],"cc_detail":[{"id":3,"name":"alpha@gentoo.org","email":"alpha@gentoo.org","real_name":"ALPHA
-        arch team"},{"id":5,"name":"hppa@gentoo.org","email":"hppa@gentoo.org","real_name":"HPPA
-        arch team"}],"cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","flags":[{"creation_date":"2020-04-03T13:34:59Z","id":2,"status":"+","type_id":1,"name":"sanity-check","setter":"nattka@gentoo.org","modification_date":"2020-04-03T13:34:59Z"}]}]}'
+      string: '{"bugs":[{"blocks":[],"depends_on":[1],"cc_detail":[{"name":"alpha@gentoo.org","real_name":"ALPHA
+        arch team","email":"alpha@gentoo.org","id":3},{"name":"hppa@gentoo.org","real_name":"HPPA
+        arch team","id":5,"email":"hppa@gentoo.org"}],"id":2,"flags":[{"creation_date":"2020-04-03T13:34:59Z","type_id":1,"setter":"nattka@gentoo.org","name":"sanity-check","status":"+","id":2,"modification_date":"2020-04-03T13:34:59Z"}],"resolution":"","product":"Gentoo
+        Linux","cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","cc":["alpha@gentoo.org","hppa@gentoo.org"],"component":"Keywording"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -30,9 +30,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Sat, 04 Apr 2020 17:06:25 GMT
+      - Sun, 05 Apr 2020 09:57:41 GMT
       Etag:
-      - GXN/bTATgO/lSkNEBX8ILg
+      - w+jicK4E/NwHgeOZjrCY8A
       Keep-Alive:
       - timeout=15, max=100
       Server:

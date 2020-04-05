@@ -11,10 +11,10 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=3&id=4&id=6&id=8&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&product=Gentoo+Security
+    uri: http://127.0.0.1:33113/rest/bug?id=3&id=4&id=6&id=8&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&include_fields=resolution&product=Gentoo+Security
   response:
     body:
-      string: '{"bugs":[{"cc_detail":[],"blocks":[],"id":6,"product":"Gentoo Security","flags":[],"cc":[],"cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6","component":"Kernel","depends_on":[]}]}'
+      string: '{"bugs":[{"resolution":"","blocks":[],"product":"Gentoo Security","cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6","depends_on":[],"cc_detail":[],"component":"Kernel","id":6,"flags":[],"cc":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -27,9 +27,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Sat, 04 Apr 2020 16:11:14 GMT
+      - Sun, 05 Apr 2020 09:57:34 GMT
       Etag:
-      - Mq743qzTrQmQYx6B4g89kg
+      - uvTnh2iyZyBGhi7islvgYQ
       Keep-Alive:
       - timeout=15, max=100
       Server:

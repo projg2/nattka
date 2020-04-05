@@ -19,7 +19,7 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug/3
   response:
     body:
-      string: '{"bugs":[{"id":3,"last_change_time":"2020-04-03T13:44:34Z","changes":{},"alias":[]}]}'
+      string: '{"bugs":[{"alias":[],"changes":{},"id":3,"last_change_time":"2020-04-05T09:58:18Z"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -32,9 +32,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 03 Apr 2020 13:44:33 GMT
+      - Sun, 05 Apr 2020 09:58:16 GMT
       Etag:
-      - Cgxk4L8B/M7g8yhIO5Q81Q
+      - NFR31G6r1/8staz04gUM3A
       Keep-Alive:
       - timeout=15, max=100
       Server:
@@ -62,12 +62,12 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=3&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product
+    uri: http://127.0.0.1:33113/rest/bug?id=3&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&include_fields=resolution
   response:
     body:
-      string: '{"bugs":[{"id":3,"depends_on":[7],"cc_detail":[{"email":"amd64@gentoo.org","id":4,"name":"amd64@gentoo.org","real_name":"AMD64
-        arch team"}],"blocks":[],"cc":["amd64@gentoo.org"],"product":"Gentoo Linux","flags":[{"creation_date":"2020-04-03T13:35:02Z","status":"-","id":3,"name":"sanity-check","modification_date":"2020-04-03T13:35:02Z","setter":"nattka@gentoo.org","type_id":1}],"cf_stabilisation_atoms":"dev-python/mako-1.1.0
-        amd64","component":"Stabilization"}]}'
+      string: '{"bugs":[{"product":"Gentoo Linux","component":"Stabilization","cc_detail":[{"email":"amd64@gentoo.org","real_name":"AMD64
+        arch team","id":4,"name":"amd64@gentoo.org"}],"id":3,"flags":[{"status":"-","name":"sanity-check","creation_date":"2020-04-03T13:35:02Z","type_id":1,"id":3,"modification_date":"2020-04-03T13:35:02Z","setter":"nattka@gentoo.org"}],"blocks":[],"depends_on":[7],"cf_stabilisation_atoms":"dev-python/mako-1.1.0
+        amd64","resolution":"","cc":["amd64@gentoo.org"]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -80,9 +80,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 03 Apr 2020 13:44:35 GMT
+      - Sun, 05 Apr 2020 09:58:18 GMT
       Etag:
-      - Cc+OGM/NQdocXr/BAewvig
+      - 7vpKaaVh6tA9zRW0chMk2A
       Keep-Alive:
       - timeout=15, max=99
       Server:
@@ -113,13 +113,12 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug/3/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"3":{"comments":[{"attachment_id":null,"text":"","id":3,"time":"2020-04-03T13:19:04Z","is_private":false,"creation_time":"2020-04-03T13:19:04Z","count":0,"creator":"test@example.com","bug_id":3,"tags":[]},{"id":8,"attachment_id":null,"text":"sanity
-        check failed!","time":"2020-04-03T13:35:02Z","is_private":false,"bug_id":3,"tags":[],"creator":"nattka@gentoo.org","count":1,"creation_time":"2020-04-03T13:35:02Z"},{"id":9,"text":"sanity
-        check failed!","attachment_id":null,"time":"2020-04-03T13:35:33Z","is_private":false,"tags":[],"bug_id":3,"creator":"nattka@gentoo.org","count":2,"creation_time":"2020-04-03T13:35:33Z"},{"id":10,"text":"sanity
-        check failed!","attachment_id":null,"time":"2020-04-03T13:37:04Z","is_private":false,"tags":[],"bug_id":3,"creator":"nattka@gentoo.org","count":3,"creation_time":"2020-04-03T13:37:04Z"},{"creator":"nattka@gentoo.org","tags":[],"bug_id":3,"creation_time":"2020-04-03T13:38:16Z","count":4,"is_private":false,"time":"2020-04-03T13:38:16Z","id":11,"text":"sanity
-        check failed!","attachment_id":null},{"time":"2020-04-03T13:43:55Z","is_private":false,"id":12,"attachment_id":null,"text":"sanity
-        check failed!","creator":"nattka@gentoo.org","bug_id":3,"tags":[],"creation_time":"2020-04-03T13:43:55Z","count":5},{"creation_time":"2020-04-03T13:44:34Z","count":6,"creator":"nattka@gentoo.org","bug_id":3,"tags":[],"attachment_id":null,"text":"sanity
-        check failed!","id":13,"is_private":false,"time":"2020-04-03T13:44:34Z"}]}}}'
+      string: '{"bugs":{"3":{"comments":[{"creator":"test@example.com","creation_time":"2020-04-03T13:19:04Z","text":"","is_private":false,"count":0,"id":3,"attachment_id":null,"tags":[],"time":"2020-04-03T13:19:04Z","bug_id":3},{"id":8,"attachment_id":null,"bug_id":3,"time":"2020-04-03T13:35:02Z","tags":[],"creator":"nattka@gentoo.org","is_private":false,"creation_time":"2020-04-03T13:35:02Z","text":"sanity
+        check failed!","count":1},{"count":2,"is_private":false,"text":"sanity check
+        failed!","creation_time":"2020-04-03T13:35:33Z","creator":"nattka@gentoo.org","bug_id":3,"time":"2020-04-03T13:35:33Z","tags":[],"attachment_id":null,"id":9},{"count":3,"is_private":false,"text":"sanity
+        check failed!","creation_time":"2020-04-03T13:37:04Z","creator":"nattka@gentoo.org","time":"2020-04-03T13:37:04Z","bug_id":3,"tags":[],"attachment_id":null,"id":10},{"id":11,"attachment_id":null,"tags":[],"bug_id":3,"time":"2020-04-03T13:38:16Z","creator":"nattka@gentoo.org","text":"sanity
+        check failed!","creation_time":"2020-04-03T13:38:16Z","is_private":false,"count":4},{"count":5,"creator":"nattka@gentoo.org","is_private":false,"creation_time":"2020-04-05T09:58:18Z","text":"sanity
+        check failed!","time":"2020-04-05T09:58:18Z","bug_id":3,"tags":[],"id":13,"attachment_id":null}]}},"comments":{}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -132,9 +131,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 03 Apr 2020 13:44:36 GMT
+      - Sun, 05 Apr 2020 09:58:20 GMT
       Etag:
-      - KnnztS2LSEshY/idG/d2rw
+      - 0vu65ixAk3H061n8eEZvvw
       Keep-Alive:
       - timeout=15, max=98
       Server:

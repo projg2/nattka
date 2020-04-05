@@ -19,9 +19,10 @@ import pkgcore.ebuild.ebuild_src
 from pkgcore.ebuild.repository import UnconfiguredTree
 from pkgcore.util import parserestrict
 
-from nattka.bugzilla import BugCategory, BugInfo
+from nattka.bugzilla import BugCategory
 from nattka.cli import main
 
+from test.test_bugzilla import makebug
 from test.test_package import get_test_repo
 
 
@@ -111,7 +112,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
                    ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ, False,
+            560322: makebug(BugCategory.STABLEREQ, False,
                             '   \r\n'
                             '\r\n',
                             [], [], [], initial_status),
@@ -184,7 +185,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
                               ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ, False,
+            560322: makebug(BugCategory.STABLEREQ, False,
                             'test/amd64-testing-1 amd64\r\n'
                             'test/alpha-amd64-hppa-testing-2\r\n',
                             [], [], [], True),
@@ -228,7 +229,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
                               ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(None, False,
+            560322: makebug(None, False,
                             '',
                             [], [], [], None),
         }
@@ -273,7 +274,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """ Preset bugzilla mock. """
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ, False,
+            560322: makebug(BugCategory.STABLEREQ, False,
                             'test/amd64-testing-1 amd64\r\n'
                             'test/alpha-amd64-hppa-testing-2 amd64 hppa\r\n',
                             [], [], [], initial_status),
@@ -323,7 +324,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """Test apply with KEYWORDREQ."""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ, False,
+            560322: makebug(BugCategory.KEYWORDREQ, False,
                             'test/amd64-testing-1 alpha ~hppa\r\n',
                             [], [], [], True),
         }
@@ -564,10 +565,10 @@ class IntegrationSuccessTests(IntegrationTestCase):
         # this will probably make more sense when find_bugs()
         # has recursive fetching support
         bugz_inst.find_bugs.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ, False,
+            560311: makebug(BugCategory.KEYWORDREQ, False,
                             'test/amd64-testing-1 ~alpha\r\n',
                             [], [], [560322], True),
-            560322: BugInfo(BugCategory.KEYWORDREQ, False,
+            560322: makebug(BugCategory.KEYWORDREQ, False,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             [], [560311], [], None),
         }
@@ -596,7 +597,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         """ Instantiate Bugzilla mock. """
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ, False,
+            560322: makebug(BugCategory.KEYWORDREQ, False,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             [], [], [], initial_status),
         }
@@ -773,7 +774,7 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_malformed_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ, False,
+            560322: makebug(BugCategory.KEYWORDREQ, False,
                             '<>amd64-testing-deps-1 ~alpha\r\n',
                             [], [], [], None),
         }
@@ -792,7 +793,7 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_disallowed_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ, False,
+            560322: makebug(BugCategory.KEYWORDREQ, False,
                             '>=test/amd64-testing-deps-1 ~alpha\r\n',
                             [], [], [], None),
         }
@@ -811,7 +812,7 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_non_matched_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ, False,
+            560322: makebug(BugCategory.KEYWORDREQ, False,
                             'test/enoent-7 ~alpha\r\n',
                             [], [], [], None),
         }
@@ -830,7 +831,7 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_non_matched_keyword_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ, False,
+            560322: makebug(BugCategory.KEYWORDREQ, False,
                             'test/amd64-testing-1 amd64 ~mysuperarch\r\n',
                             [], [], [], None),
         }
@@ -855,7 +856,7 @@ class IntegrationLimiterTests(IntegrationTestCase):
                    ) -> MagicMock:
         bugs = {}
         for i in range(10):
-            bugs[100000 + i] = BugInfo(BugCategory.KEYWORDREQ, False,
+            bugs[100000 + i] = makebug(BugCategory.KEYWORDREQ, False,
                                        'test/amd64-testing-1 ~amd64\r\n',
                                        [], [], [], None)
 

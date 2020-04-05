@@ -3,6 +3,7 @@
 
 """ Tests for Bugzilla interaction. """
 
+import typing
 import unittest
 
 from pathlib import Path
@@ -23,6 +24,25 @@ rec = vcr.VCR(
     filter_query_parameters=['Bugzilla_api_key'],
     record_mode='once',
 )
+
+
+def makebug(category: typing.Optional[BugCategory],
+            security: bool,
+            atoms: str,
+            cc: typing.List[str],
+            depends: typing.List[int],
+            blocks: typing.List[int],
+            sanity_check: typing.Optional[bool],
+            resolved: bool = False
+            ) -> BugInfo:
+    return BugInfo(category,
+                   security,
+                   atoms,
+                   cc,
+                   depends,
+                   blocks,
+                   sanity_check,
+                   resolved)
 
 
 class BugzillaTestCase(unittest.TestCase):
@@ -49,26 +69,26 @@ class BugzillaTests(BugzillaTestCase):
         """ Test getting simple bugs. """
         self.assertEqual(
             self.bz.find_bugs([1, 2, 3, 4, 8]),
-            {1: BugInfo(None, False, '\r\n', [], [], [2], None),
-             2: BugInfo(BugCategory.KEYWORDREQ, False,
+            {1: makebug(None, False, '\r\n', [], [], [2], None),
+             2: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/unittest-mixins-1.6\r\n'
                         'dev-python/coverage-4.5.4\r\n',
                         [f'{x}@gentoo.org' for x in ('alpha',
                                                      'hppa')],
                         [1], [], True),
-             3: BugInfo(BugCategory.STABLEREQ, False,
+             3: makebug(BugCategory.STABLEREQ, False,
                         'dev-python/mako-1.1.0 amd64\r\n',
                         [f'{x}@gentoo.org' for x in ('amd64',)],
                         [7], [], False),
-             4: BugInfo(BugCategory.KEYWORDREQ, False,
+             4: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/urllib3-1.25.8\r\n'
                         'dev-python/trustme-0.6.0\r\n'
                         'dev-python/brotlipy-0.7.0\r\n',
                         [f'{x}@gentoo.org' for x in ('hppa',)],
                         [], [], None),
-             8: BugInfo(BugCategory.STABLEREQ, False,
+             8: makebug(BugCategory.STABLEREQ, False,
                         'dev-lang/python-3.7.7\r\n',
-                        [], [], [], None),
+                        [], [], [], None, True),
              })
 
     @rec.use_cassette()
@@ -77,13 +97,13 @@ class BugzillaTests(BugzillaTestCase):
         self.assertEqual(
             self.bz.find_bugs([1, 2, 3, 4, 8],
                               category=[BugCategory.KEYWORDREQ]),
-            {2: BugInfo(BugCategory.KEYWORDREQ, False,
+            {2: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/unittest-mixins-1.6\r\n'
                         'dev-python/coverage-4.5.4\r\n',
                         [f'{x}@gentoo.org' for x in ('alpha',
                                                      'hppa')],
                         [1], [], True),
-             4: BugInfo(BugCategory.KEYWORDREQ, False,
+             4: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/urllib3-1.25.8\r\n'
                         'dev-python/trustme-0.6.0\r\n'
                         'dev-python/brotlipy-0.7.0\r\n',
@@ -97,13 +117,13 @@ class BugzillaTests(BugzillaTestCase):
         self.assertEqual(
             self.bz.find_bugs([1, 2, 3, 4, 8],
                               category=[BugCategory.STABLEREQ]),
-            {3: BugInfo(BugCategory.STABLEREQ, False,
+            {3: makebug(BugCategory.STABLEREQ, False,
                         'dev-python/mako-1.1.0 amd64\r\n',
                         [f'{x}@gentoo.org' for x in ('amd64',)],
                         [7], [], False),
-             8: BugInfo(BugCategory.STABLEREQ, False,
+             8: makebug(BugCategory.STABLEREQ, False,
                         'dev-lang/python-3.7.7\r\n',
-                        [], [], [], None),
+                        [], [], [], None, True),
              })
 
     @rec.use_cassette()
@@ -113,25 +133,25 @@ class BugzillaTests(BugzillaTestCase):
             self.bz.find_bugs([1, 2, 3, 4, 8],
                               category=[BugCategory.KEYWORDREQ,
                                         BugCategory.STABLEREQ]),
-            {2: BugInfo(BugCategory.KEYWORDREQ, False,
+            {2: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/unittest-mixins-1.6\r\n'
                         'dev-python/coverage-4.5.4\r\n',
                         [f'{x}@gentoo.org' for x in ('alpha',
                                                      'hppa')],
                         [1], [], True),
-             3: BugInfo(BugCategory.STABLEREQ, False,
+             3: makebug(BugCategory.STABLEREQ, False,
                         'dev-python/mako-1.1.0 amd64\r\n',
                         [f'{x}@gentoo.org' for x in ('amd64',)],
                         [7], [], False),
-             4: BugInfo(BugCategory.KEYWORDREQ, False,
+             4: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/urllib3-1.25.8\r\n'
                         'dev-python/trustme-0.6.0\r\n'
                         'dev-python/brotlipy-0.7.0\r\n',
                         [f'{x}@gentoo.org' for x in ('hppa',)],
                         [], [], None),
-             8: BugInfo(BugCategory.STABLEREQ, False,
+             8: makebug(BugCategory.STABLEREQ, False,
                         'dev-lang/python-3.7.7\r\n',
-                        [], [], [], None),
+                        [], [], [], None, True),
              })
 
     @rec.use_cassette()
@@ -140,7 +160,7 @@ class BugzillaTests(BugzillaTestCase):
         self.assertEqual(
             self.bz.find_bugs([3, 4, 6, 8],
                               security=True),
-            {6: BugInfo(BugCategory.STABLEREQ, True,
+            {6: makebug(BugCategory.STABLEREQ, True,
                         'sys-kernel/gentoo-sources-4.1.6\r\n',
                         [], [], [], None),
              })
@@ -151,7 +171,7 @@ class BugzillaTests(BugzillaTestCase):
         self.assertEqual(
             self.bz.find_bugs(bugs=[2, 3, 4, 6],
                               sanity_check=[True]),
-            {2: BugInfo(BugCategory.KEYWORDREQ, False,
+            {2: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/unittest-mixins-1.6\r\n'
                         'dev-python/coverage-4.5.4\r\n',
                         [f'{x}@gentoo.org' for x in ('alpha',
@@ -165,7 +185,7 @@ class BugzillaTests(BugzillaTestCase):
         self.assertEqual(
             self.bz.find_bugs(bugs=[2, 3, 4, 6],
                               sanity_check=[False]),
-            {3: BugInfo(BugCategory.STABLEREQ, False,
+            {3: makebug(BugCategory.STABLEREQ, False,
                         'dev-python/mako-1.1.0 amd64\r\n',
                         [f'{x}@gentoo.org' for x in ('amd64',)],
                         [7], [], False),
@@ -177,13 +197,13 @@ class BugzillaTests(BugzillaTestCase):
         self.assertEqual(
             self.bz.find_bugs(bugs=[2, 3, 4, 6],
                               sanity_check=[True, False]),
-            {2: BugInfo(BugCategory.KEYWORDREQ, False,
+            {2: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/unittest-mixins-1.6\r\n'
                         'dev-python/coverage-4.5.4\r\n',
                         [f'{x}@gentoo.org' for x in ('alpha',
                                                      'hppa')],
                         [1], [], True),
-             3: BugInfo(BugCategory.STABLEREQ, False,
+             3: makebug(BugCategory.STABLEREQ, False,
                         'dev-python/mako-1.1.0 amd64\r\n',
                         [f'{x}@gentoo.org' for x in ('amd64',)],
                         [7], [], False),
@@ -195,7 +215,7 @@ class BugzillaTests(BugzillaTestCase):
         self.assertEqual(
             self.bz.find_bugs([1, 3, 4, 8],
                               cc=['hppa@gentoo.org']),
-            {4: BugInfo(BugCategory.KEYWORDREQ, False,
+            {4: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/urllib3-1.25.8\r\n'
                         'dev-python/trustme-0.6.0\r\n'
                         'dev-python/brotlipy-0.7.0\r\n',
@@ -208,13 +228,13 @@ class BugzillaTests(BugzillaTestCase):
         """ Test finding keywordreqs. """
         self.assertEqual(
             self.bz.find_bugs(category=[BugCategory.KEYWORDREQ]),
-            {2: BugInfo(BugCategory.KEYWORDREQ, False,
+            {2: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/unittest-mixins-1.6\r\n'
                         'dev-python/coverage-4.5.4\r\n',
                         [f'{x}@gentoo.org' for x in ('alpha',
                                                      'hppa')],
                         [1], [], True),
-             4: BugInfo(BugCategory.KEYWORDREQ, False,
+             4: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/urllib3-1.25.8\r\n'
                         'dev-python/trustme-0.6.0\r\n'
                         'dev-python/brotlipy-0.7.0\r\n',
@@ -227,18 +247,18 @@ class BugzillaTests(BugzillaTestCase):
         """ Test finding stablereqs. """
         self.assertEqual(
             self.bz.find_bugs(category=[BugCategory.STABLEREQ]),
-            {3: BugInfo(BugCategory.STABLEREQ, False,
+            {3: makebug(BugCategory.STABLEREQ, False,
                         'dev-python/mako-1.1.0 amd64\r\n',
                         [f'{x}@gentoo.org' for x in ('amd64',)],
                         [7], [], False),
-             5: BugInfo(BugCategory.STABLEREQ, True,
+             5: makebug(BugCategory.STABLEREQ, True,
                         'app-arch/arj-3.10.22-r7 amd64 hppa\r\n',
                         ['test@example.com'],
                         [], [], None),
-             6: BugInfo(BugCategory.STABLEREQ, True,
+             6: makebug(BugCategory.STABLEREQ, True,
                         'sys-kernel/gentoo-sources-4.1.6\r\n',
                         [], [], [], None),
-             7: BugInfo(BugCategory.STABLEREQ, False,
+             7: makebug(BugCategory.STABLEREQ, False,
                         'dev-python/pytest-5.4.1\r\n',
                         [],
                         [], [3], None)
@@ -249,11 +269,11 @@ class BugzillaTests(BugzillaTestCase):
         """ Test finding security bugs. """
         self.assertEqual(
             self.bz.find_bugs(security=True),
-            {5: BugInfo(BugCategory.STABLEREQ, True,
+            {5: makebug(BugCategory.STABLEREQ, True,
                         'app-arch/arj-3.10.22-r7 amd64 hppa\r\n',
                         ['test@example.com'],
                         [], [], None),
-             6: BugInfo(BugCategory.STABLEREQ, True,
+             6: makebug(BugCategory.STABLEREQ, True,
                         'sys-kernel/gentoo-sources-4.1.6\r\n',
                         [], [], [], None),
              })
@@ -272,11 +292,11 @@ class BugzillaTests(BugzillaTestCase):
         self.assertEqual(
             self.bz.find_bugs(category=[BugCategory.STABLEREQ],
                               security=True),
-            {5: BugInfo(BugCategory.STABLEREQ, True,
+            {5: makebug(BugCategory.STABLEREQ, True,
                         'app-arch/arj-3.10.22-r7 amd64 hppa\r\n',
                         ['test@example.com'],
                         [], [], None),
-             6: BugInfo(BugCategory.STABLEREQ, True,
+             6: makebug(BugCategory.STABLEREQ, True,
                         'sys-kernel/gentoo-sources-4.1.6\r\n',
                         [], [], [], None),
              })
@@ -288,11 +308,11 @@ class BugzillaTests(BugzillaTestCase):
             self.bz.find_bugs(category=[BugCategory.KEYWORDREQ,
                                         BugCategory.STABLEREQ],
                               security=True),
-            {5: BugInfo(BugCategory.STABLEREQ, True,
+            {5: makebug(BugCategory.STABLEREQ, True,
                         'app-arch/arj-3.10.22-r7 amd64 hppa\r\n',
                         ['test@example.com'],
                         [], [], None),
-             6: BugInfo(BugCategory.STABLEREQ, True,
+             6: makebug(BugCategory.STABLEREQ, True,
                         'sys-kernel/gentoo-sources-4.1.6\r\n',
                         [], [], [], None),
              })
@@ -303,13 +323,13 @@ class BugzillaTests(BugzillaTestCase):
         self.assertEqual(
             self.bz.find_bugs(category=[BugCategory.KEYWORDREQ],
                               security=False),
-            {2: BugInfo(BugCategory.KEYWORDREQ, False,
+            {2: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/unittest-mixins-1.6\r\n'
                         'dev-python/coverage-4.5.4\r\n',
                         [f'{x}@gentoo.org' for x in ('alpha',
                                                      'hppa')],
                         [1], [], True),
-             4: BugInfo(BugCategory.KEYWORDREQ, False,
+             4: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/urllib3-1.25.8\r\n'
                         'dev-python/trustme-0.6.0\r\n'
                         'dev-python/brotlipy-0.7.0\r\n',
@@ -323,11 +343,11 @@ class BugzillaTests(BugzillaTestCase):
         self.assertEqual(
             self.bz.find_bugs(category=[BugCategory.STABLEREQ],
                               security=False),
-            {3: BugInfo(BugCategory.STABLEREQ, False,
+            {3: makebug(BugCategory.STABLEREQ, False,
                         'dev-python/mako-1.1.0 amd64\r\n',
                         [f'{x}@gentoo.org' for x in ('amd64',)],
                         [7], [], False),
-             7: BugInfo(BugCategory.STABLEREQ, False,
+             7: makebug(BugCategory.STABLEREQ, False,
                         'dev-python/pytest-5.4.1\r\n',
                         [],
                         [], [3], None)
@@ -338,13 +358,13 @@ class BugzillaTests(BugzillaTestCase):
         """Test finding bugs by CC."""
         self.assertEqual(
             self.bz.find_bugs(cc=['hppa@gentoo.org']),
-            {2: BugInfo(BugCategory.KEYWORDREQ, False,
+            {2: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/unittest-mixins-1.6\r\n'
                         'dev-python/coverage-4.5.4\r\n',
                         [f'{x}@gentoo.org' for x in ('alpha',
                                                      'hppa')],
                         [1], [], True),
-             4: BugInfo(BugCategory.KEYWORDREQ, False,
+             4: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/urllib3-1.25.8\r\n'
                         'dev-python/trustme-0.6.0\r\n'
                         'dev-python/brotlipy-0.7.0\r\n',
@@ -357,7 +377,7 @@ class BugzillaTests(BugzillaTestCase):
         """Test finding bugs that are flagged sanity-check+."""
         self.assertEqual(
             self.bz.find_bugs(sanity_check=[True]),
-            {2: BugInfo(BugCategory.KEYWORDREQ, False,
+            {2: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/unittest-mixins-1.6\r\n'
                         'dev-python/coverage-4.5.4\r\n',
                         [f'{x}@gentoo.org' for x in ('alpha',
@@ -370,7 +390,7 @@ class BugzillaTests(BugzillaTestCase):
         """Test finding bugs that are flagged sanity-check-."""
         self.assertEqual(
             self.bz.find_bugs(sanity_check=[False]),
-            {3: BugInfo(BugCategory.STABLEREQ, False,
+            {3: makebug(BugCategory.STABLEREQ, False,
                         'dev-python/mako-1.1.0 amd64\r\n',
                         [f'{x}@gentoo.org' for x in ('amd64',)],
                         [7], [], False),
@@ -381,13 +401,13 @@ class BugzillaTests(BugzillaTestCase):
         """Test finding bugs that are flagged sanity-check+ or -."""
         self.assertEqual(
             self.bz.find_bugs(sanity_check=[True, False]),
-            {2: BugInfo(BugCategory.KEYWORDREQ, False,
+            {2: makebug(BugCategory.KEYWORDREQ, False,
                         'dev-python/unittest-mixins-1.6\r\n'
                         'dev-python/coverage-4.5.4\r\n',
                         [f'{x}@gentoo.org' for x in ('alpha',
                                                      'hppa')],
                         [1], [], True),
-             3: BugInfo(BugCategory.STABLEREQ, False,
+             3: makebug(BugCategory.STABLEREQ, False,
                         'dev-python/mako-1.1.0 amd64\r\n',
                         [f'{x}@gentoo.org' for x in ('amd64',)],
                         [7], [], False),
@@ -428,21 +448,21 @@ class BugzillaTests(BugzillaTestCase):
             None)
 
 
-class BugInfoCombinerTest(unittest.TestCase):
+class makebugCombinerTest(unittest.TestCase):
     def test_combine_bugs(self):
         """ Test combining linked bugs. """
         self.assertEqual(
             get_combined_buginfo(
-                {1: BugInfo(BugCategory.STABLEREQ, False,
+                {1: makebug(BugCategory.STABLEREQ, False,
                             'test/foo-1 amd64 x86\r\n',
                             ['amd64@gentoo.org', 'x86@gentoo.org'],
                             [2], [], True),
-                 2: BugInfo(BugCategory.STABLEREQ, False,
+                 2: makebug(BugCategory.STABLEREQ, False,
                             'test/bar-2 x86\r\n',
                             ['x86@gentoo.org'],
                             [], [1], True)
                  }, 1),
-            BugInfo(BugCategory.STABLEREQ, False,
+            makebug(BugCategory.STABLEREQ, False,
                     'test/foo-1 amd64 x86\r\n'
                     'test/bar-2 x86\r\n',
                     ['amd64@gentoo.org', 'x86@gentoo.org'], [], [],
@@ -452,16 +472,16 @@ class BugInfoCombinerTest(unittest.TestCase):
         """ Test combining stabilization blocked by a regular bug. """
         self.assertEqual(
             get_combined_buginfo(
-                {1: BugInfo(BugCategory.STABLEREQ, False,
+                {1: makebug(BugCategory.STABLEREQ, False,
                             'test/foo-1 amd64 x86\r\n',
                             ['amd64@gentoo.org', 'x86@gentoo.org'],
                             [2, 3], [], True),
-                 2: BugInfo(BugCategory.STABLEREQ, False,
+                 2: makebug(BugCategory.STABLEREQ, False,
                             'test/bar-2 x86\r\n',
                             ['x86@gentoo.org'],
                             [3, 4], [1], True)
                  }, 1),
-            BugInfo(BugCategory.STABLEREQ, False,
+            makebug(BugCategory.STABLEREQ, False,
                     'test/foo-1 amd64 x86\r\n'
                     'test/bar-2 x86\r\n',
                     ['amd64@gentoo.org', 'x86@gentoo.org'], [3, 4], [],
@@ -471,16 +491,16 @@ class BugInfoCombinerTest(unittest.TestCase):
         """ Test combining keywordreq & stablereq. """
         self.assertEqual(
             get_combined_buginfo(
-                {1: BugInfo(BugCategory.STABLEREQ, True,
+                {1: makebug(BugCategory.STABLEREQ, True,
                             'test/foo-1 amd64 x86\r\n',
                             ['amd64@gentoo.org', 'x86@gentoo.org'],
                             [2], [], True),
-                 2: BugInfo(BugCategory.KEYWORDREQ, False,
+                 2: makebug(BugCategory.KEYWORDREQ, False,
                             'test/foo-1 x86\r\n',
                             ['x86@gentoo.org'],
                             [], [1], True)
                  }, 1),
-            BugInfo(BugCategory.STABLEREQ, True,
+            makebug(BugCategory.STABLEREQ, True,
                     'test/foo-1 amd64 x86\r\n',
                     ['amd64@gentoo.org', 'x86@gentoo.org'], [2], [],
                     True))
@@ -492,14 +512,14 @@ class KeywordFillerTest(unittest.TestCase):
 
         self.assertEqual(
             update_keywords_from_cc(
-                BugInfo(BugCategory.STABLEREQ, False,
+                makebug(BugCategory.STABLEREQ, False,
                         'test/foo-1 x86\r\n'
                         'test/bar-2\r\n'
                         'test/bar-3 \r\n',
                         ['amd64@gentoo.org', 'x86@gentoo.org'], [], [],
                         None),
                 ['amd64', 'arm64', 'x86']),
-            BugInfo(BugCategory.STABLEREQ, False,
+            makebug(BugCategory.STABLEREQ, False,
                     'test/foo-1 x86\r\n'
                     'test/bar-2 amd64 x86\r\n'
                     'test/bar-3 amd64 x86\r\n',
@@ -511,14 +531,14 @@ class KeywordFillerTest(unittest.TestCase):
 
         self.assertEqual(
             update_keywords_from_cc(
-                BugInfo(BugCategory.STABLEREQ, False,
+                makebug(BugCategory.STABLEREQ, False,
                         'test/foo-1 amd64 x86 arm\r\n'
                         'test/bar-2 amd64 x86\r\n'
                         'test/bar-3 arm\r\n',
                         ['amd64@gentoo.org', 'x86@gentoo.org'], [], [],
                         None),
                 ['amd64', 'arm64', 'x86']),
-            BugInfo(BugCategory.STABLEREQ, False,
+            makebug(BugCategory.STABLEREQ, False,
                     'test/foo-1 amd64 x86\r\n'
                     'test/bar-2 amd64 x86\r\n',
                     ['amd64@gentoo.org', 'x86@gentoo.org'], [], [],
@@ -532,14 +552,14 @@ class KeywordFillerTest(unittest.TestCase):
 
         self.assertEqual(
             update_keywords_from_cc(
-                BugInfo(BugCategory.STABLEREQ, False,
+                makebug(BugCategory.STABLEREQ, False,
                         'test/foo-1 amd64 x86 arm\r\n'
                         'test/bar-2 amd64 x86\r\n'
                         'test/bar-3\r\n',
                         [], [], [],
                         None),
                 ['amd64', 'arm64', 'x86']),
-            BugInfo(BugCategory.STABLEREQ, False,
+            makebug(BugCategory.STABLEREQ, False,
                     'test/foo-1 amd64 x86 arm\r\n'
                     'test/bar-2 amd64 x86\r\n'
                     'test/bar-3\r\n',
@@ -554,14 +574,14 @@ class KeywordFillerTest(unittest.TestCase):
 
         self.assertEqual(
             update_keywords_from_cc(
-                BugInfo(BugCategory.STABLEREQ, False,
+                makebug(BugCategory.STABLEREQ, False,
                         'test/foo-1 x86\r\n'
                         'test/bar-2\r\n'
                         'test/bar-3 \r\n',
                         ['amd64', 'x86'], [], [],
                         None),
                 ['amd64', 'arm64', 'x86']),
-            BugInfo(BugCategory.STABLEREQ, False,
+            makebug(BugCategory.STABLEREQ, False,
                     'test/foo-1 x86\r\n'
                     'test/bar-2 amd64 x86\r\n'
                     'test/bar-3 amd64 x86\r\n',
