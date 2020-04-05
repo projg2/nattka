@@ -73,11 +73,6 @@ TODO
 ====
 The most important tasks ahead of NATTkA are:
 
-- *Provide full replacement for getatoms tool*: getatoms tool is used
-  to apply package lists to arch tester's system.  NATTkA needs to
-  provide its own replacement in order to extend the package list
-  format.
-
 - *Allow free-form package specification for keywording requests*:
   There is no real need to bind them to a specific package version,
   and keeping them up-to-date is cumbersome.  NATTkA needs to support
