@@ -101,6 +101,8 @@ class NattkaCommands(object):
         if arch:
             kwargs['cc'] = sorted([f'{x}@gentoo.org' for x in arch])
         bugs = bz.find_bugs(**kwargs)
+        if not self.args.no_fetch_dependencies:
+            bugs = bz.resolve_dependencies(bugs)
         for bno, b in bugs.items():
             bugs[bno] = update_keywords_from_cc(
                 b, self.get_repository().known_arches)
@@ -242,6 +244,12 @@ class NattkaCommands(object):
                 b = get_combined_buginfo(bugs, bno)
                 if b.category is None:
                     log.info(f'Bug {bno}: neither stablereq nor keywordreq')
+                    continue
+                # processing bug without its dependencies may result
+                # in issuing false positives
+                if any(dep not in bugs for dep in b.depends):
+                    log.warning(f'Bug {bno}: dependencies not fetched, '
+                                f'skipping')
                     continue
 
                 log.info(f'Bug {bno} ({b.category.name})')
@@ -404,6 +412,8 @@ def main(argv: typing.List[str]) -> int:
                       help='Filter results to STABLEREQs')
     bugg.add_argument('--security', action='store_true',
                       help='Process security bugs only')
+    bugg.add_argument('--no-fetch-dependencies', action='store_true',
+                      help='Disable fetching missing dependency bugs')
     bugg.add_argument('bug', nargs='*', type=int,
                       help='bug(s) to process (defaults to all open '
                            'keywording and stabilization bugs if not '

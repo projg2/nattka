@@ -149,6 +149,11 @@ different values for the same group of conditions are OR-ed together
 ``--stablereq`` limits it to stabilization requests.  Additionally,
 ``--security`` option can be used to limit results to security bugs.
 
+NATTkA fetches dependencies of all bugs automatically.  If this is
+undesirable, it can be disabled using ``--no-fetch-dependencies``.
+Note that bugs with unsatisfied dependencies will be skipped to avoid
+reporting false positives.
+
 
 Limiting processing
 -------------------

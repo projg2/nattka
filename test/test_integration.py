@@ -117,6 +117,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
                             '\r\n',
                             sanity_check=initial_status),
         }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
         return bugz_inst
 
     @patch('nattka.cli.add_keywords')
@@ -190,6 +192,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
                             'test/alpha-amd64-hppa-testing-2\r\n',
                             sanity_check=True),
         }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
         return bugz_inst
 
     @patch('nattka.cli.add_keywords')
@@ -231,6 +235,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
         bugz_inst.find_bugs.return_value = {
             560322: makebug(None, ''),
         }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
         return bugz_inst
 
     @patch('nattka.cli.match_package_list')
@@ -277,6 +283,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
                             'test/alpha-amd64-hppa-testing-2 amd64 hppa\r\n',
                             sanity_check=initial_status),
         }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
         return bugz_inst
 
     def post_verify(self):
@@ -326,6 +334,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
                             'test/amd64-testing-1 alpha ~hppa\r\n',
                             sanity_check=True),
         }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
             0)
@@ -598,14 +608,13 @@ class IntegrationSuccessTests(IntegrationTestCase):
         add_keywords.assert_called()
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_depend(self, bugz):
+    def test_process_depend_specified(self, bugz):
         """
-        Test for sanity-check depending on another bug.
+        Test for sanity-check depending on another bug when both bugs
+        are explicitly specified.
         """
+
         bugz_inst = bugz.return_value
-        # TODO: we hackily add dependent bug to the return value now
-        # this will probably make more sense when find_bugs()
-        # has recursive fetching support
         bugz_inst.find_bugs.return_value = {
             560311: makebug(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 ~alpha\r\n',
@@ -614,12 +623,65 @@ class IntegrationSuccessTests(IntegrationTestCase):
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             depends=[560311]),
         }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '560311', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560311, 560322])
+        bugz_inst.update_status.assert_called_with(560322, True, None)
+        self.post_verify()
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_depend(self, bugz):
+        """
+        Test for sanity-check depending on another bug being fetched
+        implicitly.
+        """
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-deps-1 ~alpha\r\n',
+                            depends=[560311]),
+        }
+        bugz_inst.resolve_dependencies.return_value = {
+            560311: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-1 ~alpha\r\n',
+                            blocks=[560322], sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value.update(
+            bugz_inst.find_bugs.return_value)
+
         self.assertEqual(
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
             0)
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.resolve_dependencies.assert_called()
         bugz_inst.update_status.assert_called_with(560322, True, None)
+        self.post_verify()
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_depend_no_fetch_deps(self, bugz):
+        """
+        Test for sanity-check depending on another bug with implicit
+        fetching disabled.
+        """
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-deps-1 ~alpha\r\n',
+                            depends=[560311]),
+        }
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '--no-fetch-dependencies',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.resolve_dependencies.assert_not_called()
+        bugz_inst.update_status.assert_not_called()
         self.post_verify()
 
 
@@ -643,6 +705,8 @@ class IntegrationFailureTests(IntegrationTestCase):
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             sanity_check=initial_status),
         }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
         return bugz_inst
 
     def post_verify(self) -> None:
@@ -819,6 +883,8 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322: makebug(BugCategory.KEYWORDREQ,
                             '<>amd64-testing-deps-1 ~alpha\r\n'),
         }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
         self.assertEqual(
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
@@ -837,6 +903,8 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322: makebug(BugCategory.KEYWORDREQ,
                             '>=test/amd64-testing-deps-1 ~alpha\r\n'),
         }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
         self.assertEqual(
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
@@ -855,6 +923,8 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322: makebug(BugCategory.KEYWORDREQ,
                             'test/enoent-7 ~alpha\r\n'),
         }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
         self.assertEqual(
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
@@ -873,6 +943,8 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322: makebug(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 amd64 ~mysuperarch\r\n'),
         }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
         self.assertEqual(
             main(self.common_args + ['process-bugs', '--update-bugs',
                                      '560322']),
@@ -899,6 +971,7 @@ class IntegrationLimiterTests(IntegrationTestCase):
 
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = bugs
+        bugz_inst.resolve_dependencies.return_value = bugs
         return bugz_inst
 
     @patch('nattka.cli.NattkaBugzilla')
