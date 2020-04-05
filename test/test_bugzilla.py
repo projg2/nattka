@@ -272,6 +272,14 @@ class BugzillaTests(BugzillaTestCase):
             self.get_bugs([2, 3]))
 
     @rec.use_cassette()
+    def test_resolve_dependencies(self):
+        """Test resolving missing dependencies recursively"""
+        bz = self.bz.find_bugs([9])
+        self.assertEqual(
+            self.bz.resolve_dependencies(bz),
+            self.get_bugs([1, 2, 9]))
+
+    @rec.use_cassette()
     def test_get_latest_comment(self):
         """ Test getting latest self-comment. """
         self.assertEqual(

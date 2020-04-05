@@ -228,6 +228,32 @@ class NattkaBugzilla(object):
             ret[b['id']] = make_bug_info(b)
         return ret
 
+    def resolve_dependencies(self,
+                             bugs: typing.Dict[int, BugInfo]
+                             ) -> typing.Dict[int, BugInfo]:
+        """
+        Return `bugs` with missing dependencies filled in.
+
+        Check dictionary `bugs` for missing dependencies, and fetch
+        them recursively.  Return a dict with all dependencies present.
+        """
+
+        while True:
+            missing: typing.Set[int] = set()
+            for bug in bugs.values():
+                missing.update(b for b in bug.depends if b not in bugs)
+            # are all dependencies satisfied?
+            if not missing:
+                return bugs
+            newbugs = self.find_bugs(missing)
+            # verify that all bugs fetch, prevent dead loop
+            assert all(x in newbugs for x in missing)
+            # copy the dictionary to avoid modifying the original
+            # (technically, this only needs to be done but no harm
+            #  in repeating)
+            bugs = dict(bugs)
+            bugs.update(newbugs)
+
     def get_latest_comment(self,
                            bugno: int,
                            username: str
