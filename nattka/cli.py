@@ -194,9 +194,11 @@ class NattkaCommands(object):
                 else:
                     print(f'# bug {bno}: no sanity check result\n')
                 continue
-            if (any(not bugs[depno].resolved for depno in b.depends)
-                    and not self.args.ignore_dependencies):
-                print(f'# bug {bno}: unresolved dependencies\n')
+            unresolved_deps = [depno for depno in b.depends
+                               if not bugs[depno].resolved]
+            if unresolved_deps and not self.args.ignore_dependencies:
+                print(f'# bug {bno}: unresolved dependency on '
+                      f'{", ".join(str(x) for x in unresolved_deps)}\n')
                 continue
 
             print(f'# bug {bno} ({b.category.name})')
