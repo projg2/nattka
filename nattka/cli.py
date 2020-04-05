@@ -5,6 +5,7 @@
 
 import argparse
 import datetime
+import fnmatch
 import json
 import logging
 import sys
@@ -81,7 +82,9 @@ class NattkaCommands(object):
                 api_url=self.args.bugzilla_endpoint)
         return self.bz
 
-    def find_bugs(self) -> typing.Dict[int, BugInfo]:
+    def find_bugs(self,
+                  arch: typing.Optional[typing.List[str]] = [],
+                  ) -> typing.Dict[int, BugInfo]:
         """
         Find/get bugs according to command-line options.  Returns
         a dictionary of bug numbers to BugInfo objects.
@@ -95,6 +98,8 @@ class NattkaCommands(object):
             kwargs['category'] = self.args.category
         if self.args.security:
             kwargs['security'] = True
+        if arch:
+            kwargs['cc'] = sorted([f'{x}@gentoo.org' for x in arch])
         bugs = bz.find_bugs(**kwargs)
         for bno, b in bugs.items():
             bugs[bno] = update_keywords_from_cc(
@@ -144,7 +149,20 @@ class NattkaCommands(object):
 
     def apply(self) -> int:
         repo = self.get_repository()
-        for bno, b in self.find_bugs().items():
+        if self.args.arch:
+            arch = []
+            for a in self.args.arch:
+                m = fnmatch.filter(repo.known_arches, a)
+                if not m:
+                    log.critical(
+                        f'{a!r} does not match any known arches')
+                    raise SystemExit(1)
+                arch.extend(m)
+        else:
+            arch = [self.domain.arch]
+            assert arch[0] in repo.known_arches
+
+        for bno, b in self.find_bugs(arch=arch).items():
             if b.category is None:
                 print(f'# bug {bno}: neither stablereq nor keywordreq\n')
                 continue
@@ -160,7 +178,13 @@ class NattkaCommands(object):
 
             print(f'# bug {bno} ({b.category.name})')
             prefix = '~' if b.category == BugCategory.KEYWORDREQ else ''
-            for p, keywords in plist.items():
+            for p, keywords in list(plist.items()):
+                keywords = [k for k in keywords if k in arch]
+                if not keywords:
+                    del plist[p]
+                    continue
+
+                plist[p] = keywords
                 print(f'={p.cpvstr} {" ".join(prefix + k for k in keywords)}')
             print()
             if not self.args.no_update:
@@ -382,6 +406,10 @@ def main(argv: typing.List[str]) -> int:
                            parents=[bugp],
                            help='keyword/stabilize packages according '
                                 'to a bug and print their list')
+    appp.add_argument('-a', '--arch', action='append',
+                      help='Process specified arch (default: current '
+                           'according to pkgcore config, accepts '
+                           'fnmatch-style wildcards)')
     appp.add_argument('-n', '--no-update', action='store_true',
                       help='Do not update KEYWORDS in packages, only '
                            'output the list')

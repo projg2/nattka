@@ -127,9 +127,11 @@ class IntegrationNoActionTests(IntegrationTestCase):
         """
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
-            main(self.common_args + ['apply', '560322']),
+            main(self.common_args + ['apply', '-a', '*', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
         add_keywords.assert_not_called()
 
     @patch('nattka.cli.add_keywords')
@@ -197,9 +199,11 @@ class IntegrationNoActionTests(IntegrationTestCase):
         """
         bugz_inst = self.empty_keywords_preset(bugz)
         self.assertEqual(
-            main(self.common_args + ['apply', '560322']),
+            main(self.common_args + ['apply', '-a', '*', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
         add_keywords.assert_not_called()
 
     @patch('nattka.cli.add_keywords')
@@ -236,9 +240,11 @@ class IntegrationNoActionTests(IntegrationTestCase):
         """ Test bug in wrong category, with 'apply'. """
         bugz_inst = self.wrong_category_preset(bugz)
         self.assertEqual(
-            main(self.common_args + ['apply', '560322']),
+            main(self.common_args + ['apply', '-a', '*', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
         match_package_list.assert_not_called()
 
     @patch('nattka.cli.match_package_list')
@@ -292,9 +298,11 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """Test apply with STABLEREQ."""
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
-            main(self.common_args + ['apply', '560322']),
+            main(self.common_args + ['apply', '-a', '*', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -320,9 +328,11 @@ class IntegrationSuccessTests(IntegrationTestCase):
                             [], [], [], True),
         }
         self.assertEqual(
-            main(self.common_args + ['apply', '560322']),
+            main(self.common_args + ['apply', '-a', '*', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -339,9 +349,11 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """Test apply with '-n' option."""
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
-            main(self.common_args + ['apply', '-n', '560322']),
+            main(self.common_args + ['apply', '-a', '*', '-n', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -355,6 +367,55 @@ class IntegrationSuccessTests(IntegrationTestCase):
             '''# bug 560322 (STABLEREQ)
 =test/amd64-testing-1 amd64
 =test/alpha-amd64-hppa-testing-2 amd64 hppa''')
+
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_apply_filter_arch(self, bugz, sout):
+        """Test apply with arch filtering."""
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', 'amd64', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['amd64@gentoo.org'])
+
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-1').keywords,
+            ('amd64',))
+        self.assertEqual(
+            self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
+            ('~alpha', 'amd64', '~hppa'))
+
+        self.assertEqual(
+            sout.getvalue().strip(),
+            '''# bug 560322 (STABLEREQ)
+=test/amd64-testing-1 amd64
+=test/alpha-amd64-hppa-testing-2 amd64''')
+
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_apply_filter_host_arch(self, bugz, sout):
+        """Test apply with host arch filtering."""
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['apply', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['hppa@gentoo.org'])
+
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-1').keywords,
+            ('~amd64',))
+        self.assertEqual(
+            self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
+            ('~alpha', '~amd64', 'hppa'))
+
+        self.assertEqual(
+            sout.getvalue().strip(),
+            '''# bug 560322 (STABLEREQ)
+=test/alpha-amd64-hppa-testing-2 hppa''')
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_success_n(self, bugz):

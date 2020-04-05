@@ -83,6 +83,12 @@ The ``apply`` command is used to apply keywords from a keywording
 or stabilization bug to the local checkout, and print the list for
 arch tester's use.
 
+NATTkA works for the system arch (as defined by the pkgcore/Portage
+config) by default.  To work for another arch, pass it via ``-a``
+(``--arch``) option.  The option can be repeated and wildcards can
+be used to specify multiple targets, in particular ``*`` enables
+all known arches.
+
 If you do not wish for NATTkA to apply keywords locally, and just print
 the list for you, pass ``-n`` (``--no-update``).
 
