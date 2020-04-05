@@ -84,10 +84,13 @@ class NattkaCommands(object):
 
     def find_bugs(self,
                   arch: typing.Optional[typing.List[str]] = [],
-                  ) -> typing.Dict[int, BugInfo]:
+                  ) -> typing.Tuple[typing.List[int],
+                                    typing.Dict[int, BugInfo]]:
         """
-        Find/get bugs according to command-line options.  Returns
-        a dictionary of bug numbers to BugInfo objects.
+        Find/get bugs according to command-line options
+
+        Return a tuple of (bug numbers, dictionary of bug numbers
+        to BugInfo objects).
         """
 
         bz = self.get_bugzilla()
@@ -101,12 +104,13 @@ class NattkaCommands(object):
         if arch:
             kwargs['cc'] = sorted([f'{x}@gentoo.org' for x in arch])
         bugs = bz.find_bugs(**kwargs)
+        bugnos = list(bugs)
         if not self.args.no_fetch_dependencies:
             bugs = bz.resolve_dependencies(bugs)
         for bno, b in bugs.items():
             bugs[bno] = update_keywords_from_cc(
                 b, self.get_repository().known_arches)
-        return bugs
+        return bugnos, bugs
 
     def get_repository(self) -> UnconfiguredTree:
         """
@@ -164,7 +168,9 @@ class NattkaCommands(object):
             arch = [self.domain.arch]
             assert arch[0] in repo.known_arches
 
-        for bno, b in self.find_bugs(arch=arch).items():
+        bugnos, bugs = self.find_bugs(arch=arch)
+        for bno in bugnos:
+            b = bugs[bno]
             if b.category is None:
                 print(f'# bug {bno}: neither stablereq nor keywordreq\n')
                 continue
@@ -219,7 +225,7 @@ class NattkaCommands(object):
 
         bz = self.get_bugzilla(require_api_key=self.args.update_bugs)
         username = bz.whoami()
-        bugs = self.find_bugs()
+        bugnos, bugs = self.find_bugs()
         log.info(f'Found {len(bugs)} bugs')
         bugs_done = 0
         end_time = None
@@ -230,7 +236,7 @@ class NattkaCommands(object):
 
         try:
             # start with the newest bugs
-            for bno in reversed(sorted(bugs)):
+            for bno in reversed(sorted(bugnos)):
                 if bugs_done > 0 and bugs_done % 10 == 0:
                     log.info(f'Tested {bugs_done} bugs so far')
                 if self.args.bug_limit and bugs_done >= self.args.bug_limit:
