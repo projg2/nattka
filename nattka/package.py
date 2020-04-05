@@ -13,6 +13,7 @@ __import__('pkgcheck.checks')
 from pkgcheck.reporters import PickleStream
 from pkgcheck.results import Result
 
+import pkgcore.ebuild.domain
 import pkgcore.ebuild.ebuild_src
 from pkgcore.config import load_config
 from pkgcore.ebuild.atom import atom
@@ -20,6 +21,11 @@ from pkgcore.ebuild.errors import MalformedAtom
 from pkgcore.ebuild.repository import UnconfiguredTree
 
 from nattka.keyword import update_keywords_in_file
+
+
+class RepoTuple(typing.NamedTuple):
+    domain: pkgcore.ebuild.domain.domain
+    repo: UnconfiguredTree
 
 
 class PackageKeywords(typing.NamedTuple):
@@ -51,15 +57,18 @@ class PackageInvalid(Exception):
 
 def find_repository(path: str,
                     conf_path: typing.Optional[str] = None
-                    ) -> UnconfiguredTree:
+                    ) -> RepoTuple:
     """
-    Find an ebuild repository in specified @path, and return initiated
-    repo object for it.  If @conf_path is specified, it overrides
-    config location.
+    Find an ebuild repository in specified `path`.
+
+    Find an ebuild repository in specified `path`, and return initiated
+    a tuple of (domain, repo object).  If `conf_path` is specified,
+    it overrides config location.
     """
     c = load_config(location=conf_path)
     domain = c.get_default('domain')
-    return domain.find_repo(path, config=c, configure=False)
+    return RepoTuple(domain,
+                     domain.find_repo(path, config=c, configure=False))
 
 
 def match_package_list(repo: UnconfiguredTree,

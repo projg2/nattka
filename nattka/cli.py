@@ -107,8 +107,8 @@ class NattkaCommands(object):
         """
 
         if self.repo is None:
-            self.repo = find_repository(self.args.repo,
-                                        self.args.portage_conf)
+            self.domain, self.repo = find_repository(
+                self.args.repo, self.args.portage_conf)
             if self.repo is None:
                 log.critical(
                     f'Ebuild repository not found in {self.args.repo}')
