@@ -1,1 +1,1 @@
-../data/profiles/amd64
+../data/profiles/hppa

@@ -21,12 +21,19 @@ from nattka.package import (match_package_list, add_keywords,
 def get_test_repo(path: Path = Path(__file__).parent):
     conf_path = path / 'conf'
     data_path = path / 'data'
-    return find_repository(str(data_path), str(conf_path)).repo
+    return find_repository(str(data_path), str(conf_path))
+
+
+class FindRepositoryTests(unittest.TestCase):
+    def test_arch(self):
+        """Test whether arch is correctly determined."""
+        domain, _ = get_test_repo()
+        self.assertEqual(domain.arch, 'hppa')
 
 
 class BaseRepoTestCase(unittest.TestCase):
     def setUp(self):
-        self.repo = get_test_repo()
+        self.repo = get_test_repo().repo
 
     def get_package(self, spec):
         pkg = self.repo.match(atom(spec))

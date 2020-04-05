@@ -44,7 +44,7 @@ class IntegrationTestCase(unittest.TestCase):
                             tempdir_path / subdir,
                             symlinks=True)
 
-        self.repo = get_test_repo(tempdir_path)
+        self.repo = get_test_repo(tempdir_path).repo
 
         self.common_args = [
             # we do not need an API key since we mock NattkaBugzilla
