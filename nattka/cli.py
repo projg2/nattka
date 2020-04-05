@@ -111,7 +111,7 @@ class NattkaCommands(object):
                                         self.args.portage_conf)
             if self.repo is None:
                 log.critical(
-                    'Ebuild repository not found in {self.args.repo}')
+                    f'Ebuild repository not found in {self.args.repo}')
                 log.critical(
                     'Please run from inside the ebuild repository or '
                     'pass correct --repo')
