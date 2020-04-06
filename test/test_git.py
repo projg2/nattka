@@ -70,7 +70,7 @@ class GitTests(unittest.TestCase):
 
         assert (subprocess.Popen(['git', 'add', 'file'], cwd=td)
                           .wait() == 0)
-        git_commit(td, 'test commit', ['file'])
+        self.assertNotEqual(git_commit(td, 'test commit', ['file']), '')
         s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%s',
                               '--name-only', '-1'],
                              cwd=td,
