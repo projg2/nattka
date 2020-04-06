@@ -7,8 +7,44 @@ import tempfile
 import unittest
 
 from pathlib import Path
+from unittest.mock import patch
 
-from nattka.keyword import update_keywords, update_keywords_in_file
+from nattka.keyword import (update_copyright, update_keywords,
+                            update_keywords_in_file)
+
+
+class UpdateCopyrightTests(unittest.TestCase):
+    """Tests for update_copyright() function."""
+
+    def test_not_a_copyright(self):
+        self.assertEqual(
+            update_copyright('foo bar baz', 2015),
+            'foo bar baz')
+
+    def test_up_to_date_single(self):
+        self.assertEqual(
+            update_copyright('# Copyright 2015 Gentoo Authors', 2015),
+            '# Copyright 2015 Gentoo Authors')
+
+    def test_up_to_date_range(self):
+        self.assertEqual(
+            update_copyright('# Copyright 1999-2015 Gentoo Authors', 2015),
+            '# Copyright 1999-2015 Gentoo Authors')
+
+    def test_old_single(self):
+        self.assertEqual(
+            update_copyright('# Copyright 2012 Gentoo Authors', 2015),
+            '# Copyright 2012-2015 Gentoo Authors')
+
+    def test_old_range(self):
+        self.assertEqual(
+            update_copyright('# Copyright 1999-2012 Gentoo Authors', 2015),
+            '# Copyright 1999-2015 Gentoo Authors')
+
+    def test_old_owner(self):
+        self.assertEqual(
+            update_copyright('# Copyright 1999-2015 Gentoo Foundation', 2015),
+            '# Copyright 1999-2015 Gentoo Authors')
 
 
 class UpdateKeywordsTests(unittest.TestCase):
@@ -103,9 +139,13 @@ class UpdateKeywordsTests(unittest.TestCase):
             ['~alpha', 'arm', 'arm64', 'hppa', 'sparc', 'x86'])
 
 
+@patch('nattka.keyword.update_copyright',
+       lambda l: update_copyright(l, 2015))
 class UpdateKeywordsInFileTests(unittest.TestCase):
     """ Tests for update_keywords_in_file() function. """
 
+    copyright = '# Copyright 1999-2012 Gentoo Foundation'
+    new_copyright = '# Copyright 1999-2015 Gentoo Authors'
     ebuild_header = '''# Fancy Gentoo ebuild
 # with some comment on top
 
@@ -142,7 +182,7 @@ src_configure() {
         """
         fn = Path(self.tempdir.name) / 'test-1.ebuild'
         with open(fn, 'w') as f:
-            f.write(f'''
+            f.write(f'''{self.copyright}
 {self.ebuild_header}
 {keywords_line}
 {self.ebuild_footer}''')
@@ -156,7 +196,7 @@ src_configure() {
         """
         with open(fn, 'r') as f:
             data = f.read()
-        self.assertEqual(data, f'''
+        self.assertEqual(data, f'''{self.new_copyright}
 {self.ebuild_header}
 {keywords_line}
 {self.ebuild_footer}''')

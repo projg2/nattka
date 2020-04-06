@@ -3,6 +3,7 @@
 
 """ Minimal keyword mangling routines. """
 
+import datetime
 import re
 import typing
 
@@ -10,6 +11,11 @@ from pathlib import Path
 
 from snakeoil.fileutils import AtomicWriteFile
 
+
+COPYRIGHT_RE = re.compile(
+    r'^(?P<pre>.*\bCopyright )(?P<year1>(?:[0-9]{4}-)?)(?P<year2>[0-9]{4})'
+    r'(?P<owner> Gentoo (?:Foundation|Authors)\b)(?P<post>.*)$',
+    re.DOTALL)
 
 KEYWORDS_RE = re.compile(
     r'^(?P<pre>[^#]*\bKEYWORDS=(?P<quote>[\'"]?))'
@@ -27,6 +33,26 @@ def keyword_sort_key(kw: str
     Return the keyword sorting key, i.e. sort by os, then arch name.
     """
     return tuple(reversed(kw.lstrip('-~').partition('-')))
+
+
+def update_copyright(copyright_line: str,
+                     target_year: int = datetime.datetime.utcnow().year,
+                     ) -> str:
+    """
+    Update copyright date and owner in `copyright_line`.
+    """
+
+    m = COPYRIGHT_RE.match(copyright_line)
+    if m is not None:
+        pre, y1, y2, owner, post = m.groups()
+        year = str(target_year)
+        if not y1 and y2 != year:
+            y1 = y2 + '-'
+        y2 = year
+        if owner == ' Gentoo Foundation':
+            owner = ' Gentoo Authors'
+        copyright_line = ''.join((pre, y1, y2, owner, post))
+    return copyright_line
 
 
 def update_keywords(keywords: typing.List[str],
@@ -90,6 +116,9 @@ def update_keywords_in_file(path: Path,
             new_kw = f'"{new_kw}"'
         data[i] = f'{m.group("pre")}{new_kw}{m.group("post")}\n'
         break
+
+    # update copyright if necessary
+    data[0] = update_copyright(data[0])
 
     with AtomicWriteFile(path) as f:
         f.writelines(data)
