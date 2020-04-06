@@ -10,7 +10,7 @@ import unittest
 
 from pathlib import Path
 
-from nattka.git import (git_get_toplevel, git_is_dirty,
+from nattka.git import (git_get_toplevel, git_is_dirty, git_commit,
                         git_reset_changes, GitDirtyWorkTree,
                         GitWorkTree)
 
@@ -53,6 +53,57 @@ class GitTests(unittest.TestCase):
         assert (subprocess.Popen(['git', 'add', 'file'], cwd=td)
                           .wait() == 0)
         self.assertFalse(git_is_dirty(td))
+
+    def test_git_commit(self):
+        """Test whether we commit correctly"""
+        td = Path(self.tempdir.name)
+        assert subprocess.Popen(['git', 'init'], cwd=td).wait() == 0
+        assert subprocess.Popen(
+            ['git', 'config', '--local', 'user.name', 'test'],
+            cwd=td).wait() == 0
+        assert subprocess.Popen(
+            ['git', 'config', '--local', 'user.email', 'test@example.com'],
+            cwd=td).wait() == 0
+        with open(td / 'file', 'w') as f:
+            f.write('test\n')
+            f.flush()
+
+        assert (subprocess.Popen(['git', 'add', 'file'], cwd=td)
+                          .wait() == 0)
+        git_commit(td, 'test commit', ['file'])
+        s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%s',
+                              '--name-only', '-1'],
+                             cwd=td,
+                             stdout=subprocess.PIPE)
+        sout, _ = s.communicate()
+        self.assertEqual(sout.decode(),
+                         '''test
+test@example.com
+test commit
+
+file
+''')
+
+    def test_git_commit_no_changes(self):
+        """Test whether we fail commit on no changes"""
+        td = Path(self.tempdir.name)
+        assert subprocess.Popen(['git', 'init'], cwd=td).wait() == 0
+        assert subprocess.Popen(
+            ['git', 'config', '--local', 'user.name', 'test'],
+            cwd=td).wait() == 0
+        assert subprocess.Popen(
+            ['git', 'config', '--local', 'user.email', 'test@example.com'],
+            cwd=td).wait() == 0
+        with open(td / 'file', 'w') as f:
+            f.write('test\n')
+            f.flush()
+
+        assert (subprocess.Popen(['git', 'add', 'file'], cwd=td)
+                          .wait() == 0)
+        git_commit(td, 'test commit', ['file'])
+        self.assertRaises(
+            RuntimeError,
+            git_commit, td, 'second attempted commit', ['file'])
 
     def test_git_reset_changes(self):
         """ Test whether we reset changes correctly. """

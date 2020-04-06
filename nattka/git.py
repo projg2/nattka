@@ -43,6 +43,29 @@ def git_is_dirty(repo_path: Path
     return sp.wait() != 0
 
 
+def git_commit(repo_path: Path,
+               commit_message: str,
+               files: typing.Iterable[str] = []
+               ) -> None:
+    """
+    Commit specified changes in the git repository
+
+    Commit changes in the repository found in directory `repo_path`,
+    using `commit_message`.  `files` specify the list of files
+    (relative to top directory of git checkout) to commit; if empty,
+    all changed files are committed.
+    """
+
+    sp = subprocess.Popen(['git', 'commit', '-q', '-m', commit_message]
+                          + list(files),
+                          cwd=git_get_toplevel(repo_path),
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE)
+    sout, serr = sp.communicate()
+    if sp.wait() != 0:
+        raise RuntimeError(f'git commit failed: {serr.decode()}')
+
+
 def git_reset_changes(repo_path: Path
                       ) -> None:
     """
