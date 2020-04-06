@@ -126,6 +126,28 @@ is to process and commit the dependencies first, and rerun the ``apply``
 command once the blocking bug is marked fixed.
 
 
+Output
+------
+The ``apply`` command output is suitable for copying straight into
+the ``package.accept_keywords`` file.  Additional information such as
+bug numbers, issues and target keywords for keyword requests are output
+as comments.
+
+Example output::
+
+    # bug 701300 (KEYWORDREQ)
+    =app-admin/mongo-tools-4.2.2 **  # -> ~arm64
+    =dev-python/cheetah3-3.2.3 **  # -> ~arm64
+    =dev-db/mongodb-4.2.2 **  # -> ~arm64
+
+    # bug 700918: sanity check failed
+
+    # bug 700806 (STABLEREQ)
+    =net-mail/mailutils-3.8 ~arm64
+
+    # bug 699838: unresolved dependency on 706146, 706442
+
+
 process-bugs command
 ====================
 

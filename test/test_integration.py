@@ -321,8 +321,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.assertEqual(
             sout.getvalue().strip(),
             '''# bug 560322 (STABLEREQ)
-=test/amd64-testing-1 amd64
-=test/alpha-amd64-hppa-testing-2 amd64 hppa''')
+=test/amd64-testing-1 ~amd64
+=test/alpha-amd64-hppa-testing-2 ~amd64 ~hppa''')
 
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
@@ -350,7 +350,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.assertEqual(
             sout.getvalue().strip(),
             '''# bug 560322 (KEYWORDREQ)
-=test/amd64-testing-1 ~alpha ~hppa''')
+=test/amd64-testing-1 **  # -> ~alpha ~hppa''')
 
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
@@ -374,8 +374,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.assertEqual(
             sout.getvalue().strip(),
             '''# bug 560322 (STABLEREQ)
-=test/amd64-testing-1 amd64
-=test/alpha-amd64-hppa-testing-2 amd64 hppa''')
+=test/amd64-testing-1 ~amd64
+=test/alpha-amd64-hppa-testing-2 ~amd64 ~hppa''')
 
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
@@ -399,8 +399,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.assertEqual(
             sout.getvalue().strip(),
             '''# bug 560322 (STABLEREQ)
-=test/amd64-testing-1 amd64
-=test/alpha-amd64-hppa-testing-2 amd64''')
+=test/amd64-testing-1 ~amd64
+=test/alpha-amd64-hppa-testing-2 ~amd64''')
 
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
@@ -424,7 +424,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.assertEqual(
             sout.getvalue().strip(),
             '''# bug 560322 (STABLEREQ)
-=test/alpha-amd64-hppa-testing-2 hppa''')
+=test/alpha-amd64-hppa-testing-2 ~hppa''')
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_skip_sanity_check(self, bugz):
@@ -467,8 +467,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.assertEqual(
             sout.getvalue().strip(),
             '''# bug 560322 (STABLEREQ)
-=test/amd64-testing-1 amd64
-=test/alpha-amd64-hppa-testing-2 amd64 hppa''')
+=test/amd64-testing-1 ~amd64
+=test/alpha-amd64-hppa-testing-2 ~amd64 ~hppa''')
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_skip_dependencies(self, bugz):
@@ -536,7 +536,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.assertEqual(
             sout.getvalue().strip(),
             '''# bug 560322 (KEYWORDREQ)
-=test/amd64-testing-deps-1 ~alpha''')
+=test/amd64-testing-deps-1 **  # -> ~alpha''')
 
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
@@ -574,7 +574,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.assertEqual(
             sout.getvalue().strip(),
             '''# bug 560322 (KEYWORDREQ)
-=test/amd64-testing-deps-1 ~alpha''')
+=test/amd64-testing-deps-1 **  # -> ~alpha''')
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_success_n(self, bugz):

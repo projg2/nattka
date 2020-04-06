@@ -204,7 +204,6 @@ class NattkaCommands(object):
                 continue
 
             print(f'# bug {bno} ({b.category.name})')
-            prefix = '~' if b.category == BugCategory.KEYWORDREQ else ''
             for p, keywords in list(plist.items()):
                 keywords = [k for k in keywords if k in arch]
                 if not keywords:
@@ -212,7 +211,11 @@ class NattkaCommands(object):
                     continue
 
                 plist[p] = keywords
-                print(f'={p.cpvstr} {" ".join(prefix + k for k in keywords)}')
+                kws = ' '.join(f'~{k}' for k in keywords)
+                if b.category == BugCategory.STABLEREQ:
+                    print(f'={p.cpvstr} {kws}')
+                else:
+                    print(f'={p.cpvstr} **  # -> {kws}')
             print()
             if not self.args.no_update:
                 add_keywords(plist.items(), b.category
