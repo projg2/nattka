@@ -235,16 +235,19 @@ class NattkaCommands(object):
         cache = self.get_cache()
         cache.setdefault('bugs', {})
 
+        start_time = datetime.datetime.utcnow()
+        log.info(f'NATTkA starting at {start_time}')
+        end_time = None
+        if self.args.time_limit is not None:
+            end_time = (start_time
+                        + datetime.timedelta(seconds=self.args.time_limit))
+            log.info(f'... will process until {end_time}')
+
         bz = self.get_bugzilla(require_api_key=self.args.update_bugs)
         username = bz.whoami()
         bugnos, bugs = self.find_bugs()
         log.info(f'Found {len(bugs)} bugs')
         bugs_done = 0
-        end_time = None
-        if self.args.time_limit is not None:
-            end_time = (datetime.datetime.utcnow()
-                        + datetime.timedelta(seconds=self.args.time_limit))
-            log.info(f'Will process until {end_time}')
 
         try:
             for bno in bugnos:
@@ -387,6 +390,9 @@ class NattkaCommands(object):
                     log.info('Bug status updated')
         finally:
             self.write_cache(cache)
+            end_time = datetime.datetime.utcnow()
+            log.info(f'NATTkA exiting at {end_time}')
+            log.info(f'Total time elapsed: {end_time - start_time}')
 
         return 0
 
