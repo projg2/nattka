@@ -69,6 +69,40 @@ checkout`` to restore their original contents.
 .. _gentoo.git: https://gitweb.gentoo.org/repo/gentoo.git/
 
 
+Using NATTkA for arch testing
+=============================
+The ``nattka apply`` command is designed to help arch testers grab
+packages from keywording and stabilization requests, and apply them
+to the local repository.
+
+To process a specific bug::
+
+    nattka apply 123456...
+
+To find all bugs of specific type::
+
+    nattka apply --keywordreq
+    nattka apply --stablereq
+    nattka apply --security
+
+To run for another arch::
+
+    nattka apply -a arm64 ...
+    nattka apply -a hppa -a sparc ...
+    nattka apply -a '*' ...
+
+If you do not wish it to modify the local repository but only print
+package list with keywords::
+
+    nattka apply -n ...
+
+If you wish not to skip bugs that did not pass sanity-check or have
+unresolved dependencies::
+
+    nattka apply --ignore-sanity-check ...
+    nattka apply --ignore-dependencies ...
+
+
 Processing bugs
 ===============
 The recommended way to run NATTkA is to run it via cronjob, using
