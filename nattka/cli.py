@@ -246,7 +246,7 @@ class NattkaCommands(object):
         bz = self.get_bugzilla(require_api_key=self.args.update_bugs)
         username = bz.whoami()
         bugnos, bugs = self.find_bugs()
-        log.info(f'Found {len(bugs)} bugs')
+        log.info(f'Found {len(bugnos)} bugs')
         bugs_done = 0
 
         try:
