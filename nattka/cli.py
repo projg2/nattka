@@ -136,6 +136,22 @@ class NattkaCommands(object):
 
         return self.repo
 
+    def get_git_repository(self
+                           ) -> typing.Tuple[UnconfiguredTree, GitWorkTree]:
+        """
+        Initialize and return a git ebuild repository
+
+        Returns a tuple of (ebuild repository, git repository) objects.
+        """
+
+        repo = self.get_repository()
+        git_repo = GitWorkTree(repo.location)
+        if git_repo.path != Path(repo.location):
+            log.critical(
+                f'{repo.location} does not seem to be a git repository')
+            raise SystemExit(1)
+        return repo, git_repo
+
     def get_cache(self) -> dict:
         """
         Read cache file if specified.  Returns a deserialized cache
@@ -224,12 +240,7 @@ class NattkaCommands(object):
         return 0
 
     def process_bugs(self) -> int:
-        repo = self.get_repository()
-        git_repo = GitWorkTree(repo.location)
-        if git_repo.path != Path(repo.location):
-            log.critical(
-                f'{repo.location} does not seem to be a git repository')
-            raise SystemExit(1)
+        repo, git_repo = self.get_git_repository()
 
         if not self.args.update_bugs:
             log.warning(f'Running in pretend mode.')
