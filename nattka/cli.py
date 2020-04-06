@@ -420,9 +420,9 @@ def main(argv: typing.List[str]) -> int:
     logg = argp.add_argument_group('logging')
     logg = logg.add_mutually_exclusive_group()
     logg.add_argument('-q', '--quiet', action='store_true',
-                      help='Disable logging')
+                      help='disable logging')
     logg.add_argument('--log-file',
-                      help='Log to specified file')
+                      help='log to specified file')
 
     bugg = argp.add_argument_group('Bugzilla configuration')
     bugg.add_argument('--api-key',
@@ -443,14 +443,14 @@ def main(argv: typing.List[str]) -> int:
     bugg = bugp.add_argument_group('bug selection')
     bugg.add_argument('--keywordreq', dest='category',
                       action='append_const', const=BugCategory.KEYWORDREQ,
-                      help='Filter results to KEYWORDREQs')
+                      help='filter results to KEYWORDREQs')
     bugg.add_argument('--stablereq', dest='category',
                       action='append_const', const=BugCategory.STABLEREQ,
-                      help='Filter results to STABLEREQs')
+                      help='filter results to STABLEREQs')
     bugg.add_argument('--security', action='store_true',
-                      help='Process security bugs only')
+                      help='process security bugs only')
     bugg.add_argument('--no-fetch-dependencies', action='store_true',
-                      help='Disable fetching missing dependency bugs')
+                      help='disable fetching missing dependency bugs')
     bugg.add_argument('bug', nargs='*', type=int,
                       help='bug(s) to process (defaults to all open '
                            'keywording and stabilization bugs if not '
@@ -461,7 +461,7 @@ def main(argv: typing.List[str]) -> int:
                            help='keyword/stabilize packages according '
                                 'to a bug and print their list')
     appp.add_argument('-a', '--arch', action='append',
-                      help='Process specified arch (default: current '
+                      help='process specified arch (default: current '
                            'according to pkgcore config, accepts '
                            'fnmatch-style wildcards)')
     appp.add_argument('--ignore-dependencies', action='store_true',
@@ -471,7 +471,7 @@ def main(argv: typing.List[str]) -> int:
                       help='do not skip bugs that are not marked '
                            'as passing sanity-check')
     appp.add_argument('-n', '--no-update', action='store_true',
-                      help='Do not update KEYWORDS in packages, only '
+                      help='do not update KEYWORDS in packages, only '
                            'output the list')
 
     prop = subp.add_parser('process-bugs',
