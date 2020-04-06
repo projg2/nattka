@@ -378,8 +378,8 @@ class NattkaCommands(object):
                     # do not add a second identical comment
                     if (old_comment is not None
                             and comment.strip() == old_comment.strip()):
-                        assert cache_entry is not None
-                        cache_entry['updated'] = True
+                        if cache_entry is not None:
+                            cache_entry['updated'] = True
                         log.info('Failure reported already')
                         continue
 

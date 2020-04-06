@@ -714,6 +714,21 @@ class IntegrationSuccessTests(IntegrationTestCase):
         add_keywords.assert_called()
 
     @patch('nattka.cli.NattkaBugzilla')
+    def test_process_cache_empty(self, bugz):
+        """ Test setting new success with empty cache file. """
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '--cache-file',
+                                     str(Path(self.tempdir.name)
+                                         / 'cache.json'),
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(560322, True, None)
+        self.post_verify()
+
+    @patch('nattka.cli.NattkaBugzilla')
     def test_process_depend_specified(self, bugz):
         """
         Test for sanity-check depending on another bug when both bugs
@@ -985,6 +1000,22 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_called()
 
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_process_cache_empty(self, bugz):
+        """ Test setting new failure with empty cache file. """
+        bugz_inst = self.bug_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '--cache-file',
+                                     str(Path(self.tempdir.name)
+                                         / 'cache.json'),
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, False, self.fail_msg)
+        self.post_verify()
+
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
     def test_malformed_package_list(self, bugz, add_keywords):
@@ -1004,6 +1035,36 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst.update_status.assert_called_with(
             560322, False, 'Unable to check for sanity:\n\n> invalid '
             'package spec: <>amd64-testing-deps-1')
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_malformed_package_list_cache_empty_reported(
+            self, bugz, add_keywords):
+        """
+        Regression test for reporting an exception-failure when cache
+        is used and previous comment matches
+        """
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            '<>amd64-testing-deps-1 ~alpha\r\n',
+                            sanity_check=False),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        bugz_inst.get_latest_comment.return_value = (
+            'Unable to check for sanity:\n\n> invalid package spec: '
+            '<>amd64-testing-deps-1')
+        self.assertEqual(
+            main(self.common_args + ['process-bugs', '--update-bugs',
+                                     '--cache-file',
+                                     str(Path(self.tempdir.name)
+                                         / 'cache.json'),
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        add_keywords.assert_not_called()
+        bugz_inst.update_status.assert_not_called()
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
