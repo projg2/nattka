@@ -175,7 +175,10 @@ class NattkaCommands(object):
             with AtomicWriteFile(self.args.cache_file) as f:
                 json.dump(data, f, indent=2)
 
-    def apply(self) -> int:
+    def get_arch(self) -> typing.List[str]:
+        """
+        Get list of requested architectures
+        """
         repo = self.get_repository()
         if self.args.arch:
             arch = []
@@ -189,6 +192,11 @@ class NattkaCommands(object):
         else:
             arch = [self.domain.arch]
             assert arch[0] in repo.known_arches
+        return arch
+
+    def apply(self) -> int:
+        repo = self.get_repository()
+        arch = self.get_arch()
 
         bugnos, bugs = self.find_bugs(arch=arch)
         for bno in bugnos:
