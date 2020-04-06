@@ -382,6 +382,28 @@ class makebugCombinerTest(unittest.TestCase):
                     security=True,
                     sanity_check=True))
 
+    def test_combine_bugs_resolved(self):
+        """ Test (not) combining with resolved bugs. """
+        self.assertEqual(
+            get_combined_buginfo(
+                {1: makebug(BugCategory.STABLEREQ,
+                            'test/foo-1 amd64 x86\r\n',
+                            ['amd64@gentoo.org', 'x86@gentoo.org'],
+                            depends=[2],
+                            sanity_check=True),
+                 2: makebug(BugCategory.STABLEREQ,
+                            'test/bar-2 x86\r\n',
+                            ['x86@gentoo.org'],
+                            blocks=[1],
+                            resolved=True,
+                            sanity_check=True)
+                 }, 1),
+            makebug(BugCategory.STABLEREQ,
+                    'test/foo-1 amd64 x86\r\n',
+                    ['amd64@gentoo.org', 'x86@gentoo.org'],
+                    depends=[2],
+                    sanity_check=True))
+
 
 class KeywordFillerTest(unittest.TestCase):
     def test_fill_keywords_cc(self):

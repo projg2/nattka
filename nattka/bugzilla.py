@@ -326,7 +326,8 @@ def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo],
     while i < len(combined_bugs):
         atoms += combined_bugs[i].atoms
         for b in combined_bugs[i].depends:
-            if b in bugdict and bugdict[b].category == topbug.category:
+            if (b in bugdict and not bugdict[b].resolved
+                    and bugdict[b].category == topbug.category):
                 combined_bugs.append(bugdict[b])
             else:
                 deps.add(b)
