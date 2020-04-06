@@ -248,8 +248,6 @@ class NattkaCommands(object):
 
         try:
             for bno in bugnos:
-                if bugs_done > 0 and bugs_done % 10 == 0:
-                    log.info(f'Tested {bugs_done} bugs so far')
                 if self.args.bug_limit and bugs_done >= self.args.bug_limit:
                     log.info(f'Reached limit of {self.args.bug_limit} bugs')
                     break
@@ -324,6 +322,8 @@ class NattkaCommands(object):
                             repo, plist.items())
 
                         bugs_done += 1
+                        if bugs_done > 0 and bugs_done % 10 == 0:
+                            log.info(f'Tested {bugs_done} bugs so far')
 
                         cache_entry = cache['bugs'][str(bno)] = {
                             'last-check':
