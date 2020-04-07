@@ -3,4 +3,4 @@
 
 """ A New Arch Tester Toolkit """
 
-__version__ = '0.0.6'
+__version__ = '0.0.7'
