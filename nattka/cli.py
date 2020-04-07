@@ -28,6 +28,13 @@ from nattka.package import (find_repository, match_package_list,
                             PackageNoMatch, KeywordNoMatch,
                             PackageInvalid)
 
+try:
+    from nattka.depgraph import (get_ordered_nodes,
+                                 get_depgraph_for_packages)
+    have_nattka_depgraph = True
+except ImportError:
+    have_nattka_depgraph = False
+
 
 log = logging.getLogger('nattka')
 
@@ -200,6 +207,12 @@ class NattkaCommands(object):
         repo = self.get_repository()
         arch = self.get_arch()
 
+        if not have_nattka_depgraph:
+            log.warning(
+                'Unable to import nattka.depgraph, dependency sorting '
+                'will not be available')
+            log.warning('(nattka.depgraph requires networkx)')
+
         bugnos, bugs = self.find_bugs(arch=arch)
         for bno in bugnos:
             b = bugs[bno]
@@ -229,9 +242,18 @@ class NattkaCommands(object):
                       f'{", ".join(str(x) for x in unresolved_deps)}\n')
                 continue
 
+            if have_nattka_depgraph:
+                graph = get_depgraph_for_packages(plist)
+                ordered_nodes = list(get_ordered_nodes(graph))
+                order = sorted(plist,
+                               key=lambda x: (ordered_nodes.index(x.key),
+                                              x.fullver))
+            else:
+                order = list(plist)
+
             print(f'# bug {bno} ({b.category.name})')
-            for p, keywords in list(plist.items()):
-                keywords = [k for k in keywords if k in arch]
+            for p in order:
+                keywords = [k for k in plist[p] if k in arch]
                 if not keywords:
                     del plist[p]
                     continue
