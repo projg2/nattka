@@ -6,6 +6,7 @@
 import argparse
 import datetime
 import fnmatch
+import itertools
 import json
 import logging
 import sys
@@ -15,6 +16,7 @@ from pathlib import Path
 
 from snakeoil.fileutils import AtomicWriteFile
 from pkgcore.ebuild.repository import UnconfiguredTree
+from pkgcheck.results import Result, VersionResult
 
 from nattka import __version__
 from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
@@ -287,6 +289,18 @@ class NattkaCommands(object):
 
         return ret
 
+    @staticmethod
+    def format_results(issues: typing.Iterable[Result]
+                       ) -> typing.Iterator[str]:
+        for r in issues:
+            assert isinstance(r, VersionResult)
+        for key, values in itertools.groupby(
+                issues,
+                key=lambda r: (r.category, r.package, r.version)):
+            yield f'> {key[0]}/{key[1]}-{key[2]}:'
+            for r in sorted(values):
+                yield f'>   {r.desc}'
+
     def process_bugs(self) -> int:
         repo, git_repo = self.get_git_repository()
 
@@ -412,9 +426,9 @@ class NattkaCommands(object):
                                 comment = ('All sanity-check issues '
                                            'have been resolved')
                         else:
-                            issues = sorted(str(x) for x in issues)
+                            issues = list(self.format_results(issues))
                             comment = ('Sanity check failed:\n\n'
-                                       + '\n'.join(f'> {x}' for x in issues))
+                                       + '\n'.join(issues))
                             log.info('Sanity check failed')
                 except (PackageInvalid, PackageNoMatch, KeywordNoMatch) as e:
                     log.error(e)
