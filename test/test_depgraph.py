@@ -302,3 +302,18 @@ class DepGraphCreationTests(BaseRepoTestCase):
              ('dep/g', 'dep/h', {'dep': DepType.DEPEND, 'level': 1}),
              ('dep/h', 'dep/f', {'dep': DepType.PDEPEND, 'level': 0}),
              ])
+
+    def test_partial_graph(self):
+        """Test that the graph does not include packages out of list"""
+        a = self.get_package('dep/a')
+        b = self.get_package('dep/b')
+        d = self.get_package('dep/d')
+
+        graph = get_depgraph_for_packages([a, b, d])
+        self.assertEqual(
+            sorted(graph.nodes()),
+            [f'dep/{x}' for x in 'abd'])
+        self.assertEqual(
+            sorted(graph.edges(data=True)),
+            [('dep/a', 'dep/b', {'dep': DepType.DEPEND, 'level': 0}),
+             ])

@@ -103,6 +103,8 @@ def get_depgraph_for_packages(pkgs: typing.Iterable[
         for deptype in DepType:
             deps = getattr(pkg, deptype.name.lower())
             for dep, level in traverse_dependencies(deps):
+                if dep not in graph.nodes():
+                    continue
                 existing = graph.get_edge_data(pkg.key, dep)
                 if (existing is None
                         or (deptype, level) < (existing['dep'],
