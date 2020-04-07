@@ -19,6 +19,9 @@ The following commands are supported:
 apply
    Applies keywords from specified bugs to the working tree.
 
+commit
+   Commits previously applied keyword changes to git (does not push).
+
 process-bugs
    Perform sanity checks of specified bugs — fetch keywords, apply
    them to the local checkout, run ``pkgcheck`` and update the bugs
@@ -146,6 +149,22 @@ Example output::
     =net-mail/mailutils-3.8 ~arm64
 
     # bug 699838: unresolved dependency on 706146, 706442
+
+
+commit command
+==============
+The ``commit`` command is used to commit keyword changes to the git
+repository.  It should be used after ``apply``.  It takes care of using
+the correct package list and making reasonably good commit messages.
+
+At the moment, the ``commit`` command does not autodetect which keywords
+were changed.  Instead, you need to pass the same ``--arch`` options
+as to ``apply``.
+
+Specific bug numbers must be specified as positional arguments
+to the command, e.g.::
+
+    nattka commit -a arm64 123456 123460
 
 
 process-bugs command

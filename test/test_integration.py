@@ -809,6 +809,42 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.update_status.assert_not_called()
         self.post_verify()
 
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_commit(self, bugz):
+        assert subprocess.Popen(
+            ['git', 'config', '--local', 'user.name', 'test'],
+            cwd=self.repo.location).wait() == 0
+        assert subprocess.Popen(
+            ['git', 'config', '--local', 'user.email', 'test@example.com'],
+            cwd=self.repo.location).wait() == 0
+
+        bugz_inst = self.bug_preset(bugz, initial_status=True)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', '*', '560322']),
+            0)
+        self.assertEqual(
+            main(self.common_args + ['commit', '-a', '*', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+
+        s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%s',
+                              '--name-only'],
+                             cwd=self.repo.location,
+                             stdout=subprocess.PIPE)
+        sout, _ = s.communicate()
+        self.assertEqual(sout.decode(),
+                         '''test
+test@example.com
+test/alpha-amd64-hppa-testing: Stabilize 2 amd64 hppa, #560322
+
+test/alpha-amd64-hppa-testing/alpha-amd64-hppa-testing-2.ebuild
+test
+test@example.com
+test/amd64-testing: Stabilize 1 amd64, #560322
+
+test/amd64-testing/amd64-testing-1.ebuild
+''')
+
 
 class IntegrationFailureTests(IntegrationTestCase):
     """

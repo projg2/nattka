@@ -20,7 +20,7 @@ from nattka import __version__
 from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
                              get_combined_buginfo,
                              update_keywords_from_cc)
-from nattka.git import GitWorkTree, GitDirtyWorkTree
+from nattka.git import GitWorkTree, GitDirtyWorkTree, git_commit
 from nattka.package import (find_repository, match_package_list,
                             add_keywords, check_dependencies,
                             PackageNoMatch, KeywordNoMatch,
@@ -97,9 +97,9 @@ class NattkaCommands(object):
         kwargs = {}
         if self.args.bug:
             kwargs['bugs'] = self.args.bug
-        if self.args.category:
+        if getattr(self.args, 'category', []):
             kwargs['category'] = self.args.category
-        if self.args.security:
+        if getattr(self.args, 'security', False):
             kwargs['security'] = True
         if arch:
             kwargs['cc'] = sorted([f'{x}@gentoo.org' for x in arch])
@@ -109,7 +109,7 @@ class NattkaCommands(object):
         # newest
         if not self.args.bug:
             bugnos = list(reversed(sorted(bugnos)))
-        if not self.args.no_fetch_dependencies:
+        if not getattr(self.args, 'no_fetch_dependencies', True):
             bugs = bz.resolve_dependencies(bugs)
         for bno, b in bugs.items():
             bugs[bno] = update_keywords_from_cc(
@@ -246,6 +246,46 @@ class NattkaCommands(object):
                                             == BugCategory.STABLEREQ)
 
         return 0
+
+    def commit(self) -> int:
+        repo, git_repo = self.get_git_repository()
+        arch = self.get_arch()
+
+        ret = 0
+        bugnos, bugs = self.find_bugs()
+        for bno in bugnos:
+            b = bugs[bno]
+            if b.category is None:
+                log.error(f'Bug {bno}: neither stablereq nor keywordreq')
+                ret = 1
+                continue
+
+            plist = dict(match_package_list(repo, b.atoms))
+
+            if not plist:
+                log.error(f'Bug {bno}: empty package list')
+                ret = 1
+                continue
+            if any(not x for x in plist.values()):
+                log.error(f'Bug {bno}: incomplete keywords')
+                ret = 1
+                continue
+
+            log.info(f'Bug {bno} ({b.category.name})')
+            for p, keywords in plist.items():
+                keywords = [k for k in keywords if k in arch]
+                if not keywords:
+                    continue
+
+                ebuild_path = Path(p.path).relative_to(repo.location)
+                pfx = f'{p.category}/{p.package}'
+                act = ('Stabilize' if b.category == BugCategory.STABLEREQ
+                       else 'Keyword')
+                kws = ' '.join(keywords)
+                msg = f'{pfx}: {act} {p.fullver} {kws}, #{bno}'
+                print(git_commit(git_repo.path, msg, [str(ebuild_path)]))
+
+        return ret
 
     def process_bugs(self) -> int:
         repo, git_repo = self.get_git_repository()
@@ -481,6 +521,16 @@ def main(argv: typing.List[str]) -> int:
     appp.add_argument('-n', '--no-update', action='store_true',
                       help='do not update KEYWORDS in packages, only '
                            'output the list')
+
+    comp = subp.add_parser('commit',
+                           help='commit changes in ebuilds specified '
+                                'in bugs')
+    comp.add_argument('bug', nargs='+', type=int,
+                      help='bug(s) to process')
+    comp.add_argument('-a', '--arch', action='append',
+                      help='process specified arch (default: current '
+                           'according to pkgcore config, accepts '
+                           'fnmatch-style wildcards)')
 
     prop = subp.add_parser('process-bugs',
                            parents=[bugp],

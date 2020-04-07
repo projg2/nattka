@@ -71,6 +71,9 @@ checkout`` to restore their original contents.
 
 Using NATTkA for arch testing
 =============================
+
+Applying keyword changes
+------------------------
 The ``nattka apply`` command is designed to help arch testers grab
 packages from keywording and stabilization requests, and apply them
 to the local repository.
@@ -101,6 +104,28 @@ unresolved dependencies::
 
     nattka apply --ignore-sanity-check ...
     nattka apply --ignore-dependencies ...
+
+
+Actual testing
+--------------
+NATTkA defers the task of testing packages to other tools.
+
+
+Committing
+----------
+Once packages are tested, ``commit`` command may be used to commit
+(previously applied) keyword changes::
+
+    nattka commit [-a ...] 123456
+
+Note that you need to specify bug numbers explicitly, and the same
+``-a`` value as for ``apply`` (this will be autodetected in the future).
+
+The commits are *not* pushed instantly.  You should remember to rerun
+linting tools before pushing, e.g.::
+
+    pkgcheck scan --commits
+    git push --signed
 
 
 Processing bugs
