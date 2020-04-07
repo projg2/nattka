@@ -851,10 +851,10 @@ class IntegrationFailureTests(IntegrationTestCase):
     Integration tests that fail sanity-check.
     """
 
-    fail_msg = ('Sanity check failed:\n\n> test/amd64-testing-deps-1:\n'
-                '>   nonsolvable depset(rdepend) keyword(~alpha) '
-                'stable profile (alpha) (1 total): solutions: '
-                '[ test/amd64-testing ]')
+    fail_msg = ('Sanity check failed:\n\n'
+                '> test/amd64-testing-deps-1\n'
+                '>   rdepend ~alpha stable profile alpha (1 total)\n'
+                '>     test/amd64-testing')
 
     def bug_preset(self,
                    bugz: MagicMock,

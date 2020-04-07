@@ -319,9 +319,17 @@ class NattkaCommands(object):
         for key, values in itertools.groupby(
                 issues,
                 key=lambda r: (r.category, r.package, r.version)):
-            yield f'> {key[0]}/{key[1]}-{key[2]}:'
+            yield f'> {key[0]}/{key[1]}-{key[2]}'
             for r in sorted(values):
-                yield f'>   {r.desc}'
+                profile_status = ('deprecated ' if r.profile_deprecated
+                                  else '')
+                profile_status += r.profile_status
+                num_profiles = (f' ({r.num_profiles} total)'
+                                if r.num_profiles is not None else '')
+                yield (f'>   {r.attr} {r.keyword} {profile_status} '
+                       f'profile {r.profile}{num_profiles}')
+                for d in sorted(r.deps):
+                    yield f'>     {d}'
 
     def process_bugs(self) -> int:
         repo, git_repo = self.get_git_repository()
