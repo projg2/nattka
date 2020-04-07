@@ -7,6 +7,9 @@ import enum
 import typing
 
 import networkx as nx
+import pkgcore.ebuild.atom
+import pkgcore.ebuild.ebuild_src
+import pkgcore.restrictions.restriction
 
 
 class DepType(enum.IntEnum):
@@ -64,3 +67,46 @@ def get_ordered_nodes(graph: nx.DiGraph,
         pass
 
     return nx.dfs_postorder_nodes(graph)
+
+
+def traverse_dependencies(dep: pkgcore.restrictions.restriction.base,
+                          level: int = 0
+                          ) -> typing.Iterator[typing.Tuple[str, int]]:
+    """
+    Traverse over all dependencies of the package recursively
+
+    Return an iterator over dependency package keys and levels.
+    """
+
+    for x in dep:
+        if isinstance(x, pkgcore.ebuild.atom.atom):
+            yield x.key, level
+        else:
+            for y, l in traverse_dependencies(x, level + 1):
+                yield y, l
+
+
+def get_depgraph_for_packages(pkgs: typing.Iterable[
+                              pkgcore.ebuild.ebuild_src.package]
+                              ) -> nx.DiGraph:
+    """
+    Get DiGraph for packages from `pkgs`
+    """
+
+    graph = nx.DiGraph()
+
+    # add nodes for all package keys
+    graph.add_nodes_from(x.key for x in pkgs)
+
+    # connect nodes via dependencies
+    for pkg in pkgs:
+        for deptype in DepType:
+            deps = getattr(pkg, deptype.name.lower())
+            for dep, level in traverse_dependencies(deps):
+                existing = graph.get_edge_data(pkg.key, dep)
+                if (existing is None
+                        or (deptype, level) < (existing['dep'],
+                                               existing['level'])):
+                    graph.add_edge(pkg.key, dep, dep=deptype, level=level)
+
+    return graph

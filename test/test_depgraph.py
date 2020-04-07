@@ -12,7 +12,11 @@ try:
 except ImportError:
     nx = None
 else:
-    from nattka.depgraph import DepType, CycleTuple, get_ordered_nodes
+    from nattka.depgraph import (DepType, CycleTuple, get_ordered_nodes,
+                                 traverse_dependencies,
+                                 get_depgraph_for_packages)
+
+from test.test_package import BaseRepoTestCase
 
 
 @unittest.skipIf(nx is None, 'networkx required for depgraph support')
@@ -213,3 +217,88 @@ class DepGraphOrderingTests(unittest.TestCase):
         self.assertEqual(
             cycles,
             [])
+
+
+@unittest.skipIf(nx is None, 'networkx required for depgraph support')
+class DependencyTraversalTests(BaseRepoTestCase):
+    def test_a(self):
+        pkg = self.get_package('dep/a')
+        self.assertEqual(
+            list(traverse_dependencies(pkg.rdepend)),
+            [('dep/b', 0),
+             ('dep/c', 0),
+             ])
+
+    def test_e(self):
+        pkg = self.get_package('dep/e')
+        self.assertEqual(
+            list(traverse_dependencies(pkg.rdepend)),
+            [('dep/a', 1),
+             ('dep/b', 2),
+             ('dep/c', 3),
+             ('dep/d', 3),
+             ('dep/b', 1),
+             ('dep/c', 1),
+             ])
+
+
+@unittest.skipIf(nx is None, 'networkx required for depgraph support')
+class DepGraphCreationTests(BaseRepoTestCase):
+    def test_simple(self):
+        """Test simple deptree"""
+        a = self.get_package('dep/a')
+        b = self.get_package('dep/b')
+        c = self.get_package('dep/c')
+        d = self.get_package('dep/d')
+
+        graph = get_depgraph_for_packages([a, b, c, d])
+        self.assertEqual(
+            sorted(graph.nodes()),
+            [f'dep/{x}' for x in 'abcd'])
+        self.assertEqual(
+            sorted(graph.edges(data=True)),
+            [('dep/a', 'dep/b', {'dep': DepType.DEPEND, 'level': 0}),
+             ('dep/a', 'dep/c', {'dep': DepType.RDEPEND, 'level': 0}),
+             ('dep/c', 'dep/d', {'dep': DepType.BDEPEND, 'level': 0}),
+             ])
+
+    def test_complex(self):
+        """Test more complex deptree"""
+        a = self.get_package('dep/a')
+        b = self.get_package('dep/b')
+        c = self.get_package('dep/c')
+        d = self.get_package('dep/d')
+        e = self.get_package('dep/e')
+
+        graph = get_depgraph_for_packages([a, b, c, d, e])
+        self.assertEqual(
+            sorted(graph.nodes()),
+            [f'dep/{x}' for x in 'abcde'])
+        self.assertEqual(
+            sorted(graph.edges(data=True)),
+            [('dep/a', 'dep/b', {'dep': DepType.DEPEND, 'level': 0}),
+             ('dep/a', 'dep/c', {'dep': DepType.RDEPEND, 'level': 0}),
+             ('dep/c', 'dep/d', {'dep': DepType.BDEPEND, 'level': 0}),
+             ('dep/e', 'dep/a', {'dep': DepType.RDEPEND, 'level': 1}),
+             ('dep/e', 'dep/b', {'dep': DepType.RDEPEND, 'level': 1}),
+             ('dep/e', 'dep/c', {'dep': DepType.RDEPEND, 'level': 1}),
+             ('dep/e', 'dep/d', {'dep': DepType.RDEPEND, 'level': 3}),
+             ])
+
+    def test_cyclic(self):
+        """Test cyclic dependency graphs"""
+        f = self.get_package("dep/f")
+        g = self.get_package("dep/g")
+        h = self.get_package("dep/h")
+
+        graph = get_depgraph_for_packages([f, g, h])
+        self.assertEqual(
+            sorted(graph.nodes()),
+            [f'dep/{x}' for x in 'fgh'])
+        self.assertEqual(
+            sorted(graph.edges(data=True)),
+            [('dep/f', 'dep/g', {'dep': DepType.DEPEND, 'level': 0}),
+             ('dep/g', 'dep/f', {'dep': DepType.PDEPEND, 'level': 0}),
+             ('dep/g', 'dep/h', {'dep': DepType.DEPEND, 'level': 1}),
+             ('dep/h', 'dep/f', {'dep': DepType.PDEPEND, 'level': 0}),
+             ])
