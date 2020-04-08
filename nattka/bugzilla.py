@@ -133,6 +133,7 @@ class NattkaBugzilla(object):
         ret = self.session.put(self.api_url + '/' + endpoint,
                                json=data,
                                params=params)
+        print(ret.json())
         ret.raise_for_status()
         return ret
 
@@ -303,6 +304,38 @@ class NattkaBugzilla(object):
             req['comment'] = {
                 'body': comment,
             }
+
+        resp = self._request_put(f'bug/{bugno}', data=req).json()
+        assert resp['bugs'][0]['id'] == bugno
+
+    def resolve_bug(self,
+                    bugno: int,
+                    uncc: typing.Iterable[str],
+                    comment: str,
+                    resolve: bool = False
+                    ) -> None:
+        """
+        Resolve the bug for given arches, and optionally close it
+
+        Modify the bug `bugno` unCC-ing emails from `uncc` list, leaving
+        a comment `comment` and closing the bug as FIXED if `resolve`
+        is True.
+        """
+
+        req = {
+            'ids': [bugno],
+            'cc': {
+                'remove': list(uncc),
+            },
+            'comment': {
+                'body': comment,
+            },
+        }
+        if resolve:
+            req.update({
+                'status': 'RESOLVED',
+                'resolution': 'FIXED',
+            })
 
         resp = self._request_put(f'bug/{bugno}', data=req).json()
         assert resp['bugs'][0]['id'] == bugno

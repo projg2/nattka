@@ -49,6 +49,7 @@ INSERT INTO profiles VALUES(4,'amd64@gentoo.org','cBneojLv,YOqI18zh5tbvIPF+4HMM1
 INSERT INTO profiles VALUES(5,'hppa@gentoo.org','n5cNYDsd,j3jmz7bqI42q2HfnjommYGglvYmCdAfqoxqH9JLfb3E{SHA-256}','HPPA arch team','',0,1,NULL,1,NULL);
 
 INSERT INTO user_api_keys VALUES(1,2,'xH3pICxBPtyhTrFjvuuzIaNYek9uqisCJzR9izAZ','testing',0,NULL);
+INSERT INTO user_api_keys VALUES(2,1,'dhaGUYKZOGGVRmg4k24wEXaWRHntUjIlW6eqePu1','testing',0,NULL);
 
 CREATE TABLE cf_runtime_testing_required ( id	integer PRIMARY KEY AUTOINCREMENT NOT NULL, value	varchar(64) NOT NULL COLLATE bugzilla, sortkey	integer DEFAULT 0 NOT NULL, isactive	integer DEFAULT 1 NOT NULL, visibility_value_id	integer );
 INSERT INTO cf_runtime_testing_required VALUES(1,'---',0,1,NULL);

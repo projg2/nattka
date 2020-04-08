@@ -17,7 +17,9 @@ from nattka.bugzilla import (NattkaBugzilla, BugCategory, BugInfo,
 
 API_ENDPOINT = 'http://127.0.0.1:33113/rest'
 API_KEY = 'xH3pICxBPtyhTrFjvuuzIaNYek9uqisCJzR9izAZ'
+USER_API_KEY = 'dhaGUYKZOGGVRmg4k24wEXaWRHntUjIlW6eqePu1'
 BUGZILLA_USERNAME = 'nattka' + '@gentoo.org'
+USER_BUGZILLA_USERNAME = 'test@example.com'
 
 rec = vcr.VCR(
     cassette_library_dir=str(Path(__file__).parent / 'bugzilla'),
@@ -45,19 +47,12 @@ def makebug(category: typing.Optional[BugCategory],
                    resolved)
 
 
-class BugzillaTestCase(unittest.TestCase):
-    """
-    TestCase subclass initiating Bugzilla as its 'bz' parameter.
-    """
-
+class BugzillaTests(unittest.TestCase):
     bz: NattkaBugzilla
+    maxDiff = None
 
     def setUp(self):
         self.bz = NattkaBugzilla(API_KEY, API_ENDPOINT)
-
-
-class BugzillaTests(BugzillaTestCase):
-    maxDiff = None
 
     def get_bugs(self,
                  req: typing.Iterable[int]
@@ -313,8 +308,93 @@ class BugzillaTests(BugzillaTestCase):
             self.bz.find_bugs([4])[4].sanity_check,
             None)
 
+class DestructiveBugzillaTests(unittest.TestCase):
+    bz: NattkaBugzilla
+    maxDiff = None
 
-class makebugCombinerTest(unittest.TestCase):
+    def setUp(self):
+        self.bz = NattkaBugzilla(USER_API_KEY, API_ENDPOINT)
+
+    @rec.use_cassette()
+    def test_uncc_arch(self):
+        """Test unCC-ing an arch from a bug without closing it"""
+        bug = self.bz.find_bugs([2])[2]
+        self.assertEqual(
+            bug.cc,
+            ['alpha@gentoo.org', 'hppa@gentoo.org'],
+            'Bugzilla instance tainted, please reset')
+        self.assertFalse(
+            bug.resolved,
+            'Bugzilla instance tainted, please reset')
+        self.assertEqual(
+            self.bz.get_latest_comment(2, USER_BUGZILLA_USERNAME),
+            '',  # initial comment
+            'Bugzilla instance tainted, please reset')
+
+        self.bz.resolve_bug(2, ['hppa@gentoo.org'], 'hppa done')
+
+        bug = self.bz.find_bugs([2])[2]
+        self.assertEqual(bug.cc, ['alpha@gentoo.org'])
+        self.assertFalse(bug.resolved)
+        self.assertEqual(
+            self.bz.get_latest_comment(2, USER_BUGZILLA_USERNAME),
+            'hppa done')
+
+    @rec.use_cassette()
+    def test_uncc_arch_not_cced(self):
+        """Test unCC-ing an arch that is not CC-ed"""
+        bug = self.bz.find_bugs([3])[3]
+        self.assertEqual(
+            bug.cc,
+            ['amd64@gentoo.org'],
+            'Bugzilla instance tainted, please reset')
+        self.assertFalse(
+            bug.resolved,
+            'Bugzilla instance tainted, please reset')
+        self.assertEqual(
+            self.bz.get_latest_comment(3, USER_BUGZILLA_USERNAME),
+            '',  # initial comment
+            'Bugzilla instance tainted, please reset')
+
+        self.bz.resolve_bug(3, ['hppa@gentoo.org'], 'whut?!')
+
+        bug = self.bz.find_bugs([3])[3]
+        self.assertEqual(bug.cc, ['amd64@gentoo.org'])
+        self.assertFalse(bug.resolved)
+        self.assertEqual(
+            self.bz.get_latest_comment(3, USER_BUGZILLA_USERNAME),
+            'whut?!')
+
+    @rec.use_cassette()
+    def test_close(self):
+        """Test unCC-ing an arch and closing the bug"""
+        bug = self.bz.find_bugs([4])[4]
+        self.assertEqual(
+            bug.cc,
+            ['hppa@gentoo.org'],
+            'Bugzilla instance tainted, please reset')
+        self.assertFalse(
+            bug.resolved,
+            'Bugzilla instance tainted, please reset')
+        self.assertEqual(
+            self.bz.get_latest_comment(4, USER_BUGZILLA_USERNAME),
+            '',  # initial comment
+            'Bugzilla instance tainted, please reset')
+
+        self.bz.resolve_bug(4,
+                            ['hppa@gentoo.org'],
+                            'hppa done\n\nall arches done, closing',
+                            resolve=True)
+
+        bug = self.bz.find_bugs([4])[4]
+        self.assertEqual(bug.cc, [])
+        self.assertTrue(bug.resolved)
+        self.assertEqual(
+            self.bz.get_latest_comment(4, USER_BUGZILLA_USERNAME),
+            'hppa done\n\nall arches done, closing')
+
+
+class BugInfoCombinerTest(unittest.TestCase):
     def test_combine_bugs(self):
         """ Test combining linked bugs. """
         self.assertEqual(
