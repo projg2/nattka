@@ -271,14 +271,14 @@ class BugzillaTests(unittest.TestCase):
         """Test finding bugs by personal tags."""
         self.assertEqual(
             self.bz.find_bugs(skip_tags=['nattka:skip']),
-            self.get_bugs([2, 4, 5, 6, 7, 8, 9]))
+            self.get_bugs([1, 2, 4, 5, 6, 7, 8, 9]))
 
     @rec.use_cassette()
     def test_find_bugs_unresolved(self):
         """Test finding unresolved bugs"""
         self.assertEqual(
             self.bz.find_bugs(unresolved=True),
-            self.get_bugs([2, 3, 4, 5, 6, 7, 9]))
+            self.get_bugs([1, 2, 3, 4, 5, 6, 7, 9]))
 
     @rec.use_cassette()
     def test_resolve_dependencies(self):

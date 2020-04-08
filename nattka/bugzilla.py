@@ -230,15 +230,7 @@ class NattkaBugzilla(object):
 
         resp = self._request('bug', params=search_params).json()
 
-        ret = {}
-        for b in resp['bugs']:
-            # skip empty bugs (likely security issues that are not
-            # stabilization requests)
-            # TODO: move this later in the pipeline
-            if not bugs and not b['cf_stabilisation_atoms'].strip():
-                continue
-            ret[b['id']] = make_bug_info(b)
-        return ret
+        return dict((b['id'], make_bug_info(b)) for b in resp['bugs'])
 
     def resolve_dependencies(self,
                              bugs: typing.Dict[int, BugInfo]
