@@ -267,6 +267,13 @@ class BugzillaTests(unittest.TestCase):
             self.get_bugs([2, 3]))
 
     @rec.use_cassette()
+    def test_find_bugs_personal_tags(self):
+        """Test finding bugs by personal tags."""
+        self.assertEqual(
+            self.bz.find_bugs(skip_tags=['nattka:skip']),
+            self.get_bugs([2, 4, 5, 6, 7, 9]))
+
+    @rec.use_cassette()
     def test_resolve_dependencies(self):
         """Test resolving missing dependencies recursively"""
         bz = self.bz.find_bugs([9])

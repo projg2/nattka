@@ -119,3 +119,9 @@ INSERT INTO longdescs VALUES(10,3,2,'2020-04-03 13:37:04',0,'sanity check failed
 INSERT INTO longdescs VALUES(11,3,2,'2020-04-03 13:38:16',0,'sanity check failed!',0,0,0,NULL);
 INSERT INTO longdescs VALUES(12,8,1,'2020-04-04 07:07:40',0,'Resolved bugs should appear when requested via id but not in search.',0,0,0,NULL);
 INSERT INTO longdescs VALUES(13,9,1,'2020-04-05 14:35:59',0,'this one depends on a bug that depends on a bug...',0,0,0,NULL);
+
+INSERT INTO tag VALUES(1,'nattka:skip',2);
+INSERT INTO tag VALUES(2,'test',2);
+
+INSERT INTO bug_tag VALUES(3,1);
+INSERT INTO bug_tag VALUES(3,2);

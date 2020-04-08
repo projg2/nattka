@@ -150,7 +150,8 @@ class NattkaBugzilla(object):
                   category: typing.Iterable[BugCategory] = [],
                   security: typing.Optional[bool] = None,
                   cc: typing.Iterable[str] = [],
-                  sanity_check: typing.Iterable[bool] = []
+                  sanity_check: typing.Iterable[bool] = [],
+                  skip_tags: typing.Iterable[str] = []
                   ) -> typing.Dict[int, BugInfo]:
         """
         Fetch and return all bugs relevant to the query.
@@ -175,6 +176,9 @@ class NattkaBugzilla(object):
 
         If `cc` is not empty, only bugs with specific e-mail addresses
         in CC will be returned.
+
+        If `skip_tags` is not empty, bugs containing specific user tags
+        will be omitted.
 
         Return a dict mapping bug numbers to `BugInfo` instances.
         The keys include only successfully fetched bugs.  If `bugs`
@@ -218,6 +222,11 @@ class NattkaBugzilla(object):
             for f in sanity_check:
                 search_params['v1'].append(
                     'sanity-check' + ('+' if f else '-'))
+
+        if skip_tags:
+            search_params['f2'] = ['tag']
+            search_params['o2'] = ['nowordssubstr']
+            search_params['v2'] = list(skip_tags)
 
         resp = self._request('bug', params=search_params).json()
 
