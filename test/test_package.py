@@ -15,7 +15,7 @@ from nattka.keyword import KEYWORDS_RE
 from nattka.package import (match_package_list, add_keywords,
                             check_dependencies, PackageNoMatch,
                             KeywordNoMatch, PackageInvalid,
-                            find_repository)
+                            find_repository, select_best_version)
 
 
 def get_test_repo(path: Path = Path(__file__).parent):
@@ -43,6 +43,68 @@ class BaseRepoTestCase(unittest.TestCase):
     def ebuild_path(self, cat, pkg, ver):
         return str(Path(self.repo.location) / cat / pkg
                                             / f'{pkg}-{ver}.ebuild')
+
+
+class BestVersionSelectorTests(BaseRepoTestCase):
+    def test_live(self):
+        """Test that live ebuild is ignored"""
+        self.assertEqual(
+            select_best_version([
+                self.get_package('=test/amd64-testing-9999'),
+                self.get_package('=test/amd64-testing-2'),
+                self.get_package('=test/amd64-testing-1'),
+            ]).cpvstr,
+            'test/amd64-testing-2')
+
+    def test_live_only(self):
+        """Test choice between live ebuilds"""
+        self.assertEqual(
+            select_best_version([
+                self.get_package('=test/amd64-testing-9998'),
+                self.get_package('=test/amd64-testing-9999'),
+            ]).cpvstr,
+            'test/amd64-testing-9999')
+
+    def test_unkeyworded(self):
+        """Test that unkeyworded ebuild is ignored"""
+        self.assertEqual(
+            select_best_version([
+                self.get_package('=test/amd64-testing-1'),
+                self.get_package('=test/amd64-testing-10'),
+                self.get_package('=test/amd64-testing-2'),
+            ]).cpvstr,
+            'test/amd64-testing-2')
+
+    def test_unkeyworded_only(self):
+        """Test choice between unkeyworded ebuilds"""
+        self.assertEqual(
+            select_best_version([
+                self.get_package('=test/amd64-testing-10'),
+                self.get_package('=test/amd64-testing-20'),
+            ]).cpvstr,
+            'test/amd64-testing-20')
+
+    def test_live_and_unkeyworded(self):
+        """Test that both live and unkeyworded ebuilds are ignored"""
+        self.assertEqual(
+            select_best_version([
+                self.get_package('=test/amd64-testing-1'),
+                self.get_package('=test/amd64-testing-9999'),
+                self.get_package('=test/amd64-testing-10'),
+                self.get_package('=test/amd64-testing-2'),
+            ]).cpvstr,
+            'test/amd64-testing-2')
+
+    def test_live_and_unkeyworded_only(self):
+        """Test that choice between live and unkeyworded ebuilds"""
+        self.assertEqual(
+            select_best_version([
+                self.get_package('=test/amd64-testing-9999'),
+                self.get_package('=test/amd64-testing-20'),
+                self.get_package('=test/amd64-testing-10'),
+                self.get_package('=test/amd64-testing-9998'),
+            ]).cpvstr,
+            'test/amd64-testing-20')
 
 
 class PackageMatcherTests(BaseRepoTestCase):

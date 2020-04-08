@@ -88,6 +88,28 @@ def find_repository(path: Path,
                                               configure=False))
 
 
+def select_best_version(matches: typing.Iterable[
+                        pkgcore.ebuild.ebuild_src.package]
+                        ) -> pkgcore.ebuild.ebuild_src.package:
+    """
+    Select the most suitable package version from `matches`
+
+    The newest version having any keywords is preferred.  If no versions
+    have keywords, the newest not having PROPERTIES=live will be
+    selected.  If all versions are live, the newest one will be taken.
+    """
+
+    s_matches = sorted(matches)
+    for m in reversed(s_matches):
+        if m.keywords:
+            return m
+    for m in reversed(s_matches):
+        if 'live' not in m.properties:
+            return m
+    for m in reversed(s_matches):
+        return m
+
+
 def match_package_list(repo: UnconfiguredTree,
                        package_list: str
                        ) -> typing.Iterator[PackageKeywords]:
