@@ -135,7 +135,7 @@ Processing bugs
 The recommended way to run NATTkA is to run it via cronjob, using
 the following options::
 
-    nattka --repo <path-to-repo> process-bugs \
+    nattka --repo <path-to-repo> sanity-check \
         --cache-file <path-to-cache-file> \
         --time-limit 600 \
         --update-bugs

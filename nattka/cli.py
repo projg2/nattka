@@ -331,7 +331,7 @@ class NattkaCommands(object):
                 for d in sorted(r.deps):
                     yield f'>     {d}'
 
-    def process_bugs(self) -> int:
+    def sanity_check(self) -> int:
         repo, git_repo = self.get_git_repository()
 
         if not self.args.update_bugs:
@@ -576,7 +576,7 @@ def main(argv: typing.List[str]) -> int:
                            'according to pkgcore config, accepts '
                            'fnmatch-style wildcards)')
 
-    prop = subp.add_parser('process-bugs',
+    prop = subp.add_parser('sanity-check',
                            parents=[bugp],
                            help='process all open bugs -- apply '
                                 'keywords, test, report results')

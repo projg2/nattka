@@ -22,7 +22,7 @@ apply
 commit
    Commits previously applied keyword changes to git (does not push).
 
-process-bugs
+sanity-check
    Perform sanity checks of specified bugs — fetch keywords, apply
    them to the local checkout, run ``pkgcheck`` and update the bugs
    if requested.
@@ -167,23 +167,23 @@ to the command, e.g.::
     nattka commit -a arm64 123456 123460
 
 
-process-bugs command
+sanity-check command
 ====================
 
 Basic usage
 -----------
-The ``process-bugs`` command is used to perform sanity checks of open
+The ``sanity-check`` command is used to perform sanity checks of open
 keywording and stabilization bugs.
 
 The normal way of using it is to omit positional arguments, causing it
 to process all open keywording and stabilization bugs::
 
-    nattka process-bugs
+    nattka sanity-check
 
 Alternatively, specific bug numbers can be passed in order to limit
 the operation to them::
 
-    nattka process-bugs 123456 123460
+    nattka sanity-check 123456 123460
 
 
 Filtering bugs
