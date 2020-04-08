@@ -11,7 +11,7 @@ from pathlib import Path
 import vcr
 
 from nattka.bugzilla import (NattkaBugzilla, BugCategory, BugInfo,
-                             get_combined_buginfo,
+                             get_combined_buginfo, arches_from_cc,
                              update_keywords_from_cc)
 
 
@@ -517,6 +517,33 @@ class BugInfoCombinerTest(unittest.TestCase):
                     ['amd64@gentoo.org', 'x86@gentoo.org'],
                     depends=[2],
                     sanity_check=True))
+
+
+class ArchesFromCCTest(unittest.TestCase):
+    def test_email(self):
+        self.assertEqual(
+            arches_from_cc(['amd64@gentoo.org', 'x86@gentoo.org'],
+                           ['amd64', 'arm64', 'x86']),
+            ['amd64', 'x86'])
+
+    def test_email_extra(self):
+        self.assertEqual(
+            arches_from_cc(['amd64@gentoo.org', 'example@gentoo.org',
+                            'x86@example.com'],
+                           ['amd64', 'arm64', 'x86']),
+            ['amd64'])
+
+    def test_no_email(self):
+        self.assertEqual(
+            arches_from_cc(['amd64', 'x86'],
+                           ['amd64', 'arm64', 'x86']),
+            ['amd64', 'x86'])
+
+    def test_no_email_extra(self):
+        self.assertEqual(
+            arches_from_cc(['amd64', 'example', 'x86'],
+                           ['amd64', 'arm64', 'x86']),
+            ['amd64', 'x86'])
 
 
 class KeywordFillerTest(unittest.TestCase):

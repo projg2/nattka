@@ -8,6 +8,8 @@ import typing
 
 import requests
 
+from nattka.keyword import keyword_sort_key
+
 
 BUGZILLA_API_URL = 'https://bugs.gentoo.org/rest'
 
@@ -376,6 +378,26 @@ def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo],
                    resolved=topbug.resolved)
 
 
+def arches_from_cc(cc: typing.Iterable[str],
+                   known_arches: typing.Iterable[str]
+                   ) -> typing.List[str]:
+    """
+    Return list of arches found in CC of a bug
+
+    Return an intersection of CC list of a bug `cc`, and the list
+    of valid arches `known_arches`.  The resulting list will contain
+    pure arch names (not e-mail addresses), and be sorted in keyword
+    order.
+    """
+
+    # bug.cc may contain full emails when authorized with an API key
+    # or just login names
+    cc_names = frozenset(x.split('@', 1)[0] for x in cc
+                         if x.endswith('@gentoo.org') or '@' not in x)
+    return sorted(cc_names.intersection(known_arches),
+                  key=keyword_sort_key)
+
+
 def update_keywords_from_cc(bug: BugInfo,
                             known_arches: typing.Iterable[str]
                             ) -> BugInfo:
@@ -387,11 +409,7 @@ def update_keywords_from_cc(bug: BugInfo,
     package list.
     """
 
-    # bug.cc may contain full emails when authorized with an API key
-    # or just login names
-    bug_cc = frozenset(x.split('@', 1)[0] for x in bug.cc
-                       if x.endswith('@gentoo.org') or '@' not in x)
-    arches = sorted(bug_cc.intersection(known_arches))
+    arches = arches_from_cc(bug.cc, known_arches)
 
     # if no arches were CC-ed, we can't do anything
     if not arches:
