@@ -16,6 +16,7 @@ in `Gentoo Bugzilla code`_).
 Additionally, it requires the following Python packages (that can
 be installed inside a virtualenv):
 
+- snakeoil_ utility library.
 - pkgcore_ package manager and pkgcheck_ linting tool.
 - requests_ HTTP library.
 
@@ -29,6 +30,7 @@ standard unittest runner (but they are quite noisy).
 .. _Python: https://www.python.org/
 .. _git: https://git-scm.com/
 .. _Gentoo Bugzilla code: https://gitweb.gentoo.org/fork/bugzilla.git
+.. _snakeoil: https://github.com/pkgcore/snakeoil/
 .. _pkgcore: https://github.com/pkgcore/pkgcore/
 .. _pkgcheck: https://github.com/pkgcore/pkgcheck/
 .. _requests: http://python-requests.org/
