@@ -130,6 +130,17 @@ linting tools before pushing, e.g.::
     git push --signed
 
 
+Resolving bugs
+--------------
+Once changes are committed, ``resolve`` command may be used to remove
+the arch team from the CC list and close the bug if appropriate::
+
+    nattka resolve [-a ...] 123456
+
+Note that you need to specify bug numbers explicitly, and the same
+``-a`` value as for ``apply``.
+
+
 Processing bugs
 ===============
 The recommended way to run NATTkA is to run it via cronjob, using

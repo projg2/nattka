@@ -167,6 +167,29 @@ to the command, e.g.::
     nattka commit -a arm64 123456 123460
 
 
+resolve command
+===============
+The ``resolve`` command is used to update bugs after pushing.  It takes
+care of unCC-ing arch teams, leaving a comment and closing the bugs
+if appropriate.
+
+When using ``resolve``, you need to pass the same ``--arch`` options
+as to ``apply``.  This is necessary in order to determine which arch(es)
+are done.
+
+Specific bug numbers must be specified as positional arguments
+to the command, e.g.::
+
+    nattka resolve -a arm64 123456 123460
+
+Bugs are closed if no known arch teams are left in CC and they are not
+security bugs.  The ``--no-resolve`` option can be used to inhibit
+closing bugs altogether.
+
+The ``-p`` (``--pretend``) option can be used to display the actions
+that would be taken without performing them on the Bugzilla instance.
+
+
 sanity-check command
 ====================
 

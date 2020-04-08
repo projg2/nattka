@@ -1240,3 +1240,118 @@ class SearchFilterTests(IntegrationTestCase):
             0)
         bugz_inst.find_bugs.assert_called_with(
             security=True)
+
+
+class ResolveTests(IntegrationTestCase):
+    """Tests for resolve command"""
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_resolve_one_of_many(self, bugz):
+        """Test resolve with one of many arches done"""
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/example-1\r\n',
+                            ['amd64@gentoo.org', 'hppa@gentoo.org']),
+        }
+        self.assertEqual(
+            main(self.common_args + ['resolve', '-a', 'hppa', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.resolve_bug.assert_called_with(
+            560322, ['hppa@gentoo.org'], 'hppa done', False)
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_resolve_all_of_many(self, bugz):
+        """Test resolve with all of many arches done"""
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/example-1\r\n',
+                            ['amd64@gentoo.org', 'hppa@gentoo.org']),
+        }
+        self.assertEqual(
+            main(self.common_args + ['resolve', '-a', '*', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.resolve_bug.assert_called_with(
+            560322,
+            ['amd64@gentoo.org', 'hppa@gentoo.org'],
+            'amd64 hppa done\n\nall arches done',
+            True)
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_resolve_security(self, bugz):
+        """Test that security bugs are not closed"""
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/example-1\r\n',
+                            ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                            security=True),
+        }
+        self.assertEqual(
+            main(self.common_args + ['resolve', '-a', '*', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.resolve_bug.assert_called_with(
+            560322,
+            ['amd64@gentoo.org', 'hppa@gentoo.org'],
+            'amd64 hppa done\n\nall arches done',
+            False)
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_resolve_closed(self, bugz):
+        """Test that closed bugs do not get their resolution changed"""
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/example-1\r\n',
+                            ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                            resolved=True),
+        }
+        self.assertEqual(
+            main(self.common_args + ['resolve', '-a', '*', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.resolve_bug.assert_called_with(
+            560322,
+            ['amd64@gentoo.org', 'hppa@gentoo.org'],
+            'amd64 hppa done\n\nall arches done',
+            False)
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_resolve_no_resolve(self, bugz):
+        """Test that --no-resolve inhibits resolving bugs"""
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/example-1\r\n',
+                            ['amd64@gentoo.org', 'hppa@gentoo.org']),
+        }
+        self.assertEqual(
+            main(self.common_args + ['resolve', '-a', '*', '560322',
+                                     '--no-resolve']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.resolve_bug.assert_called_with(
+            560322,
+            ['amd64@gentoo.org', 'hppa@gentoo.org'],
+            'amd64 hppa done\n\nall arches done',
+            False)
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_resolve_pretend(self, bugz):
+        """Test that --pretend inhibits updates"""
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/example-1\r\n',
+                            ['amd64@gentoo.org', 'hppa@gentoo.org']),
+        }
+        self.assertEqual(
+            main(self.common_args + ['resolve', '-a', '*', '560322',
+                                     '--pretend']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.resolve_bug.assert_not_called()

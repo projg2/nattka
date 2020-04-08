@@ -20,7 +20,7 @@ from pkgcheck.results import Result, VersionResult
 
 from nattka import __version__
 from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
-                             get_combined_buginfo,
+                             get_combined_buginfo, arches_from_cc,
                              update_keywords_from_cc)
 from nattka.git import GitWorkTree, GitDirtyWorkTree, git_commit
 from nattka.package import (find_repository, match_package_list,
@@ -311,6 +311,50 @@ class NattkaCommands(object):
 
         return ret
 
+    def resolve(self) -> int:
+        repo = self.get_repository()
+        arch = self.get_arch()
+        bz = self.get_bugzilla(require_api_key=not self.args.pretend)
+
+        ret = 0
+        bugnos, bugs = self.find_bugs()
+        for bno in bugnos:
+            b = bugs[bno]
+            if b.category is None:
+                log.error(f'Bug {bno}: neither stablereq nor keywordreq')
+                ret = 1
+                continue
+
+            current_arches = set(arches_from_cc(b.cc, repo.known_arches))
+            to_remove = current_arches.intersection(arch)
+            if not to_remove:
+                log.warning(f'Bug {bno}: no specified arches CC-ed, '
+                            f'found: {" ".join(sorted(current_arches))}')
+                continue
+
+            all_done = (current_arches == to_remove)
+            to_close = (all_done and not b.security and not b.resolved
+                        and not self.args.no_resolve)
+
+            log.info(f'Bug {bno} ({b.category.name})')
+            if self.args.pretend:
+                log.info(f'pretend: would un-CC '
+                         f'{" ".join(sorted(to_remove))}')
+                if to_close:
+                    log.info(f'pretend: would resolve the bug')
+            else:
+                comment = f'{" ".join(sorted(to_remove))} done'
+                if all_done:
+                    comment += '\n\nall arches done'
+                bz.resolve_bug(
+                    bno,
+                    sorted([f'{x}@gentoo.org' for x in to_remove]),
+                    comment,
+                    to_close)
+                log.info('Bug updated')
+
+        return ret
+
     @staticmethod
     def format_results(issues: typing.Iterable[Result]
                        ) -> typing.Iterator[str]:
@@ -575,6 +619,22 @@ def main(argv: typing.List[str]) -> int:
                       help='process specified arch (default: current '
                            'according to pkgcore config, accepts '
                            'fnmatch-style wildcards)')
+
+    resp = subp.add_parser('resolve',
+                           help='unCC arches from specified bugs '
+                                'and resolve them if appropriate')
+    resp.add_argument('bug', nargs='+', type=int,
+                      help='bug(s) to process')
+    resp.add_argument('-a', '--arch', action='append',
+                      help='process specified arch (default: current '
+                           'according to pkgcore config, accepts '
+                           'fnmatch-style wildcards)')
+    resp.add_argument('--no-resolve', action='store_true',
+                      help='do not resolve bug even if it should '
+                           'be closed per the usual rules')
+    resp.add_argument('-p', '--pretend', action='store_true',
+                      help='do not update bugs, just print what would '
+                           'be done')
 
     prop = subp.add_parser('sanity-check',
                            parents=[bugp],
