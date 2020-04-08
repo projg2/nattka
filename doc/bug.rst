@@ -77,3 +77,13 @@ may be sufficient to cause its reverse dependency to pass.
 
 Blockers belonging to other category are treated as bugs preventing
 keywording and stabilization from proceeding.
+
+
+Personal tags
+=============
+Personal tags can be used to customize NATTkA behavior per bug.  Note
+that they are visible only to the user setting them, and therefore
+NATTkA can act on them only if you are using an API key.
+
+Set ``nattka:skip`` tag to omit the bug from search results.  It will
+still be acted upon if passed explicitly.

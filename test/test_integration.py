@@ -1189,7 +1189,8 @@ class IntegrationLimiterTests(IntegrationTestCase):
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '--bug-limit', '5']),
             0)
-        bugz_inst.find_bugs.assert_called_with()
+        bugz_inst.find_bugs.assert_called_with(
+            skip_tags=['nattka:skip'])
         self.assertEqual(bugz_inst.update_status.call_count, 5)
         bugz_inst.update_status.assert_has_calls(
             [unittest.mock.call(100009, True, None),
@@ -1211,6 +1212,7 @@ class SearchFilterTests(IntegrationTestCase):
             main(self.common_args + ['sanity-check', '--keywordreq']),
             0)
         bugz_inst.find_bugs.assert_called_with(
+            skip_tags=['nattka:skip'],
             category=[BugCategory.KEYWORDREQ])
 
     @patch('nattka.cli.NattkaBugzilla')
@@ -1220,6 +1222,7 @@ class SearchFilterTests(IntegrationTestCase):
             main(self.common_args + ['sanity-check', '--stablereq']),
             0)
         bugz_inst.find_bugs.assert_called_with(
+            skip_tags=['nattka:skip'],
             category=[BugCategory.STABLEREQ])
 
     @patch('nattka.cli.NattkaBugzilla')
@@ -1230,6 +1233,7 @@ class SearchFilterTests(IntegrationTestCase):
                                      '--stablereq']),
             0)
         bugz_inst.find_bugs.assert_called_with(
+            skip_tags=['nattka:skip'],
             category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ])
 
     @patch('nattka.cli.NattkaBugzilla')
@@ -1239,6 +1243,7 @@ class SearchFilterTests(IntegrationTestCase):
             main(self.common_args + ['sanity-check', '--security']),
             0)
         bugz_inst.find_bugs.assert_called_with(
+            skip_tags=['nattka:skip'],
             security=True)
 
 

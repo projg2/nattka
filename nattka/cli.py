@@ -106,6 +106,10 @@ class NattkaCommands(object):
         kwargs = {}
         if self.args.bug:
             kwargs['bugs'] = self.args.bug
+        else:
+            kwargs.update({
+                'skip_tags': ['nattka:skip'],
+            })
         if getattr(self.args, 'category', []):
             kwargs['category'] = self.args.category
         if getattr(self.args, 'security', False):
