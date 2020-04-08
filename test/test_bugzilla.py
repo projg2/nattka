@@ -281,34 +281,68 @@ class BugzillaTests(unittest.TestCase):
             self.bz.get_latest_comment(3, BUGZILLA_USERNAME),
             'sanity check failed!')
 
+
+class DestructiveBugzillaTests(unittest.TestCase):
+    bz: NattkaBugzilla
+    maxDiff = None
+
+    def setUp(self):
+        self.bz = NattkaBugzilla(API_KEY, API_ENDPOINT)
+
     @rec.use_cassette()
     def test_set_status(self):
-        """ Test setting sanity-check status. """
-        self.bz.update_status(2, True)
-        self.assertEqual(
-            self.bz.find_bugs([2])[2].sanity_check,
-            True)
+        """Test setting sanity-check status"""
+        self.assertIsNone(
+            self.bz.find_bugs([5])[5].sanity_check,
+            'Bugzilla instance tainted, please reset')
+        self.assertIsNone(
+            self.bz.get_latest_comment(5, BUGZILLA_USERNAME),
+            'Bugzilla instance tainted, please reset')
+
+        self.bz.update_status(5, True)
+
+        self.assertTrue(
+            self.bz.find_bugs([5])[5].sanity_check)
+        self.assertIsNone(
+            self.bz.get_latest_comment(5, BUGZILLA_USERNAME))
 
     @rec.use_cassette()
     def test_set_status_and_comment(self):
-        """ Test setting sanity-check status and commenting. """
-        self.bz.update_status(3, False, 'sanity check failed!\r\n')
+        """Test setting sanity-check status and commenting"""
+        self.assertIsNone(
+            self.bz.find_bugs([6])[6].sanity_check,
+            'Bugzilla instance tainted, please reset')
+        self.assertIsNone(
+            self.bz.get_latest_comment(6, BUGZILLA_USERNAME),
+            'Bugzilla instance tainted, please reset')
+
+        self.bz.update_status(6, False, 'sanity check failed!\r\n')
+
+        self.assertFalse(
+            self.bz.find_bugs([6])[6].sanity_check)
         self.assertEqual(
-            self.bz.find_bugs([3])[3].sanity_check,
-            False)
-        self.assertEqual(
-            self.bz.get_latest_comment(3, BUGZILLA_USERNAME),
+            self.bz.get_latest_comment(6, BUGZILLA_USERNAME),
             'sanity check failed!')
 
     @rec.use_cassette()
     def test_reset_status(self):
-        """ Test resetting sanity-check status. """
-        self.bz.update_status(4, None)
-        self.assertEqual(
-            self.bz.find_bugs([4])[4].sanity_check,
-            None)
+        """Test resetting sanity-check status"""
+        self.assertTrue(
+            self.bz.find_bugs([2])[2].sanity_check,
+            'Bugzilla instance tainted, please reset')
+        self.assertIsNone(
+            self.bz.get_latest_comment(2, BUGZILLA_USERNAME),
+            'Bugzilla instance tainted, please reset')
 
-class DestructiveBugzillaTests(unittest.TestCase):
+        self.bz.update_status(2, None)
+
+        self.assertIsNone(
+            self.bz.find_bugs([2])[2].sanity_check)
+        self.assertIsNone(
+            self.bz.get_latest_comment(2, BUGZILLA_USERNAME))
+
+
+class DestructiveUserBugzillaTests(unittest.TestCase):
     bz: NattkaBugzilla
     maxDiff = None
 

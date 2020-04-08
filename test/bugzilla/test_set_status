@@ -1,6 +1,6 @@
 interactions:
 - request:
-    body: '{"ids": [2], "flags": [{"name": "sanity-check", "status": "+"}]}'
+    body: null
     headers:
       Accept:
       - '*/*'
@@ -8,17 +8,15 @@ interactions:
       - gzip, deflate
       Connection:
       - keep-alive
-      Content-Length:
-      - '64'
-      Content-Type:
-      - application/json
       User-Agent:
       - python-requests/2.23.0
-    method: PUT
-    uri: http://127.0.0.1:33113/rest/bug/2
+    method: GET
+    uri: http://127.0.0.1:33113/rest/bug?id=5&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&include_fields=resolution
   response:
     body:
-      string: '{"bugs":[{"last_change_time":"2020-04-03T13:34:59Z","id":2,"alias":[],"changes":{}}]}'
+      string: '{"bugs":[{"flags":[],"id":5,"resolution":"","product":"Gentoo Security","blocks":[],"cc_detail":[{"real_name":"Test
+        developer","email":"test@example.com","id":1,"name":"test@example.com"}],"cc":["test@example.com"],"component":"Vulnerabilities","depends_on":[],"cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7
+        amd64 hppa"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -31,9 +29,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Sun, 05 Apr 2020 09:58:12 GMT
+      - Wed, 08 Apr 2020 06:29:58 GMT
       Etag:
-      - zAqxbb+IgNbIddjs4v0aXQ
+      - ESXSt61qfgGA/yDUa0/qRA
       Keep-Alive:
       - timeout=15, max=100
       Server:
@@ -61,13 +59,11 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=2&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&include_fields=resolution
+    uri: http://127.0.0.1:33113/rest/bug/5/comment
   response:
     body:
-      string: '{"bugs":[{"flags":[{"setter":"nattka@gentoo.org","type_id":1,"name":"sanity-check","id":2,"modification_date":"2020-04-03T13:34:59Z","creation_date":"2020-04-03T13:34:59Z","status":"+"}],"product":"Gentoo
-        Linux","cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","blocks":[],"cc_detail":[{"email":"alpha@gentoo.org","id":3,"name":"alpha@gentoo.org","real_name":"ALPHA
-        arch team"},{"id":5,"email":"hppa@gentoo.org","name":"hppa@gentoo.org","real_name":"HPPA
-        arch team"}],"component":"Keywording","cc":["alpha@gentoo.org","hppa@gentoo.org"],"id":2,"depends_on":[1],"resolution":""}]}'
+      string: '{"comments":{},"bugs":{"5":{"comments":[{"creator":"test@example.com","count":0,"attachment_id":null,"id":5,"is_private":false,"creation_time":"2020-04-03T13:26:12Z","text":"who
+        uses arj anyway these days?","tags":[],"time":"2020-04-03T13:26:12Z","bug_id":5}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -80,11 +76,156 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Sun, 05 Apr 2020 09:58:14 GMT
+      - Wed, 08 Apr 2020 06:30:00 GMT
       Etag:
-      - w+jicK4E/NwHgeOZjrCY8A
+      - lDf6jrNoZJw0HKJZ0QEhDg
       Keep-Alive:
       - timeout=15, max=99
+      Server:
+      - Apache
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
+      - nosniff
+      X-frame-options:
+      - SAMEORIGIN
+      X-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"ids": [5], "flags": [{"name": "sanity-check", "status": "+"}]}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '64'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.23.0
+    method: PUT
+    uri: http://127.0.0.1:33113/rest/bug/5
+  response:
+    body:
+      string: '{"bugs":[{"changes":{"flagtypes.name":{"removed":"","added":"sanity-check+"}},"last_change_time":"2020-04-08T06:30:03Z","alias":[],"id":5}]}'
+    headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
+      Date:
+      - Wed, 08 Apr 2020 06:30:01 GMT
+      Etag:
+      - bQvUErRAmV1XfcukjG/m/w
+      Keep-Alive:
+      - timeout=15, max=98
+      Server:
+      - Apache
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
+      - nosniff
+      X-frame-options:
+      - SAMEORIGIN
+      X-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: GET
+    uri: http://127.0.0.1:33113/rest/bug?id=5&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&include_fields=resolution
+  response:
+    body:
+      string: '{"bugs":[{"cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7 amd64 hppa","product":"Gentoo
+        Security","depends_on":[],"component":"Vulnerabilities","resolution":"","cc_detail":[{"id":1,"real_name":"Test
+        developer","name":"test@example.com","email":"test@example.com"}],"id":5,"cc":["test@example.com"],"blocks":[],"flags":[{"id":4,"type_id":1,"setter":"nattka@gentoo.org","name":"sanity-check","status":"+","creation_date":"2020-04-08T06:30:03Z","modification_date":"2020-04-08T06:30:03Z"}]}]}'
+    headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
+      Date:
+      - Wed, 08 Apr 2020 06:30:03 GMT
+      Etag:
+      - jFOLzs/t/13CtmqLHsdRZg
+      Keep-Alive:
+      - timeout=15, max=97
+      Server:
+      - Apache
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
+      - nosniff
+      X-frame-options:
+      - SAMEORIGIN
+      X-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: GET
+    uri: http://127.0.0.1:33113/rest/bug/5/comment
+  response:
+    body:
+      string: '{"comments":{},"bugs":{"5":{"comments":[{"time":"2020-04-03T13:26:12Z","bug_id":5,"tags":[],"creator":"test@example.com","text":"who
+        uses arj anyway these days?","creation_time":"2020-04-03T13:26:12Z","count":0,"id":5,"attachment_id":null,"is_private":false}]}}}'
+    headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
+      Date:
+      - Wed, 08 Apr 2020 06:30:05 GMT
+      Etag:
+      - lDf6jrNoZJw0HKJZ0QEhDg
+      Keep-Alive:
+      - timeout=15, max=96
       Server:
       - Apache
       Transfer-Encoding:
