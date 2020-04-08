@@ -188,7 +188,7 @@ class BugzillaTests(unittest.TestCase):
         """ Test finding stablereqs. """
         self.assertEqual(
             self.bz.find_bugs(category=[BugCategory.STABLEREQ]),
-            self.get_bugs([3, 5, 6, 7]))
+            self.get_bugs([3, 5, 6, 7, 8]))
 
     @rec.use_cassette()
     def test_find_security(self):
@@ -236,7 +236,7 @@ class BugzillaTests(unittest.TestCase):
         self.assertEqual(
             self.bz.find_bugs(category=[BugCategory.STABLEREQ],
                               security=False),
-            self.get_bugs([3, 7]))
+            self.get_bugs([3, 7, 8]))
 
     @rec.use_cassette()
     def test_find_bugs_cc(self):
@@ -271,7 +271,14 @@ class BugzillaTests(unittest.TestCase):
         """Test finding bugs by personal tags."""
         self.assertEqual(
             self.bz.find_bugs(skip_tags=['nattka:skip']),
-            self.get_bugs([2, 4, 5, 6, 7, 9]))
+            self.get_bugs([2, 4, 5, 6, 7, 8, 9]))
+
+    @rec.use_cassette()
+    def test_find_bugs_unresolved(self):
+        """Test finding unresolved bugs"""
+        self.assertEqual(
+            self.bz.find_bugs(unresolved=True),
+            self.get_bugs([2, 3, 4, 5, 6, 7, 9]))
 
     @rec.use_cassette()
     def test_resolve_dependencies(self):

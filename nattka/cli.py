@@ -108,7 +108,10 @@ class NattkaCommands(object):
             kwargs['bugs'] = self.args.bug
         else:
             kwargs.update({
+                'category': [BugCategory.KEYWORDREQ,
+                             BugCategory.STABLEREQ],
                 'skip_tags': ['nattka:skip'],
+                'unresolved': True,
             })
         if getattr(self.args, 'category', []):
             kwargs['category'] = self.args.category

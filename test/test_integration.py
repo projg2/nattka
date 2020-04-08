@@ -1190,6 +1190,8 @@ class IntegrationLimiterTests(IntegrationTestCase):
                                      '--bug-limit', '5']),
             0)
         bugz_inst.find_bugs.assert_called_with(
+            unresolved=True,
+            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ],
             skip_tags=['nattka:skip'])
         self.assertEqual(bugz_inst.update_status.call_count, 5)
         bugz_inst.update_status.assert_has_calls(
@@ -1206,6 +1208,18 @@ class SearchFilterTests(IntegrationTestCase):
     """
 
     @patch('nattka.cli.NattkaBugzilla')
+    def test_default(self, bugz):
+        """Verify default search filters"""
+        bugz_inst = bugz.return_value
+        self.assertEqual(
+            main(self.common_args + ['sanity-check']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            skip_tags=['nattka:skip'],
+            unresolved=True,
+            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ])
+
+    @patch('nattka.cli.NattkaBugzilla')
     def test_keywordreq(self, bugz):
         bugz_inst = bugz.return_value
         self.assertEqual(
@@ -1213,6 +1227,7 @@ class SearchFilterTests(IntegrationTestCase):
             0)
         bugz_inst.find_bugs.assert_called_with(
             skip_tags=['nattka:skip'],
+            unresolved=True,
             category=[BugCategory.KEYWORDREQ])
 
     @patch('nattka.cli.NattkaBugzilla')
@@ -1223,6 +1238,7 @@ class SearchFilterTests(IntegrationTestCase):
             0)
         bugz_inst.find_bugs.assert_called_with(
             skip_tags=['nattka:skip'],
+            unresolved=True,
             category=[BugCategory.STABLEREQ])
 
     @patch('nattka.cli.NattkaBugzilla')
@@ -1234,6 +1250,7 @@ class SearchFilterTests(IntegrationTestCase):
             0)
         bugz_inst.find_bugs.assert_called_with(
             skip_tags=['nattka:skip'],
+            unresolved=True,
             category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ])
 
     @patch('nattka.cli.NattkaBugzilla')
@@ -1244,6 +1261,8 @@ class SearchFilterTests(IntegrationTestCase):
             0)
         bugz_inst.find_bugs.assert_called_with(
             skip_tags=['nattka:skip'],
+            unresolved=True,
+            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ],
             security=True)
 
 

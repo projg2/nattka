@@ -148,6 +148,7 @@ class NattkaBugzilla(object):
     def find_bugs(self,
                   bugs: typing.Iterable[int] = [],
                   category: typing.Iterable[BugCategory] = [],
+                  unresolved: bool = False,
                   security: typing.Optional[bool] = None,
                   cc: typing.Iterable[str] = [],
                   sanity_check: typing.Iterable[bool] = [],
@@ -156,15 +157,16 @@ class NattkaBugzilla(object):
         """
         Fetch and return all bugs relevant to the query.
 
-        If `bugs` list is not empty, bugs listed in it are fetched.
-        If it is empty, the function searches for all open keywording
-        and stabilization bugs.  In both cases, results are further
-        filtered by the conditions specified in other parameters.
+        If `bugs` list is not empty, only bugs listed in it are fetched.
+        Otherwise, all bugs are searched.  In both cases, results are
+        further refined by the conditions specified in other parameters.
 
         If `category` is not empty, it specifies the bug categories
         to include in the results.  Otherwise, all bugs are included
         (including bugs not belonging to any category, if `bugs`
         are specified as well).
+
+        If `unresolved` is True, only open bugs are returned.
 
         If `security` is True, only security bugs are returned.  If it
         is False, only non-security bugs are returned.
@@ -191,11 +193,6 @@ class NattkaBugzilla(object):
         }
         if bugs:
             search_params['id'] = list(str(x) for x in bugs)
-        else:
-            # if no bugs specified, limit to open keywordreqs & stablereqs
-            search_params['resolution'] = ['---']
-            if not category:
-                category = [BugCategory.KEYWORDREQ, BugCategory.STABLEREQ]
 
         if category:
             products = set()
@@ -206,6 +203,9 @@ class NattkaBugzilla(object):
                 components.update(comp)
             search_params['product'] = list(products)
             search_params['component'] = list(components)
+
+        if unresolved:
+            search_params['resolution'] = ['---']
 
         if security is not None:
             # note: this deliberately overrides category
