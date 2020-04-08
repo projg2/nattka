@@ -171,6 +171,19 @@ class PackageMatcherTests(BaseRepoTestCase):
                     '''):
                 pass
 
+    def test_noequals_spec_kwreq(self):
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        >=test/amd64-stable-hppa-testing-1 hppa
+                ''', allow_unspecific=True))), [
+                (self.ebuild_path('test', 'amd64-testing', '2'),
+                 ['amd64', 'hppa']),
+                (self.ebuild_path('test', 'amd64-stable-hppa-testing', '2'),
+                 ['hppa']),
+            ])
+
     def test_equals_wildcard_spec(self):
         """ Test package list containing =...* spec. """
         with self.assertRaises(PackageInvalid):
@@ -179,6 +192,16 @@ class PackageMatcherTests(BaseRepoTestCase):
                         =test/amd64-testing-2* amd64 hppa
                     '''):
                 pass
+
+    def test_equals_wildcard_spec_kwreq(self):
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, '''
+                        =test/amd64-testing-2* amd64 hppa
+                ''', allow_unspecific=True))), [
+                (self.ebuild_path('test', 'amd64-testing', '2'),
+                 ['amd64', 'hppa']),
+            ])
 
     def test_pure_catpkg_spec(self):
         """
@@ -191,6 +214,16 @@ class PackageMatcherTests(BaseRepoTestCase):
                     '''):
                 pass
 
+    def test_pure_catpkg_spec_kwreq(self):
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, '''
+                        test/amd64-testing amd64 hppa
+                ''', allow_unspecific=True))), [
+                (self.ebuild_path('test', 'amd64-testing', '2'),
+                 ['amd64', 'hppa']),
+            ])
+
     def test_pure_package_spec(self):
         """ Test package list containing just the package name. """
         with self.assertRaises(PackageInvalid):
@@ -200,6 +233,15 @@ class PackageMatcherTests(BaseRepoTestCase):
                     '''):
                 pass
 
+    def test_pure_package_spec_kwreq(self):
+        """ Test package list containing just the package name. """
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        amd64-testing amd64 hppa
+                    ''', allow_unspecific=True):
+                pass
+
     def test_wildcard_package_spec(self):
         """ Test package list using wildcards. """
         with self.assertRaises(PackageInvalid):
@@ -207,6 +249,14 @@ class PackageMatcherTests(BaseRepoTestCase):
                         test/amd64-testing-2 amd64 hppa
                         test/amd64-* amd64 hppa
                     '''):
+                pass
+
+    def test_wildcard_package_spec_kwreq(self):
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        test/amd64-* amd64 hppa
+                    ''', allow_unspecific=True):
                 pass
 
     def test_blocker_package_spec(self):
@@ -227,6 +277,82 @@ class PackageMatcherTests(BaseRepoTestCase):
                     '''):
                 pass
 
+    def test_slotted_package_spec_kwreq(self):
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, '''
+                        test/amd64-testing:0 amd64 hppa
+                ''', allow_unspecific=True))), [
+                (self.ebuild_path('test', 'amd64-testing', '2'),
+                 ['amd64', 'hppa']),
+            ])
+
+    def test_slot_slotop_eq_package_spec(self):
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        =test/amd64-testing-1:= amd64 hppa
+                    '''):
+                pass
+
+    def test_slot_slotop_eq_package_spec_kwreq(self):
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        =test/amd64-testing-1:0= amd64 hppa
+                    ''', allow_unspecific=True):
+                pass
+
+    def test_slotop_eq_package_spec(self):
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        =test/amd64-testing-1:0= amd64 hppa
+                    '''):
+                pass
+
+    def test_slotop_eq_package_spec_kwreq(self):
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        =test/amd64-testing-1:= amd64 hppa
+                    ''', allow_unspecific=True):
+                pass
+
+    def test_slotop_any_package_spec(self):
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        =test/amd64-testing-1:* amd64 hppa
+                    '''):
+                pass
+
+    def test_slotop_any_package_spec_kwreq(self):
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        =test/amd64-testing-1:* amd64 hppa
+                    ''', allow_unspecific=True):
+                pass
+
+    def test_subslot_package_spec(self):
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        =test/amd64-testing-1:0/0 amd64 hppa
+                    '''):
+                pass
+
+    def test_subslot_package_spec_kwreq(self):
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, '''
+                        test/amd64-testing:0/0 amd64 hppa
+                ''', allow_unspecific=True))), [
+                (self.ebuild_path('test', 'amd64-testing', '2'),
+                 ['amd64', 'hppa']),
+            ])
+
     def test_useflags_package_spec(self):
         """ Test package list including a USE dependency. """
         with self.assertRaises(PackageInvalid):
@@ -236,6 +362,14 @@ class PackageMatcherTests(BaseRepoTestCase):
                     '''):
                 pass
 
+    def test_useflags_package_spec_kwreq(self):
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        =test/amd64-testing-1[foo] amd64 hppa
+                    ''', allow_unspecific=True):
+                pass
+
     def test_repo_package_spec(self):
         """ Test package list including a repository name. """
         with self.assertRaises(PackageInvalid):
@@ -243,6 +377,14 @@ class PackageMatcherTests(BaseRepoTestCase):
                         test/amd64-testing-2 amd64 hppa
                         =test/amd64-testing-1::foo amd64 hppa
                     '''):
+                pass
+
+    def test_repo_package_spec_kwreq(self):
+        with self.assertRaises(PackageInvalid):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-2 amd64 hppa
+                        =test/amd64-testing-1::foo amd64 hppa
+                    ''', allow_unspecific=True):
                 pass
 
     def test_no_match(self):

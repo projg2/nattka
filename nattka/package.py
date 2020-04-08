@@ -111,12 +111,18 @@ def select_best_version(matches: typing.Iterable[
 
 
 def match_package_list(repo: UnconfiguredTree,
-                       package_list: str
+                       package_list: str,
+                       allow_unspecific: bool = False
                        ) -> typing.Iterator[PackageKeywords]:
     """
-    Match @package_list against packages in @repo.  Returns an iterator
-    over pairs of PackageKeywords.  If any of the items fails to match,
-    raises an exception.
+    Match `package_list` against packages in `repo`
+
+    Return an iterator over pair of PackageKeywords.  If any of
+    the items fail to match, raise an exception.
+
+    If `allow_unspecific` is False (the default), only = specifiers
+    that can match a single version are allowed.  Otherwise, any valid
+    package spec is allowed.
     """
 
     valid_arches = frozenset(repo.known_arches)
@@ -133,15 +139,15 @@ def match_package_list(repo: UnconfiguredTree,
         dep = None
         for sdep in (f'={sl[0].strip()}', sl[0].strip()):
             try:
-                dep = atom(sdep, eapi='0')
+                dep = atom(sdep, eapi='5')
                 break
             except MalformedAtom:
                 pass
 
-        if dep is None or dep.blocks:
+        if dep is None or dep.blocks or dep.use or dep.slot_operator:
             raise PackageInvalid(
                 f'invalid package spec: {sdep}')
-        if dep.op != '=':
+        if not allow_unspecific and (dep.op != '=' or dep.slot):
             raise PackageInvalid(
                 f'disallowed package spec (only = allowed): {dep}')
 
@@ -149,8 +155,12 @@ def match_package_list(repo: UnconfiguredTree,
         if not m:
             raise PackageNoMatch(
                 f'no match for package: {sl[0]}')
-        assert len(m) == 1
-        yield PackageKeywords(m[0], keywords)
+        if allow_unspecific:
+            pkg = select_best_version(m)
+        else:
+            assert len(m) == 1
+            pkg = m[0]
+        yield PackageKeywords(pkg, keywords)
 
 
 def add_keywords(tuples: PackageKeywordsIterable,
