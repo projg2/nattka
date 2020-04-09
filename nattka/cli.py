@@ -282,6 +282,12 @@ class NattkaCommands(object):
         repo, git_repo = self.get_git_repository()
         arch = self.get_arch()
 
+        if not have_nattka_depgraph:
+            log.warning(
+                'Unable to import nattka.depgraph, dependency sorting '
+                'will not be available')
+            log.warning('(nattka.depgraph requires networkx)')
+
         ret = 0
         bugnos, bugs = self.find_bugs()
         for bno in bugnos:
@@ -302,9 +308,18 @@ class NattkaCommands(object):
                 ret = 1
                 continue
 
+            if have_nattka_depgraph:
+                graph = get_depgraph_for_packages(plist)
+                ordered_nodes = list(get_ordered_nodes(graph))
+                order = sorted(plist,
+                               key=lambda x: (ordered_nodes.index(x.key),
+                                              x.fullver))
+            else:
+                order = list(plist)
+
             log.info(f'Bug {bno} ({b.category.name})')
-            for p, keywords in plist.items():
-                keywords = [k for k in keywords if k in arch]
+            for p in order:
+                keywords = [k for k in plist[p] if k in arch]
                 if not keywords:
                     continue
 
