@@ -20,7 +20,7 @@ from pkgcore.ebuild.repository import UnconfiguredTree
 from pkgcore.util import parserestrict
 
 from nattka.bugzilla import BugCategory
-from nattka.cli import main
+from nattka.cli import main, have_nattka_depgraph
 
 from test.test_bugzilla import makebug
 from test.test_package import get_test_repo
@@ -576,6 +576,34 @@ class IntegrationSuccessTests(IntegrationTestCase):
             '''# bug 560322 (KEYWORDREQ)
 =test/amd64-testing-deps-1 **  # -> ~alpha''')
 
+    @unittest.skipIf(not have_nattka_depgraph,
+                     'networkx required for dep sorting')
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_apply_dep_sorting(self, bugz, sout):
+        """Test dep sorting in 'apply' command."""
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/amd64-testing-deps-1 amd64\r\n'
+                            'test/amd64-testing-1 amd64\r\n',
+                            sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', '*', '-n', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+
+        self.assertEqual(
+            sout.getvalue().strip(),
+            '''# bug 560322 (STABLEREQ)
+=test/amd64-testing-1 ~amd64
+=test/amd64-testing-deps-1 ~amd64''')
+
     @patch('nattka.cli.NattkaBugzilla')
     def test_process_success_n(self, bugz):
         """ Test processing with -n. """
@@ -838,6 +866,52 @@ test@example.com
 test/alpha-amd64-hppa-testing: Stabilize 2 amd64 hppa, #560322
 
 test/alpha-amd64-hppa-testing/alpha-amd64-hppa-testing-2.ebuild
+test
+test@example.com
+test/amd64-testing: Stabilize 1 amd64, #560322
+
+test/amd64-testing/amd64-testing-1.ebuild
+''')
+
+    @unittest.skipIf(not have_nattka_depgraph,
+                     'networkx required for dep sorting')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_commit_dep_sorting(self, bugz):
+        assert subprocess.Popen(
+            ['git', 'config', '--local', 'user.name', 'test'],
+            cwd=self.repo.location).wait() == 0
+        assert subprocess.Popen(
+            ['git', 'config', '--local', 'user.email', 'test@example.com'],
+            cwd=self.repo.location).wait() == 0
+
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/amd64-testing-deps-1 amd64\r\n'
+                            'test/amd64-testing-1 amd64\r\n',
+                            sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', '*', '560322']),
+            0)
+        self.assertEqual(
+            main(self.common_args + ['commit', '-a', '*', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+
+        s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%s',
+                              '--name-only'],
+                             cwd=self.repo.location,
+                             stdout=subprocess.PIPE)
+        sout, _ = s.communicate()
+        self.assertEqual(sout.decode(),
+                         '''test
+test@example.com
+test/amd64-testing-deps: Stabilize 1 amd64, #560322
+
+test/amd64-testing-deps/amd64-testing-deps-1.ebuild
 test
 test@example.com
 test/amd64-testing: Stabilize 1 amd64, #560322
