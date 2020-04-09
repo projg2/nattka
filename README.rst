@@ -57,6 +57,11 @@ stable or testing keywords are used depending on component used.
 If keywords are listed for all packages, the bug can be checked even
 before arch teams are CC-ed.
 
+In place of explicit (or implicit) keywords, additional tokens can
+be used to save typing:
+
+- ``^`` that copies keywords from the previous package on the list.
+
 Once arch teams are CC-ed, effective keywords are determined
 as the intersection of specified keywords and CC-ed arches.  Packages
 listed without keywords are assumed to be requested on all CC-ed arches.
@@ -65,6 +70,7 @@ Example package list follows::
 
     dev-bar/libfrobnicate-9.0
     dev-foo/frobnicate-1.2.3 amd64 x86
+    dev-libs/libdependency-7.7.7 ^
 
 Detailed information on Bugzilla use can be found in the `bug
 processing`_ section of the documentation.

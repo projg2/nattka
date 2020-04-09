@@ -126,11 +126,19 @@ def match_package_list(repo: UnconfiguredTree,
     """
 
     valid_arches = frozenset(repo.known_arches)
+    prev_keywords = None
     for l in package_list.splitlines():
         sl = l.split()
         if not sl:
             continue
+
         keywords = [x.strip().lstrip('~') for x in sl[1:]]
+        if '^' in keywords:
+            if prev_keywords is None:
+                raise KeywordNoMatch(
+                    f'invalid use of ^ keyword on first line')
+            keywords = prev_keywords + [x for x in keywords if x != '^']
+
         unknown_keywords = frozenset(keywords) - valid_arches
         if unknown_keywords:
             raise KeywordNoMatch(
@@ -161,6 +169,7 @@ def match_package_list(repo: UnconfiguredTree,
             assert len(m) == 1
             pkg = m[0]
         yield PackageKeywords(pkg, keywords)
+        prev_keywords = keywords
 
 
 def add_keywords(tuples: PackageKeywordsIterable,

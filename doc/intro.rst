@@ -72,6 +72,12 @@ The primary advantages of NATTkA over stable-bot are:
   keywording old versions instead of the newest.  With NATTkA, generic
   package dependency specifications are permitted.
 
+- *New keyword tokens that ease common tasks*: stable-bot can only
+  infer keywords from CC, and requires you to type them explicitly
+  otherwise.  NATTkA extends the package list syntax to support
+  additional tokens: ``^`` to copy keywords from the previous package
+  on the list.
+
 .. _pkgcheck: https://github.com/pkgcore/pkgcheck/
 
 
@@ -79,7 +85,5 @@ TODO
 ====
 The most important tasks ahead of NATTkA are:
 
-- *Extend keyword list specification*: instead of requiring developers
-  to explicitly specify keywords or inferring them from CC-ed arches,
-  NATTkA aims to support inferring keywords from older package versions
-  or copying from earlier lines on the package list.
+- *Extend keyword list specification*: add special tokens to copy
+  keywords from existing package versions.

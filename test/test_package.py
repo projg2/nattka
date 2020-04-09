@@ -405,6 +405,31 @@ class PackageMatcherTests(BaseRepoTestCase):
                     '''):
                 pass
 
+    def test_previous_keywords(self):
+        """Test use of ^ token to copy previous keywords"""
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, '''
+                    test/amd64-testing-1 amd64 hppa
+                    test/amd64-testing-2 ^ alpha
+                    test/amd64-stable-hppa-testing-1 ^
+                '''))), [
+                (self.ebuild_path('test', 'amd64-testing', '1'),
+                 ['amd64', 'hppa']),
+                (self.ebuild_path('test', 'amd64-testing', '2'),
+                 ['amd64', 'hppa', 'alpha']),
+                (self.ebuild_path('test', 'amd64-stable-hppa-testing', '1'),
+                 ['amd64', 'hppa', 'alpha']),
+            ])
+
+    def test_previous_keywords_on_first_line(self):
+        with self.assertRaises(KeywordNoMatch):
+            for m in match_package_list(self.repo, '''
+                        test/amd64-testing-1 ^ alpha
+                        test/amd64-testing-2 amd64 hppa
+                    '''):
+                pass
+
 
 class FakeEbuild(object):
     """

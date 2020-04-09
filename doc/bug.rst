@@ -47,6 +47,10 @@ A keyword is one of the arch names, optionally prefixed by a tilde
 are applied depending on the bug category.  If no keywords are
 specified, they are inferred from the arch teams found in CC.
 
+Additionally, the following tokens can be used in keyword list:
+
+- ``^`` that copies keywords from the previous line.
+
 .. code-block::
    :caption: Example package list for stabilization request
 
@@ -56,8 +60,8 @@ specified, they are inferred from the arch teams found in CC.
 .. code-block::
    :caption: Example package list for keywording request
 
-   dev-python/pytest
-   <dev-python/pytest-5
+   dev-python/pytest alpha hppa
+   <dev-python/pytest-5 ^
    sys-devel/llvm:10
 
 
