@@ -77,9 +77,7 @@ class IntegrationTestCase(unittest.TestCase):
                    sanity_check: typing.Optional[bool] = None,
                    updated: bool = True
                    ) -> str:
-        """
-        Write a cache file and return the path to it.
-        """
+        """Write a cache file and return the path to it"""
         fn = Path(self.tempdir.name) / 'cache.json'
         with open(fn, 'w') as f:
             json.dump({
@@ -100,9 +98,7 @@ class IntegrationTestCase(unittest.TestCase):
 
 
 class IntegrationNoActionTests(IntegrationTestCase):
-    """
-    Test cases for bugs that can not be processed.
-    """
+    """Test cases for bugs that can not be processed"""
 
     reset_msg = 'Resetting sanity check; package list is empty.'
 
@@ -123,11 +119,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_skip_apply(self, bugz, add_keywords):
-        """
-        Test skipping a bug that is not suitable for processing
-        in 'apply' command.
-        """
+    def test_apply_empty_package_list(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
@@ -139,10 +131,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_skip(self, bugz, add_keywords):
-        """
-        Test skipping a bug that is not suitable for processing.
-        """
+    def test_sanity_empty_package_list(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
@@ -154,7 +143,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_reset_n(self, bugz, add_keywords):
+    def test_sanity_reset_n(self, bugz, add_keywords):
         """
         Test skipping a bug that needs sanity-check reset, with '-n'.
         """
@@ -168,10 +157,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_reset(self, bugz, add_keywords):
-        """
-        Test resetting sanity-check for a bug.
-        """
+    def test_sanity_reset(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
@@ -198,10 +184,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_empty_keywords_apply(self, bugz, add_keywords):
-        """
-        Test skipping a bug with empty keywords, with 'apply'.
-        """
+    def test_apply_empty_keywords(self, bugz, add_keywords):
         bugz_inst = self.empty_keywords_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
@@ -213,10 +196,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_empty_keywords(self, bugz, add_keywords):
-        """
-        Test skipping a bug with empty keywords.
-        """
+    def test_sanity_empty_keywords(self, bugz, add_keywords):
         bugz_inst = self.empty_keywords_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
@@ -241,8 +221,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
 
     @patch('nattka.cli.match_package_list')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_wrong_category_apply(self, bugz, match_package_list):
-        """ Test bug in wrong category, with 'apply'. """
+    def test_apply_wrong_category(self, bugz, match_package_list):
         bugz_inst = self.wrong_category_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
@@ -254,8 +233,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
 
     @patch('nattka.cli.match_package_list')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_wrong_category_process(self, bugz, match_package_list):
-        """ Test bug in wrong category. """
+    def test_sanity_wrong_category(self, bugz, match_package_list):
         bugz_inst = self.wrong_category_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
@@ -267,15 +245,12 @@ class IntegrationNoActionTests(IntegrationTestCase):
 
 
 class IntegrationSuccessTests(IntegrationTestCase):
-    """
-    Integration tests that pass sanity-check.
-    """
+    """Integration tests that pass sanity-check"""
 
     def bug_preset(self,
                    bugz: MagicMock,
                    initial_status: typing.Optional[bool] = None
                    ) -> MagicMock:
-        """ Preset bugzilla mock. """
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.STABLEREQ,
@@ -288,7 +263,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         return bugz_inst
 
     def post_verify(self):
-        """ Verify that the original data has been restored. """
+        """Verify that the original data has been restored"""
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
             ('~amd64',))
@@ -301,8 +276,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
-    def test_apply(self, bugz, sout):
-        """Test apply with STABLEREQ."""
+    def test_apply_stablereq(self, bugz, sout):
         bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
@@ -327,7 +301,6 @@ class IntegrationSuccessTests(IntegrationTestCase):
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_keywordreq(self, bugz, sout):
-        """Test apply with KEYWORDREQ."""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.KEYWORDREQ,
@@ -380,7 +353,6 @@ class IntegrationSuccessTests(IntegrationTestCase):
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_filter_arch(self, bugz, sout):
-        """Test apply with arch filtering."""
         bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', 'amd64', '560322']),
@@ -405,7 +377,6 @@ class IntegrationSuccessTests(IntegrationTestCase):
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_filter_host_arch(self, bugz, sout):
-        """Test apply with host arch filtering."""
         bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
             main(self.common_args + ['apply', '560322']),
@@ -428,7 +399,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_skip_sanity_check(self, bugz):
-        """Test that apply skips bug with failing sanity check."""
+        """Test that apply skips bug with failing sanity check"""
         bugz_inst = self.bug_preset(bugz, False)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
@@ -447,7 +418,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_ignore_sanity_check(self, bugz, sout):
-        """Test that apply --ignore-sanity-check works."""
+        """Test that apply --ignore-sanity-check works"""
         bugz_inst = self.bug_preset(bugz, False)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322',
@@ -472,7 +443,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_skip_dependencies(self, bugz):
-        """Test that apply skips bug with unresolved dependencies."""
+        """Test that apply skips bug with unresolved dependencies"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.KEYWORDREQ,
@@ -504,7 +475,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_resolved_dependencies(self, bugz, sout):
-        """Test that apply does not block on resolved dependencies."""
+        """Test that apply does not block on resolved dependencies"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.KEYWORDREQ,
@@ -541,7 +512,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_ignore_dependencies(self, bugz, sout):
-        """Test that apply --ignore-dependencies works."""
+        """Test that apply --ignore-dependencies works"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.KEYWORDREQ,
@@ -581,7 +552,6 @@ class IntegrationSuccessTests(IntegrationTestCase):
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_dep_sorting(self, bugz, sout):
-        """Test dep sorting in 'apply' command."""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.STABLEREQ,
@@ -605,8 +575,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/amd64-testing-deps-1 ~amd64''')
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_success_n(self, bugz):
-        """ Test processing with -n. """
+    def test_sanity_n(self, bugz):
+        """Test processing with '-n'"""
         bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '560322']),
@@ -616,8 +586,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_success(self, bugz):
-        """ Test setting new success. """
+    def test_sanity_from_none(self, bugz):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
@@ -628,10 +597,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_success_from_success(self, bugz):
-        """
-        Test non-update when bug was marked sanity-check+ already.
-        """
+    def test_sanity_from_success(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
@@ -642,8 +608,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_success_from_failure(self, bugz):
-        """ Test transition from failure to success. """
+    def test_sanity_from_failure(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
@@ -656,10 +621,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_cached(self, bugz, add_keywords):
-        """
-        Test that cached entry for sanity-check+ is respected.
-        """
+    def test_sanity_cache(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         cache = self.make_cache(bugz_inst, sanity_check=True)
         self.assertEqual(
@@ -672,10 +634,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_cache_expired(self, bugz, add_keywords):
-        """
-        Test that expired cached entry for sanity-check+ is ignored.
-        """
+    def test_sanity_cache_expired(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         last_check = datetime.datetime.utcnow() - datetime.timedelta(days=1)
         cache = self.make_cache(bugz_inst,
@@ -690,11 +649,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_cache_plist_changed(self, bugz, add_keywords):
-        """
-        Test that cached entry for sanity-check+ is ignored if package
-        list changes.
-        """
+    def test_sanity_cache_plist_changed(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         cache = self.make_cache(bugz_inst,
                                 package_list='test/foo',
@@ -708,11 +663,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_cache_result_changed(self, bugz, add_keywords):
-        """
-        Test that cached entry for sanity-check+ is ignored
-        if sanity-check flag changed.
-        """
+    def test_sanity_cache_result_changed(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         cache = self.make_cache(bugz_inst,
                                 sanity_check=False)
@@ -725,11 +676,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_cache_from_noupdate(self, bugz, add_keywords):
-        """
-        Test that cached entry from --no-update mode for sanity-check+
-        is ignored.
-        """
+    def test_sanity_cache_from_noupdate(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         cache = self.make_cache(bugz_inst,
                                 updated=False,
@@ -742,8 +689,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         add_keywords.assert_called()
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_cache_empty(self, bugz):
-        """ Test setting new success with empty cache file. """
+    def test_sanity_cache_empty(self, bugz):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
@@ -757,10 +703,9 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_depend_specified(self, bugz):
+    def test_sanity_depend_specified(self, bugz):
         """
-        Test for sanity-check depending on another bug when both bugs
-        are explicitly specified.
+        Test for depending on another bug when both bugs are listed
         """
 
         bugz_inst = bugz.return_value
@@ -786,11 +731,11 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_depend(self, bugz):
+    def test_sanity_depend_auto(self, bugz):
         """
-        Test for sanity-check depending on another bug being fetched
-        implicitly.
+        Test for depending on another bug with autofetching
         """
+
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.KEYWORDREQ,
@@ -816,11 +761,11 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_depend_no_fetch_deps(self, bugz):
+    def test_sanity_depend_no_fetch_deps(self, bugz):
         """
-        Test for sanity-check depending on another bug with implicit
-        fetching disabled.
+        Test for depending on another bug with --no-fetch-dependencies
         """
+
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.KEYWORDREQ,
@@ -921,9 +866,7 @@ test/amd64-testing/amd64-testing-1.ebuild
 
 
 class IntegrationFailureTests(IntegrationTestCase):
-    """
-    Integration tests that fail sanity-check.
-    """
+    """Integration tests that fail sanity-check"""
 
     fail_msg = ('Sanity check failed:\n\n'
                 '> test/amd64-testing-deps-1\n'
@@ -934,7 +877,6 @@ class IntegrationFailureTests(IntegrationTestCase):
                    bugz: MagicMock,
                    initial_status: typing.Optional[bool] = None
                    ) -> MagicMock:
-        """ Instantiate Bugzilla mock. """
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.KEYWORDREQ,
@@ -946,14 +888,14 @@ class IntegrationFailureTests(IntegrationTestCase):
         return bugz_inst
 
     def post_verify(self) -> None:
-        """ Verify that the original data has been restored. """
+        """Verify that the original data has been restored"""
         self.assertEqual(
             self.get_package('=test/amd64-testing-deps-1').keywords,
             ('~amd64',))
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_failure_n(self, bugz):
-        """ Test processing with -n. """
+    def test_sanity_n(self, bugz):
+        """Test processing with -n"""
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '560322']),
@@ -963,8 +905,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_failure(self, bugz):
-        """ Test setting new failure. """
+    def test_sanity_from_none(self, bugz):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
@@ -976,10 +917,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_failure_no_comment(self, bugz):
-        """
-        Test setting failure when bug is sanity-check- without a comment.
-        """
+    def test_sanity_from_fail_no_comment(self, bugz):
         bugz_inst = self.bug_preset(bugz)
         bugz_inst.get_latest_comment.return_value = None
         self.assertEqual(
@@ -992,11 +930,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_failure_from_other_failure(self, bugz):
-        """
-        Test setting failure when bug is sanity-check- with a different
-        failure.
-        """
+    def test_sanity_from_fail_other(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         bugz_inst.get_latest_comment.return_value = (
             'Sanity check failed:\n\n> nonsolvable depset(rdepend) '
@@ -1012,10 +946,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_failure_from_same_failure(self, bugz):
-        """
-        Test non-update when bug was marked sanity-check- already.
-        """
+    def test_sanity_from_fail(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         bugz_inst.get_latest_comment.return_value = self.fail_msg
         self.assertEqual(
@@ -1027,8 +958,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_failure_from_success(self, bugz):
-        """ Test transition from success to failure. """
+    def test_sanity_from_success(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
@@ -1041,10 +971,7 @@ class IntegrationFailureTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_cached(self, bugz, add_keywords):
-        """
-        Test that cached entry for sanity-check- is respected.
-        """
+    def test_sanity_cache(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         cache = self.make_cache(bugz_inst, sanity_check=False)
         self.assertEqual(
@@ -1057,10 +984,7 @@ class IntegrationFailureTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_cache_expired(self, bugz, add_keywords):
-        """
-        Test that expired cached entry for sanity-check- is ignored.
-        """
+    def test_sanity_cache_expired(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         bugz_inst.get_latest_comment.return_value = self.fail_msg
         last_check = datetime.datetime.utcnow() - datetime.timedelta(days=1)
@@ -1076,11 +1000,7 @@ class IntegrationFailureTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_cache_plist_changed(self, bugz, add_keywords):
-        """
-        Test that cached entry for sanity-check- is ignored if package
-        list changes.
-        """
+    def test_sanity_cache_plist_changed(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         bugz_inst.get_latest_comment.return_value = self.fail_msg
         cache = self.make_cache(bugz_inst,
@@ -1095,11 +1015,7 @@ class IntegrationFailureTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_cache_result_changed(self, bugz, add_keywords):
-        """
-        Test that cached entry for sanity-check- is ignored
-        if sanity-check flag changed.
-        """
+    def test_sanity_cache_result_changed(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         bugz_inst.get_latest_comment.return_value = self.fail_msg
         cache = self.make_cache(bugz_inst,
@@ -1112,8 +1028,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         add_keywords.assert_called()
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_process_cache_empty(self, bugz):
-        """ Test setting new failure with empty cache file. """
+    def test_sanity_cache_empty(self, bugz):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
@@ -1129,7 +1044,7 @@ class IntegrationFailureTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_malformed_package_list(self, bugz, add_keywords):
+    def test_sanity_reason_malformed_plist(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.KEYWORDREQ,
@@ -1149,7 +1064,7 @@ class IntegrationFailureTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_malformed_package_list_cache_empty_reported(
+    def test_sanity_reason_malformed_plist_cache_empty_reported(
             self, bugz, add_keywords):
         """
         Regression test for reporting an exception-failure when cache
@@ -1179,7 +1094,7 @@ class IntegrationFailureTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_disallowed_package_list(self, bugz, add_keywords):
+    def test_sanity_reason_disallowed_plist(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.KEYWORDREQ,
@@ -1199,7 +1114,7 @@ class IntegrationFailureTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_non_matched_package_list(self, bugz, add_keywords):
+    def test_sanity_reason_non_matched_plist(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.KEYWORDREQ,
@@ -1219,7 +1134,7 @@ class IntegrationFailureTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
-    def test_non_matched_keyword_list(self, bugz, add_keywords):
+    def test_sanity_reason_non_matched_keywords(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.KEYWORDREQ,
