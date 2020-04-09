@@ -29,8 +29,18 @@ of whitespace.  Leading and trailing whitespace is ignored as well.
 
 A package specification can be either the so-called CPV form
 (``<cat>/<package>-<version>``) or a subset of package dependency
-specification.  In the latter case, only non-wildcard ``=`` dependencies
-without slots, USE dependencies and other extensions are allowed.
+specification.  For stabilization requests, only ``=`` dependencies
+(without wildcards) are allowed, i.e. syntax specifying exactly one
+version.  For keywording requests, syntax matching multiple versions
+is allowed, including other operators, ``=`` wildcards, slots.  In both
+cases USE dependencies and other extensions are not permitted.
+
+If the specification matches multiple versions, the program attempts
+to determine the best version to keyword.  Preferably, the newest
+matching version having at least one keyword will be used.  If no such
+version matches, the newest non-live version without keywords (based
+on ``PROPERTIES=live``) will be used.  If neither such version exists,
+the newest live version will be used.
 
 A keyword is one of the arch names, optionally prefixed by a tilde
 (``~``).  Note that the tilde is ignored, and stable or testing keywords
@@ -38,10 +48,17 @@ are applied depending on the bug category.  If no keywords are
 specified, they are inferred from the arch teams found in CC.
 
 .. code-block::
-   :caption: Example package list
+   :caption: Example package list for stabilization request
 
    app-misc/frobnicate-1.2.3 amd64 x86
    =dev-libs/libfrobnicate-1.9
+
+.. code-block::
+   :caption: Example package list for keywording request
+
+   dev-python/pytest
+   <dev-python/pytest-5
+   sys-devel/llvm:10
 
 
 Sanity check flag

@@ -23,6 +23,10 @@ The primary features of NATTkA are:
   if arches are not CC-ed yet (if keywords can be determined
   from package list).
 
+- Support for generic package dependency syntax in package list field
+  for keywording requests, removing the requirement to explicitly
+  specify one package version and keep it updated.
+
 - ``apply`` command that replaces ``getatoms.py``, with support for
   applying keywords in place and dependency sort of output.
 
@@ -40,11 +44,18 @@ bugs filed in keywording/stabilization-related components, with package
 list field filled in.  The results of sanity check are reported via flag
 and comment on the bug.
 
-Package list names one package per line (using CPV form), optionally
-followed by one or more keywords.  Tilde before keywords is optional
-and does not influence the behavior — stable or testing keywords are
-used depending on component used.  If keywords are listed for all
-packages, the bug can be checked even before arch teams are CC-ed.
+Package list names one package per line (using CPV or package dependency
+specification form), optionally followed by one or more keywords.
+
+For stabilization requests, exact package versions must be specified.
+For keywording requests, generic specifications can be used instead.
+If they match multiple versions, the program will determine the newest
+suitable version.
+
+Tilde before keywords is optional and does not influence the behavior —
+stable or testing keywords are used depending on component used.
+If keywords are listed for all packages, the bug can be checked even
+before arch teams are CC-ed.
 
 Once arch teams are CC-ed, effective keywords are determined
 as the intersection of specified keywords and CC-ed arches.  Packages

@@ -66,18 +66,18 @@ The primary advantages of NATTkA over stable-bot are:
   are stable on some architectures already, NATTkA lets you specify all
   arches and just ignores those having stable keywords already.
 
+- *Relaxed package specifications for keywording*: stable-bot requires
+  you to specify exact versions of keyworded packages.  This results
+  in a need to update keywording bugs often, and sometimes in arch teams
+  keywording old versions instead of the newest.  With NATTkA, generic
+  package dependency specifications are permitted.
+
 .. _pkgcheck: https://github.com/pkgcore/pkgcheck/
 
 
 TODO
 ====
 The most important tasks ahead of NATTkA are:
-
-- *Allow free-form package specification for keywording requests*:
-  There is no real need to bind them to a specific package version,
-  and keeping them up-to-date is cumbersome.  NATTkA needs to support
-  any kind of valid dependency specifications for them and keyword
-  the newest matching version.
 
 - *Extend keyword list specification*: instead of requiring developers
   to explicitly specify keywords or inferring them from CC-ed arches,
