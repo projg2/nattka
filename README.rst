@@ -62,6 +62,8 @@ be used to save typing:
 
 - ``^`` that copies keywords from the previous package on the list.
 
+- ``*`` that aligns keywords to other versions of the package.
+
 Once arch teams are CC-ed, effective keywords are determined
 as the intersection of specified keywords and CC-ed arches.  Packages
 listed without keywords are assumed to be requested on all CC-ed arches.

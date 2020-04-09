@@ -22,7 +22,7 @@ from pkgcore.ebuild.atom import atom
 from pkgcore.ebuild.errors import MalformedAtom
 from pkgcore.ebuild.repository import UnconfiguredTree
 
-from nattka.keyword import update_keywords_in_file
+from nattka.keyword import update_keywords_in_file, keyword_sort_key
 
 
 class RepoTuple(typing.NamedTuple):
@@ -112,7 +112,8 @@ def select_best_version(matches: typing.Iterable[
 
 def match_package_list(repo: UnconfiguredTree,
                        package_list: str,
-                       allow_unspecific: bool = False
+                       allow_unspecific: bool = False,
+                       streq: bool = False
                        ) -> typing.Iterator[PackageKeywords]:
     """
     Match `package_list` against packages in `repo`
@@ -123,6 +124,9 @@ def match_package_list(repo: UnconfiguredTree,
     If `allow_unspecific` is False (the default), only = specifiers
     that can match a single version are allowed.  Otherwise, any valid
     package spec is allowed.
+
+    If `streq` is True, ``*`` will only match stable keywords.
+    Otherwise, it will match both ~arch and stable keywords.
     """
 
     valid_arches = frozenset(repo.known_arches)
@@ -131,18 +135,6 @@ def match_package_list(repo: UnconfiguredTree,
         sl = l.split()
         if not sl:
             continue
-
-        keywords = [x.strip().lstrip('~') for x in sl[1:]]
-        if '^' in keywords:
-            if prev_keywords is None:
-                raise KeywordNoMatch(
-                    f'invalid use of ^ keyword on first line')
-            keywords = prev_keywords + [x for x in keywords if x != '^']
-
-        unknown_keywords = frozenset(keywords) - valid_arches
-        if unknown_keywords:
-            raise KeywordNoMatch(
-                f'incorrect keywords: {" ".join(unknown_keywords)}')
 
         dep = None
         for sdep in (f'={sl[0].strip()}', sl[0].strip()):
@@ -163,11 +155,48 @@ def match_package_list(repo: UnconfiguredTree,
         if not m:
             raise PackageNoMatch(
                 f'no match for package: {sl[0]}')
+
         if allow_unspecific:
             pkg = select_best_version(m)
         else:
             assert len(m) == 1
             pkg = m[0]
+
+        keywords = [x.strip().lstrip('~') for x in sl[1:]]
+        if '*' in keywords:
+            # get keywords from other versions
+            keyword_iter = itertools.chain.from_iterable(
+                x.keywords for x in repo.match(dep.unversioned_atom))
+            disallow_prefix = ('-~' if streq else '-')
+            match_keywords = set(
+                x.lstrip('~') for x in keyword_iter
+                if x[0] not in disallow_prefix)
+
+            if streq:
+                # limit stablereq to whatever is ~arch right now
+                match_keywords.intersection_update(
+                    x.lstrip('~') for x in pkg.keywords
+                    if x[0] == '~')
+            else:
+                # limit keywordreq to missing keywords and not -*
+                # (i.e. strip all keywords already present)
+                match_keywords.difference_update(
+                    x.lstrip('~-') for x in pkg.keywords)
+
+            keywords = (
+                sorted(match_keywords, key=keyword_sort_key)
+                + [x for x in keywords if x != '*'])
+        if '^' in keywords:
+            if prev_keywords is None:
+                raise KeywordNoMatch(
+                    f'invalid use of ^ keyword on first line')
+            keywords = prev_keywords + [x for x in keywords if x != '^']
+
+        unknown_keywords = frozenset(keywords) - valid_arches
+        if unknown_keywords:
+            raise KeywordNoMatch(
+                f'incorrect keywords: {" ".join(unknown_keywords)}')
+
         yield PackageKeywords(pkg, keywords)
         prev_keywords = keywords
 

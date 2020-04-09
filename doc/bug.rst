@@ -51,6 +51,13 @@ Additionally, the following tokens can be used in keyword list:
 
 - ``^`` that copies keywords from the previous line.
 
+- ``*`` that aligns keywords to the intersection of keywords of other
+  versions of the package.  In case of keywordreqs, this means all
+  keywords present in other versions of the package, if they are not
+  explicitly disabled for this one.  In case of stablereqs, this means
+  all stable keywords present in other versions of the package,
+  if the respective ``~arch`` keyword is present in this version.
+
 .. code-block::
    :caption: Example package list for stabilization request
 

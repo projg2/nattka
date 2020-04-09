@@ -430,6 +430,39 @@ class PackageMatcherTests(BaseRepoTestCase):
                     '''):
                 pass
 
+    def test_asterisk_kwreq(self):
+        """Test use of * token to rekeyword existing"""
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, '''
+                    test/mixed-keywords-4 *
+                ''', streq=False))), [
+                (self.ebuild_path('test', 'mixed-keywords', '4'),
+                 ['alpha', 'hppa']),
+            ])
+
+    def test_asterisk_streq(self):
+        """Test use of * token to stabilize existing"""
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, '''
+                    test/mixed-keywords-3 *
+                ''', streq=True))), [
+                (self.ebuild_path('test', 'mixed-keywords', '3'),
+                 ['amd64', 'hppa']),
+            ])
+
+    def test_asterisk_streq_limited(self):
+        """Test use of * token to stabilize existing with less ~arch"""
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, '''
+                    test/mixed-keywords-4 *
+                ''', streq=True))), [
+                (self.ebuild_path('test', 'mixed-keywords', '4'),
+                 ['amd64']),
+            ])
+
 
 class FakeEbuild(object):
     """
