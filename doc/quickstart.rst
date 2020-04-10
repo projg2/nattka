@@ -22,6 +22,7 @@ be installed inside a virtualenv):
 
 Running tests additionally requires:
 
+- freezegun_ time mocking library.
 - vcrpy_ replay HTTP request mocking library.
 
 pytest_ is strongly recommended but the tests are compatible with
@@ -35,6 +36,7 @@ standard unittest runner (but they are quite noisy).
 .. _pkgcheck: https://github.com/pkgcore/pkgcheck/
 .. _requests: http://python-requests.org/
 .. _vcrpy: https://vcrpy.readthedocs.io/
+.. _freezegun: https://github.com/spulec/freezegun
 .. _pytest: https://pytest.org/
 
 
