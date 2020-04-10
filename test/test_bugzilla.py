@@ -12,7 +12,8 @@ import vcr
 
 from nattka.bugzilla import (NattkaBugzilla, BugCategory, BugInfo,
                              get_combined_buginfo, arches_from_cc,
-                             update_keywords_from_cc)
+                             update_keywords_from_cc,
+                             split_dependent_bugs)
 
 
 API_ENDPOINT = 'http://127.0.0.1:33113/rest'
@@ -639,3 +640,82 @@ class KeywordFillerTest(unittest.TestCase):
                     'test/bar-2 amd64 x86\r\n'
                     'test/bar-3 amd64 x86\r\n',
                     ['amd64', 'x86']))
+
+
+class SplitDependentBugsTests(unittest.TestCase):
+    def test_empty(self):
+        self.assertEqual(
+            split_dependent_bugs(
+                {1: makebug(BugCategory.STABLEREQ, '')
+                 }, 1),
+            ([1], []))
+
+    def test_kwreq(self):
+        self.assertEqual(
+            split_dependent_bugs(
+                {1: makebug(BugCategory.KEYWORDREQ, '', depends=[2]),
+                 2: makebug(BugCategory.KEYWORDREQ, '', depends=[3],
+                            blocks=[1]),
+                 3: makebug(BugCategory.KEYWORDREQ, '', blocks=[2]),
+                 }, 1),
+            ([1, 2, 3], []))
+
+    def test_streq(self):
+        self.assertEqual(
+            split_dependent_bugs(
+                {1: makebug(BugCategory.STABLEREQ, '', depends=[2]),
+                 2: makebug(BugCategory.STABLEREQ, '', depends=[3],
+                            blocks=[1]),
+                 3: makebug(BugCategory.STABLEREQ, '', blocks=[2]),
+                 }, 1),
+            ([1, 2, 3], []))
+
+    def test_kwreq_mixed(self):
+        self.assertEqual(
+            split_dependent_bugs(
+                {1: makebug(BugCategory.KEYWORDREQ, '', depends=[2]),
+                 2: makebug(BugCategory.STABLEREQ, '', depends=[3],
+                            blocks=[1]),
+                 3: makebug(BugCategory.KEYWORDREQ, '', blocks=[2]),
+                 }, 1),
+            ([1], [2]))
+
+    def test_streq_mixed(self):
+        self.assertEqual(
+            split_dependent_bugs(
+                {1: makebug(BugCategory.STABLEREQ, '', depends=[2]),
+                 2: makebug(BugCategory.KEYWORDREQ, '', depends=[3],
+                            blocks=[1]),
+                 3: makebug(BugCategory.STABLEREQ, '', blocks=[2]),
+                 }, 1),
+            ([1], [2]))
+
+    def test_common_dep(self):
+        self.assertEqual(
+            split_dependent_bugs(
+                {1: makebug(BugCategory.STABLEREQ, '', depends=[2, 3]),
+                 2: makebug(BugCategory.STABLEREQ, '', depends=[4],
+                            blocks=[1]),
+                 3: makebug(BugCategory.STABLEREQ, '', depends=[4],
+                            blocks=[1]),
+                 4: makebug(BugCategory.STABLEREQ, '', blocks=[2, 3]),
+                 }, 1),
+            ([1, 2, 3, 4], []))
+
+    def test_regular(self):
+        self.assertEqual(
+            split_dependent_bugs(
+                {1: makebug(BugCategory.STABLEREQ, '', depends=[2]),
+                 2: makebug(None, '', blocks=[1]),
+                 }, 1),
+            ([1], [2]))
+
+    def test_regular_mixed(self):
+        self.assertEqual(
+            split_dependent_bugs(
+                {1: makebug(BugCategory.STABLEREQ, '', depends=[2, 3]),
+                 2: makebug(None, '', depends=[4], blocks=[1]),
+                 3: makebug(BugCategory.STABLEREQ, '', blocks=[1]),
+                 4: makebug(BugCategory.STABLEREQ, '', blocks=[2]),
+                 }, 1),
+            ([1, 3], [2]))

@@ -350,6 +350,42 @@ class NattkaBugzilla(object):
         assert resp['bugs'][0]['id'] == bugno
 
 
+def split_dependent_bugs(bugdict: typing.Dict[int, BugInfo],
+                         bugno: int
+                         ) -> typing.Tuple[typing.List[int], typing.List[int]]:
+    """
+    Split unresolved dependent bugs into keywording and regular bugs
+
+    Traverse dependency tree of `bugno`, using data from `bugdict`.
+    Return a tuple of two bug lists.  The first list contains bugs that
+    are of the same category (keywording or stabilization bugs),
+    the second list other bugs.  The requested bug itself is always
+    returned in the first list.  Resolved bugs are skipped.  Bugs
+    missing from `bugdict` are returned in the second list.
+    """
+
+    kw_bugs = [bugno]
+    reg_bugs = set()
+    i = 0
+    while i < len(kw_bugs):
+        curbug = bugdict[kw_bugs[i]]
+        for b in curbug.depends:
+            if b not in bugdict:
+                # can't tell if it's a blocker or not, so stay
+                # on the safe side
+                reg_bugs.add(b)
+            elif bugdict[b].resolved:
+                pass
+            elif bugdict[b].category == curbug.category:
+                if b not in kw_bugs:
+                    kw_bugs.append(b)
+            else:
+                reg_bugs.add(b)
+        i += 1
+
+    return sorted(kw_bugs), sorted(reg_bugs)
+
+
 def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo],
                          bugno: int
                          ) -> BugInfo:
