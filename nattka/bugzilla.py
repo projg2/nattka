@@ -363,10 +363,14 @@ def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo],
     combined_bugs = [topbug]
     atoms = ''
     deps = set()
+    cc = set()
 
     i = 0
     while i < len(combined_bugs):
         atoms += combined_bugs[i].atoms
+        # note: this is a transitional hack to avoid premature
+        # arch filtering in match_package_list()
+        cc.update(combined_bugs[i].cc)
         for b in combined_bugs[i].depends:
             if (b in bugdict and not bugdict[b].resolved
                     and bugdict[b].category == topbug.category):
@@ -378,7 +382,7 @@ def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo],
     return BugInfo(category=topbug.category,
                    security=topbug.security,
                    atoms=atoms,
-                   cc=topbug.cc,
+                   cc=sorted(cc),
                    depends=sorted(deps),
                    blocks=topbug.blocks,
                    sanity_check=topbug.sanity_check,
