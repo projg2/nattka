@@ -229,7 +229,8 @@ class NattkaCommands(object):
 
             is_kwreq = (b.category == BugCategory.KEYWORDREQ)
             plist = dict(match_package_list(repo, b.atoms,
-                                            allow_unspecific=is_kwreq))
+                                            allow_unspecific=is_kwreq,
+                                            streq=not is_kwreq))
 
             if not plist:
                 print(f'# bug {bno}: empty package list\n')
@@ -301,7 +302,8 @@ class NattkaCommands(object):
 
             is_kwreq = (b.category == BugCategory.KEYWORDREQ)
             plist = dict(match_package_list(repo, b.atoms,
-                                            allow_unspecific=is_kwreq))
+                                            allow_unspecific=is_kwreq,
+                                            streq=not is_kwreq))
 
             if not plist:
                 log.error(f'Bug {bno}: empty package list')
@@ -455,7 +457,8 @@ class NattkaCommands(object):
 
                     is_kwreq = (b.category == BugCategory.KEYWORDREQ)
                     plist = dict(match_package_list(repo, b.atoms,
-                                                    allow_unspecific=is_kwreq))
+                                                    allow_unspecific=is_kwreq,
+                                                    streq=not is_kwreq))
                     if not plist:
                         log.info('Skipping because of empty package list')
                         comment = ('Resetting sanity check; package list '
