@@ -240,3 +240,13 @@ def check_dependencies(repo: UnconfiguredTree,
                 errors.append(r)
 
     return CheckResult(ret, errors)
+
+
+def package_list_to_json(tuples: PackageKeywordsIterable
+                         ) -> typing.Dict[str, typing.List[str]]:
+    """
+    Return JSON-friendly dict of package list
+    """
+
+    return dict((k.cpvstr, sorted(v, key=keyword_sort_key))
+                for k, v in tuples)

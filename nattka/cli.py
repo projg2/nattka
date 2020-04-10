@@ -26,7 +26,7 @@ from nattka.git import GitWorkTree, GitDirtyWorkTree, git_commit
 from nattka.package import (find_repository, match_package_list,
                             add_keywords, check_dependencies,
                             PackageNoMatch, KeywordNoMatch,
-                            PackageInvalid)
+                            PackageInvalid, package_list_to_json)
 
 try:
     from nattka.depgraph import (get_ordered_nodes,
@@ -475,11 +475,12 @@ class NattkaCommands(object):
                                    'CC-ed.')
                         raise SkipBug()
 
+                    plist_json = package_list_to_json(plist.items())
                     cache_entry = cache['bugs'].get(str(bno), {})
                     assert cache_entry is not None
                     last_check = cache_entry.get('last-check')
                     if last_check is not None:
-                        if cache_entry.get('package-list', '') != b.atoms:
+                        if cache_entry.get('package-list', '') != plist_json:
                             log.info('Package list changed, will recheck.')
                         elif (cache_entry.get('check-res', None)
                               is not b.sanity_check):
@@ -513,7 +514,7 @@ class NattkaCommands(object):
                             'last-check':
                                 datetime.datetime.utcnow().isoformat(
                                     timespec='seconds'),
-                            'package-list': b.atoms,
+                            'package-list': plist_json,
                             'check-res': check_res,
                         }
 

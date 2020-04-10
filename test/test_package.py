@@ -15,7 +15,8 @@ from nattka.keyword import KEYWORDS_RE
 from nattka.package import (match_package_list, add_keywords,
                             check_dependencies, PackageNoMatch,
                             KeywordNoMatch, PackageInvalid,
-                            find_repository, select_best_version)
+                            find_repository, select_best_version,
+                            package_list_to_json)
 
 
 def get_test_repo(path: Path = Path(__file__).parent):
@@ -637,3 +638,17 @@ class DependencyCheckerTest(BaseRepoTestCase):
                  'profile_status': 'stable',
                  'version': '2'},
             ]))
+
+
+class PackageListToJSONTests(BaseRepoTestCase):
+    def test_basic(self):
+        self.assertEqual(
+            package_list_to_json(
+                [(self.get_package('=test/amd64-testing-deps-1'),
+                  ['x86', 'amd64']),
+                 (self.get_package('=test/amd64-testing-2'),
+                  []),
+                 ]),
+            {'test/amd64-testing-deps-1': ['amd64', 'x86'],
+             'test/amd64-testing-2': [],
+             })
