@@ -33,7 +33,7 @@ COPY bugzilla.sql /var/www/localhost/htdocs/bugzilla
 RUN echo '$db_driver = "sqlite";' > localconfig \
  && ./checksetup.pl \
  && printf 'test@example.com\nTest developer\nabc123\nabc123\n' | ./checksetup.pl \
- && sed -i -e '/delivery/s:Sendmail:None:' data/params.json \
+ && sed -i -e '/delivery/s:Sendmail:None:' -e '/usestatuswhiteboard/s:0:1:' data/params.json \
  && perl ./import-db.pl \
  && rm bugzilla.sql import-db.pl
 

@@ -11,12 +11,13 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?f1=flagtypes.name&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&include_fields=resolution&o1=anywords&v1=sanity-check-
+    uri: http://127.0.0.1:33113/rest/bug?f1=flagtypes.name&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard&o1=anywords&v1=sanity-check-
   response:
     body:
-      string: '{"bugs":[{"cf_stabilisation_atoms":"dev-python/mako-1.1.0 amd64","component":"Stabilization","blocks":[],"id":3,"flags":[{"type_id":1,"status":"-","creation_date":"2020-04-03T13:35:02Z","name":"sanity-check","setter":"nattka@gentoo.org","modification_date":"2020-04-03T13:35:02Z","id":3}],"cc":["amd64@gentoo.org"],"cc_detail":[{"real_name":"AMD64
-        arch team","name":"amd64@gentoo.org","email":"amd64@gentoo.org","id":4}],"resolution":"","product":"Gentoo
-        Linux","depends_on":[7]}]}'
+      string: '{"bugs":[{"cc_detail":[{"name":"amd64@gentoo.org","real_name":"AMD64
+        arch team","id":4,"email":"amd64@gentoo.org"}],"id":3,"depends_on":[7],"component":"Stabilization","cf_stabilisation_atoms":"dev-python/mako-1.1.0
+        amd64","whiteboard":"","resolution":"","cc":["amd64@gentoo.org"],"product":"Gentoo
+        Linux","blocks":[],"keywords":["STABLEREQ"],"flags":[{"id":3,"status":"-","name":"sanity-check","modification_date":"2020-04-03T13:35:02Z","creation_date":"2020-04-03T13:35:02Z","type_id":1,"setter":"nattka@gentoo.org"}]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -29,9 +30,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 08 Apr 2020 15:23:58 GMT
+      - Fri, 10 Apr 2020 09:52:56 GMT
       Etag:
-      - 7vpKaaVh6tA9zRW0chMk2A
+      - u77gXYwboLWVdluqunFsUQ
       Keep-Alive:
       - timeout=15, max=100
       Server:

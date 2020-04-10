@@ -35,7 +35,9 @@ def makebug(category: typing.Optional[BugCategory],
             blocks: typing.List[int] = [],
             sanity_check: typing.Optional[bool] = None,
             security: bool = False,
-            resolved: bool = False
+            resolved: bool = False,
+            keywords: typing.List[str] = [],
+            whiteboard: str = ''
             ) -> BugInfo:
     return BugInfo(category,
                    security,
@@ -44,7 +46,9 @@ def makebug(category: typing.Optional[BugCategory],
                    depends,
                    blocks,
                    sanity_check,
-                   resolved)
+                   resolved,
+                   keywords,
+                   whiteboard)
 
 
 class BugzillaTests(unittest.TestCase):
@@ -71,22 +75,26 @@ class BugzillaTests(unittest.TestCase):
                            'dev-python/mako-1.1.0 amd64\r\n',
                            [f'{x}@gentoo.org' for x in ('amd64',)],
                            depends=[7],
+                           keywords=['STABLEREQ'],
                            sanity_check=False),
                 4: makebug(BugCategory.KEYWORDREQ,
                            'dev-python/urllib3-1.25.8\r\n'
                            'dev-python/trustme-0.6.0\r\n'
                            'dev-python/brotlipy-0.7.0\r\n',
-                           [f'{x}@gentoo.org' for x in ('hppa',)]),
+                           [f'{x}@gentoo.org' for x in ('hppa',)],
+                           keywords=['KEYWORDREQ']),
                 5: makebug(BugCategory.STABLEREQ,
                            'app-arch/arj-3.10.22-r7 amd64 hppa\r\n',
                            ['test@example.com'],
+                           whiteboard='test whiteboard',
                            security=True),
                 6: makebug(BugCategory.STABLEREQ,
                            'sys-kernel/gentoo-sources-4.1.6\r\n',
                            security=True),
                 7: makebug(BugCategory.STABLEREQ,
                            'dev-python/pytest-5.4.1\r\n',
-                           blocks=[3]),
+                           blocks=[3],
+                           keywords=['ALLARCHES']),
                 8: makebug(BugCategory.STABLEREQ,
                            'dev-lang/python-3.7.7\r\n',
                            resolved=True),

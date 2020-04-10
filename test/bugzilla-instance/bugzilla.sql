@@ -64,7 +64,7 @@ INSERT INTO bugs VALUES(1,1,'','enhancement','CONFIRMED','2020-04-03 13:16:53','
 INSERT INTO bugs VALUES(2,1,'','enhancement','CONFIRMED','2020-04-03 13:18:10','2020-04-03 13:34:59','dev-python/unittest-mixins-1.6 keywordreq','Linux','---',1,'PC',1,'unspecified',2,'','---',NULL,'','2020-04-03 13:34:59',1,1,1,0,0,NULL,0,replace(replace('dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4','\r',char(13)),'\n',char(10)),'---');
 INSERT INTO bugs VALUES(3,1,'','enhancement','CONFIRMED','2020-04-03 13:19:04','2020-04-03 13:38:16','dev-python/mako-1.1.0 streq','Linux','---',1,'PC',1,'unspecified',3,'','---',NULL,'','2020-04-03 13:38:16',1,1,1,0,0,NULL,0,'dev-python/mako-1.1.0 amd64','Yes');
 INSERT INTO bugs VALUES(4,1,'','enhancement','CONFIRMED','2020-04-03 13:20:11','2020-04-03 13:34:55','dev-python/urllib3-1.25.8 kwreq','Linux','---',1,'PC',1,'unspecified',2,'','---',NULL,'','2020-04-03 13:34:55',1,1,1,0,0,NULL,0,replace(replace('dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0','\r',char(13)),'\n',char(10)),'Yes');
-INSERT INTO bugs VALUES(5,1,'','enhancement','CONFIRMED','2020-04-03 13:26:12','2020-04-03 13:31:06','some old arj vulnerability','Linux','---',2,'PC',1,'unspecified',5,'','---',NULL,'','2020-04-03 13:31:06',1,1,1,0,0,NULL,0,'app-arch/arj-3.10.22-r7 amd64 hppa','Yes');
+INSERT INTO bugs VALUES(5,1,'','enhancement','CONFIRMED','2020-04-03 13:26:12','2020-04-10 09:47:22','some old arj vulnerability','Linux','---',2,'PC',1,'unspecified',5,'','---',NULL,'test whiteboard','2020-04-10 09:47:22',1,1,1,0,0,NULL,0,'app-arch/arj-3.10.22-r7 amd64 hppa','Yes');
 INSERT INTO bugs VALUES(6,1,'','enhancement','CONFIRMED','2020-04-03 13:27:05','2020-04-03 13:31:19','kernel can be vulnerable too','Linux','---',2,'PC',1,'unspecified',4,'','---',NULL,'','2020-04-03 13:31:19',1,1,1,0,0,NULL,0,'sys-kernel/gentoo-sources-4.1.6','Yes');
 INSERT INTO bugs VALUES(7,1,'','enhancement','CONFIRMED','2020-04-03 13:28:17','2020-04-03 13:28:17','depending streq','Linux','---',1,'PC',1,'unspecified',3,'','---',NULL,'','2020-04-03 13:28:17',1,1,1,0,0,NULL,0,'dev-python/pytest-5.4.1','Yes');
 INSERT INTO bugs VALUES(8,1,'','enhancement','RESOLVED','2020-04-04 07:07:40','2020-04-04 07:07:56','resolved test bug','Linux','---',1,'PC',1,'unspecified',3,'FIXED','---',NULL,'','2020-04-04 07:07:56',1,1,1,0,0,NULL,0,'dev-lang/python-3.7.7','---');
@@ -82,6 +82,10 @@ INSERT INTO bugs_activity VALUES(9,2,NULL,2,'2020-04-03 13:34:59',47,'sanity-che
 INSERT INTO bugs_activity VALUES(10,3,NULL,2,'2020-04-03 13:35:02',47,'sanity-check-','',NULL);
 INSERT INTO bugs_activity VALUES(11,8,NULL,1,'2020-04-04 07:07:56',9,'RESOLVED','CONFIRMED',NULL);
 INSERT INTO bugs_activity VALUES(12,8,NULL,1,'2020-04-04 07:07:56',12,'FIXED','',NULL);
+INSERT INTO bugs_activity VALUES(13,3,NULL,1,'2020-04-10 09:07:10',11,'STABLEREQ','',NULL);
+INSERT INTO bugs_activity VALUES(14,4,NULL,1,'2020-04-10 09:07:17',11,'KEYWORDREQ','',NULL);
+INSERT INTO bugs_activity VALUES(15,7,NULL,1,'2020-04-10 09:07:49',11,'ALLARCHES','',NULL);
+INSERT INTO bugs_activity VALUES(16,5,NULL,1,'2020-04-10 09:47:22',10,'test whiteboard','',NULL);
 
 INSERT INTO bugs_fulltext VALUES(1,'Regular bug','This bug is neither keywordreq nor stablereq.','This bug is neither keywordreq nor stablereq.');
 INSERT INTO bugs_fulltext VALUES(2,'dev-python/unittest-mixins-1.6 keywordreq','','');
@@ -105,6 +109,14 @@ INSERT INTO dependencies VALUES(9,2);
 
 INSERT INTO flags VALUES(2,1,'+',2,NULL,'2020-04-03 13:34:59','2020-04-03 13:34:59',2,NULL);
 INSERT INTO flags VALUES(3,1,'-',3,NULL,'2020-04-03 13:35:02','2020-04-03 13:35:02',2,NULL);
+
+INSERT INTO keyworddefs VALUES(1,'KEYWORDREQ','Keywording request');
+INSERT INTO keyworddefs VALUES(2,'STABLEREQ','Stabilization request');
+INSERT INTO keyworddefs VALUES(3,'ALLARCHES','Stabilization on all arches');
+
+INSERT INTO keywords VALUES(3,2);
+INSERT INTO keywords VALUES(4,1);
+INSERT INTO keywords VALUES(7,3);
 
 INSERT INTO longdescs VALUES(1,1,1,'2020-04-03 13:16:53',0,'This bug is neither keywordreq nor stablereq.',0,0,0,NULL);
 INSERT INTO longdescs VALUES(2,2,1,'2020-04-03 13:18:10',0,'',0,0,0,NULL);

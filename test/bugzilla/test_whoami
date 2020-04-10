@@ -14,7 +14,7 @@ interactions:
     uri: http://127.0.0.1:33113/rest/whoami
   response:
     body:
-      string: '{"id":2,"real_name":"NATTkA","name":"nattka@gentoo.org"}'
+      string: '{"name":"nattka@gentoo.org","real_name":"NATTkA","id":2}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -27,7 +27,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Sun, 05 Apr 2020 09:58:22 GMT
+      - Fri, 10 Apr 2020 09:53:17 GMT
       Etag:
       - mVytJ9+Su1npSL9ztIqPVQ
       Keep-Alive:

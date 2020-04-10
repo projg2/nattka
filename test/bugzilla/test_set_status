@@ -11,12 +11,12 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=5&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&include_fields=resolution
+    uri: http://127.0.0.1:33113/rest/bug?id=5&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"flags":[],"id":5,"resolution":"","product":"Gentoo Security","blocks":[],"cc_detail":[{"real_name":"Test
-        developer","email":"test@example.com","id":1,"name":"test@example.com"}],"cc":["test@example.com"],"component":"Vulnerabilities","depends_on":[],"cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7
-        amd64 hppa"}]}'
+      string: '{"bugs":[{"resolution":"","cc_detail":[{"name":"test@example.com","email":"test@example.com","id":1,"real_name":"Test
+        developer"}],"cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7 amd64 hppa","cc":["test@example.com"],"blocks":[],"id":5,"keywords":[],"product":"Gentoo
+        Security","component":"Vulnerabilities","flags":[],"whiteboard":"test whiteboard","depends_on":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -29,9 +29,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 08 Apr 2020 06:29:58 GMT
+      - Fri, 10 Apr 2020 09:53:29 GMT
       Etag:
-      - ESXSt61qfgGA/yDUa0/qRA
+      - mTk+s7Illq277Pu3OYnKQw
       Keep-Alive:
       - timeout=15, max=100
       Server:
@@ -62,8 +62,8 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug/5/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"5":{"comments":[{"creator":"test@example.com","count":0,"attachment_id":null,"id":5,"is_private":false,"creation_time":"2020-04-03T13:26:12Z","text":"who
-        uses arj anyway these days?","tags":[],"time":"2020-04-03T13:26:12Z","bug_id":5}]}}}'
+      string: '{"comments":{},"bugs":{"5":{"comments":[{"time":"2020-04-03T13:26:12Z","count":0,"id":5,"attachment_id":null,"tags":[],"creator":"test@example.com","bug_id":5,"is_private":false,"creation_time":"2020-04-03T13:26:12Z","text":"who
+        uses arj anyway these days?"}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -76,7 +76,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 08 Apr 2020 06:30:00 GMT
+      - Fri, 10 Apr 2020 09:53:31 GMT
       Etag:
       - lDf6jrNoZJw0HKJZ0QEhDg
       Keep-Alive:
@@ -113,7 +113,7 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug/5
   response:
     body:
-      string: '{"bugs":[{"changes":{"flagtypes.name":{"removed":"","added":"sanity-check+"}},"last_change_time":"2020-04-08T06:30:03Z","alias":[],"id":5}]}'
+      string: '{"bugs":[{"last_change_time":"2020-04-10T09:53:34Z","id":5,"changes":{"flagtypes.name":{"added":"sanity-check+","removed":""}},"alias":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -126,9 +126,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 08 Apr 2020 06:30:01 GMT
+      - Fri, 10 Apr 2020 09:53:33 GMT
       Etag:
-      - bQvUErRAmV1XfcukjG/m/w
+      - 2kYOc05thsW5wqW0A/Zr2Q
       Keep-Alive:
       - timeout=15, max=98
       Server:
@@ -156,12 +156,13 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=5&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=product&include_fields=resolution
+    uri: http://127.0.0.1:33113/rest/bug?id=5&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7 amd64 hppa","product":"Gentoo
-        Security","depends_on":[],"component":"Vulnerabilities","resolution":"","cc_detail":[{"id":1,"real_name":"Test
-        developer","name":"test@example.com","email":"test@example.com"}],"id":5,"cc":["test@example.com"],"blocks":[],"flags":[{"id":4,"type_id":1,"setter":"nattka@gentoo.org","name":"sanity-check","status":"+","creation_date":"2020-04-08T06:30:03Z","modification_date":"2020-04-08T06:30:03Z"}]}]}'
+      string: '{"bugs":[{"cc_detail":[{"id":1,"name":"test@example.com","real_name":"Test
+        developer","email":"test@example.com"}],"resolution":"","depends_on":[],"flags":[{"creation_date":"2020-04-10T09:53:34Z","setter":"nattka@gentoo.org","status":"+","modification_date":"2020-04-10T09:53:34Z","id":4,"name":"sanity-check","type_id":1}],"whiteboard":"test
+        whiteboard","cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7 amd64 hppa","blocks":[],"cc":["test@example.com"],"keywords":[],"component":"Vulnerabilities","product":"Gentoo
+        Security","id":5}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -174,9 +175,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 08 Apr 2020 06:30:03 GMT
+      - Fri, 10 Apr 2020 09:53:35 GMT
       Etag:
-      - jFOLzs/t/13CtmqLHsdRZg
+      - jvFqCtR/0dDtQN4zjYYRyw
       Keep-Alive:
       - timeout=15, max=97
       Server:
@@ -207,8 +208,8 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug/5/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"5":{"comments":[{"time":"2020-04-03T13:26:12Z","bug_id":5,"tags":[],"creator":"test@example.com","text":"who
-        uses arj anyway these days?","creation_time":"2020-04-03T13:26:12Z","count":0,"id":5,"attachment_id":null,"is_private":false}]}}}'
+      string: '{"comments":{},"bugs":{"5":{"comments":[{"attachment_id":null,"creation_time":"2020-04-03T13:26:12Z","is_private":false,"creator":"test@example.com","tags":[],"id":5,"count":0,"bug_id":5,"time":"2020-04-03T13:26:12Z","text":"who
+        uses arj anyway these days?"}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -221,7 +222,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 08 Apr 2020 06:30:05 GMT
+      - Fri, 10 Apr 2020 09:53:36 GMT
       Etag:
       - lDf6jrNoZJw0HKJZ0QEhDg
       Keep-Alive:
