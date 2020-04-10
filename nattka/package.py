@@ -22,7 +22,7 @@ from pkgcore.ebuild.atom import atom
 from pkgcore.ebuild.errors import MalformedAtom
 from pkgcore.ebuild.repository import UnconfiguredTree
 
-from nattka.bugzilla import BugInfo, BugCategory
+from nattka.bugzilla import BugInfo, BugCategory, arches_from_cc
 from nattka.keyword import update_keywords_in_file, keyword_sort_key
 
 
@@ -119,9 +119,14 @@ def match_package_list(repo: UnconfiguredTree,
 
     Return an iterator over pair of PackageKeywords.  If any of
     the items fail to match, raise an exception.
+
+    If no keywords are provided for a package, they are inferred
+    from CC list (if present).  Otherwise, the specified keywords
+    are filtered to intersection with CC list.
     """
 
     valid_arches = frozenset(repo.known_arches)
+    cc_arches = arches_from_cc(bug.cc, valid_arches)
     prev_keywords = None
     for l in bug.atoms.splitlines():
         sl = l.split()
@@ -190,6 +195,12 @@ def match_package_list(repo: UnconfiguredTree,
         if unknown_keywords:
             raise KeywordNoMatch(
                 f'incorrect keywords: {" ".join(unknown_keywords)}')
+
+        if not keywords:
+            keywords = cc_arches
+        elif cc_arches:
+            # filter through CC list
+            keywords = [x for x in keywords if x in cc_arches]
 
         yield PackageKeywords(pkg, keywords)
         prev_keywords = keywords

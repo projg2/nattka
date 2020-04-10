@@ -491,6 +491,44 @@ class PackageMatcherTests(BaseRepoTestCase):
                  ['amd64']),
             ])
 
+    def test_fill_keywords_cc(self):
+        """Test that missing keywords are copied from CC"""
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, makebug(BugCategory.STABLEREQ, '''
+                    test/mixed-keywords-4
+                ''', ['amd64@gentoo.org', 'hppa@gentoo.org',
+                      'example@gentoo.org'])))), [
+                (self.ebuild_path('test', 'mixed-keywords', '4'),
+                 ['amd64', 'hppa']),
+            ])
+
+    def test_filter_keywords_cc(self):
+        """ Test filtering keywords based on CC. """
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, makebug(BugCategory.STABLEREQ, '''
+                    test/mixed-keywords-4 amd64 hppa
+                ''', ['amd64@gentoo.org'])))), [
+                (self.ebuild_path('test', 'mixed-keywords', '4'),
+                 ['amd64']),
+            ])
+
+    def test_fill_keywords_cc_no_email(self):
+        """
+        Test filling keywords from CC containing only login parts
+        of e-mail addresses (i.e. obtained without API key)
+        """
+
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, makebug(BugCategory.STABLEREQ, '''
+                    test/mixed-keywords-4
+                ''', ['amd64', 'hppa', 'example'])))), [
+                (self.ebuild_path('test', 'mixed-keywords', '4'),
+                 ['amd64', 'hppa']),
+            ])
+
 
 class FakeEbuild(object):
     """
