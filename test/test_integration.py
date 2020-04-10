@@ -663,6 +663,52 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
     @patch('nattka.cli.add_keywords')
     @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_cache_keywords_from_cc(self, bugz, add_keywords):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-1\r\n',
+                            ['alpha@gentoo.org', 'hppa@gentoo.org'],
+                            sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        cache = self.make_cache(bugz_inst,
+                                package_list='test/amd64-testing-1 '
+                                             'alpha hppa\r\n',
+                                sanity_check=True)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322', '--cache-file', cache]),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        add_keywords.assert_not_called()
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_cache_keywords_from_cc_changed(self, bugz, add_keywords):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-1\r\n',
+                            ['alpha@gentoo.org'],
+                            sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        cache = self.make_cache(bugz_inst,
+                                package_list='test/amd64-testing-1 '
+                                             'alpha hppa\r\n',
+                                sanity_check=True)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322', '--cache-file', cache]),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        add_keywords.assert_called()
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
     def test_sanity_cache_result_changed(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         cache = self.make_cache(bugz_inst,
