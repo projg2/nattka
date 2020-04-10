@@ -20,8 +20,7 @@ from pkgcheck.results import Result, VersionResult
 
 from nattka import __version__
 from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
-                             arches_from_cc, split_dependent_bugs,
-                             update_keywords_from_cc)
+                             arches_from_cc, split_dependent_bugs)
 from nattka.git import GitWorkTree, GitDirtyWorkTree, git_commit
 from nattka.package import (find_repository, match_package_list,
                             add_keywords, check_dependencies,
@@ -127,9 +126,6 @@ class NattkaCommands(object):
             bugnos = list(reversed(sorted(bugnos)))
         if not getattr(self.args, 'no_fetch_dependencies', True):
             bugs = bz.resolve_dependencies(bugs)
-        for bno, b in bugs.items():
-            bugs[bno] = update_keywords_from_cc(
-                b, self.get_repository().known_arches)
         return bugnos, bugs
 
     def get_repository(self) -> UnconfiguredTree:
