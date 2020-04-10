@@ -22,6 +22,7 @@ from pkgcore.ebuild.atom import atom
 from pkgcore.ebuild.errors import MalformedAtom
 from pkgcore.ebuild.repository import UnconfiguredTree
 
+from nattka.bugzilla import BugInfo, BugCategory
 from nattka.keyword import update_keywords_in_file, keyword_sort_key
 
 
@@ -111,27 +112,18 @@ def select_best_version(matches: typing.Iterable[
 
 
 def match_package_list(repo: UnconfiguredTree,
-                       package_list: str,
-                       allow_unspecific: bool = False,
-                       streq: bool = False
+                       bug: BugInfo
                        ) -> typing.Iterator[PackageKeywords]:
     """
-    Match `package_list` against packages in `repo`
+    Match `bug` against packages in `repo`
 
     Return an iterator over pair of PackageKeywords.  If any of
     the items fail to match, raise an exception.
-
-    If `allow_unspecific` is False (the default), only = specifiers
-    that can match a single version are allowed.  Otherwise, any valid
-    package spec is allowed.
-
-    If `streq` is True, ``*`` will only match stable keywords.
-    Otherwise, it will match both ~arch and stable keywords.
     """
 
     valid_arches = frozenset(repo.known_arches)
     prev_keywords = None
-    for l in package_list.splitlines():
+    for l in bug.atoms.splitlines():
         sl = l.split()
         if not sl:
             continue
@@ -144,10 +136,12 @@ def match_package_list(repo: UnconfiguredTree,
             except MalformedAtom:
                 pass
 
+        streq = bug.category == BugCategory.STABLEREQ
+
         if dep is None or dep.blocks or dep.use or dep.slot_operator:
             raise PackageInvalid(
                 f'invalid package spec: {sdep}')
-        if not allow_unspecific and (dep.op != '=' or dep.slot):
+        if streq and (dep.op != '=' or dep.slot):
             raise PackageInvalid(
                 f'disallowed package spec (only = allowed): {dep}')
 
@@ -156,7 +150,7 @@ def match_package_list(repo: UnconfiguredTree,
             raise PackageNoMatch(
                 f'no match for package: {sl[0]}')
 
-        if allow_unspecific:
+        if not streq:
             pkg = select_best_version(m)
         else:
             assert len(m) == 1

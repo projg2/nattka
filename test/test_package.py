@@ -11,12 +11,15 @@ from pathlib import Path
 
 from pkgcore.ebuild.atom import atom
 
+from nattka.bugzilla import BugCategory
 from nattka.keyword import KEYWORDS_RE
 from nattka.package import (match_package_list, add_keywords,
                             check_dependencies, PackageNoMatch,
                             KeywordNoMatch, PackageInvalid,
                             find_repository, select_best_version,
                             package_list_to_json)
+
+from test.test_bugzilla import makebug
 
 
 def get_test_repo(path: Path = Path(__file__).parent):
@@ -113,11 +116,11 @@ class PackageMatcherTests(BaseRepoTestCase):
         """ Test versioned package lists. """
         self.assertEqual(
             list(((p.path, k) for p, k in match_package_list(
-                self.repo, '''
+                self.repo, makebug(BugCategory.STABLEREQ, '''
                     test/amd64-testing-1
                     test/amd64-testing-2
                     test/amd64-stable-hppa-testing-1
-                '''))), [
+                ''')))), [
                 (self.ebuild_path('test', 'amd64-testing', '1'), []),
                 (self.ebuild_path('test', 'amd64-testing', '2'), []),
                 (self.ebuild_path(
@@ -129,10 +132,10 @@ class PackageMatcherTests(BaseRepoTestCase):
         """ Test versioned package lists using = syntax. """
         self.assertEqual(
             list(((p.path, k) for p, k in match_package_list(
-                self.repo, '''
+                self.repo, makebug(BugCategory.STABLEREQ, '''
                     test/amd64-testing-1
                     =test/amd64-testing-2
-                '''))), [
+                ''')))), [
                 (self.ebuild_path('test', 'amd64-testing', '1'), []),
                 (self.ebuild_path('test', 'amd64-testing', '2'), []),
             ])
@@ -141,11 +144,11 @@ class PackageMatcherTests(BaseRepoTestCase):
         """ Test versioned package lists with keywords. """
         self.assertEqual(
             list(((p.path, k) for p, k in match_package_list(
-                self.repo, '''
+                self.repo, makebug(BugCategory.STABLEREQ, '''
                     test/amd64-testing-1 amd64 hppa
                     test/amd64-testing-2 ~hppa ~alpha
                     test/amd64-stable-hppa-testing-1
-                '''))), [
+                ''')))), [
                 (self.ebuild_path('test', 'amd64-testing', '1'),
                  ['amd64', 'hppa']),
                 (self.ebuild_path('test', 'amd64-testing', '2'),
@@ -157,28 +160,30 @@ class PackageMatcherTests(BaseRepoTestCase):
     def test_invalid_spec(self):
         """ Test package list containing invalid dependency spec. """
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         <>test/amd64-testing-2 amd64 hppa
-                    '''):
+                    ''')):
                 pass
 
     def test_noequals_spec(self):
         """ Test package list containing dependency spec other than =. """
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         >=test/amd64-testing-2 amd64 hppa
-                    '''):
+                    ''')):
                 pass
 
     def test_noequals_spec_kwreq(self):
         self.assertEqual(
             list(((p.path, k) for p, k in match_package_list(
-                self.repo, '''
+                self.repo, makebug(BugCategory.KEYWORDREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         >=test/amd64-stable-hppa-testing-1 hppa
-                ''', allow_unspecific=True))), [
+                ''')))), [
                 (self.ebuild_path('test', 'amd64-testing', '2'),
                  ['amd64', 'hppa']),
                 (self.ebuild_path('test', 'amd64-stable-hppa-testing', '2'),
@@ -188,18 +193,19 @@ class PackageMatcherTests(BaseRepoTestCase):
     def test_equals_wildcard_spec(self):
         """ Test package list containing =...* spec. """
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         =test/amd64-testing-2* amd64 hppa
-                    '''):
+                    ''')):
                 pass
 
     def test_equals_wildcard_spec_kwreq(self):
         self.assertEqual(
             list(((p.path, k) for p, k in match_package_list(
-                self.repo, '''
+                self.repo, makebug(BugCategory.KEYWORDREQ, '''
                         =test/amd64-testing-2* amd64 hppa
-                ''', allow_unspecific=True))), [
+                ''')))), [
                 (self.ebuild_path('test', 'amd64-testing', '2'),
                  ['amd64', 'hppa']),
             ])
@@ -209,18 +215,19 @@ class PackageMatcherTests(BaseRepoTestCase):
         Test package list containing just the category and package name.
         """
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         test/amd64-testing amd64 hppa
-                    '''):
+                    ''')):
                 pass
 
     def test_pure_catpkg_spec_kwreq(self):
         self.assertEqual(
             list(((p.path, k) for p, k in match_package_list(
-                self.repo, '''
+                self.repo, makebug(BugCategory.KEYWORDREQ, '''
                         test/amd64-testing amd64 hppa
-                ''', allow_unspecific=True))), [
+                ''')))), [
                 (self.ebuild_path('test', 'amd64-testing', '2'),
                  ['amd64', 'hppa']),
             ])
@@ -228,128 +235,141 @@ class PackageMatcherTests(BaseRepoTestCase):
     def test_pure_package_spec(self):
         """ Test package list containing just the package name. """
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         amd64-testing amd64 hppa
-                    '''):
+                    ''')):
                 pass
 
     def test_pure_package_spec_kwreq(self):
         """ Test package list containing just the package name. """
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.KEYWORDREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         amd64-testing amd64 hppa
-                    ''', allow_unspecific=True):
+                    ''')):
                 pass
 
     def test_wildcard_package_spec(self):
         """ Test package list using wildcards. """
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         test/amd64-* amd64 hppa
-                    '''):
+                    ''')):
                 pass
 
     def test_wildcard_package_spec_kwreq(self):
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.KEYWORDREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         test/amd64-* amd64 hppa
-                    ''', allow_unspecific=True):
+                    ''')):
                 pass
 
     def test_blocker_package_spec(self):
         """ Test package list using a blocker. """
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         !=test/amd64-testing-1 amd64 hppa
-                    '''):
+                    ''')):
                 pass
 
     def test_slotted_package_spec(self):
         """ Test package list using a slot. """
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         =test/amd64-testing-1:0 amd64 hppa
-                    '''):
+                    ''')):
                 pass
 
     def test_slotted_package_spec_kwreq(self):
         self.assertEqual(
             list(((p.path, k) for p, k in match_package_list(
-                self.repo, '''
+                self.repo, makebug(BugCategory.KEYWORDREQ, '''
                         test/amd64-testing:0 amd64 hppa
-                ''', allow_unspecific=True))), [
+                ''')))), [
                 (self.ebuild_path('test', 'amd64-testing', '2'),
                  ['amd64', 'hppa']),
             ])
 
     def test_slot_slotop_eq_package_spec(self):
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         =test/amd64-testing-1:= amd64 hppa
-                    '''):
+                    ''')):
                 pass
 
     def test_slot_slotop_eq_package_spec_kwreq(self):
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.KEYWORDREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         =test/amd64-testing-1:0= amd64 hppa
-                    ''', allow_unspecific=True):
+                    ''')):
                 pass
 
     def test_slotop_eq_package_spec(self):
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         =test/amd64-testing-1:0= amd64 hppa
-                    '''):
+                    ''')):
                 pass
 
     def test_slotop_eq_package_spec_kwreq(self):
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.KEYWORDREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         =test/amd64-testing-1:= amd64 hppa
-                    ''', allow_unspecific=True):
+                    ''')):
                 pass
 
     def test_slotop_any_package_spec(self):
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         =test/amd64-testing-1:* amd64 hppa
-                    '''):
+                    ''')):
                 pass
 
     def test_slotop_any_package_spec_kwreq(self):
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.KEYWORDREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         =test/amd64-testing-1:* amd64 hppa
-                    ''', allow_unspecific=True):
+                    ''')):
                 pass
 
     def test_subslot_package_spec(self):
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         =test/amd64-testing-1:0/0 amd64 hppa
-                    '''):
+                    ''')):
                 pass
 
     def test_subslot_package_spec_kwreq(self):
         self.assertEqual(
             list(((p.path, k) for p, k in match_package_list(
-                self.repo, '''
+                self.repo, makebug(BugCategory.KEYWORDREQ, '''
                         test/amd64-testing:0/0 amd64 hppa
-                ''', allow_unspecific=True))), [
+                ''')))), [
                 (self.ebuild_path('test', 'amd64-testing', '2'),
                  ['amd64', 'hppa']),
             ])
@@ -357,64 +377,70 @@ class PackageMatcherTests(BaseRepoTestCase):
     def test_useflags_package_spec(self):
         """ Test package list including a USE dependency. """
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         =test/amd64-testing-1[foo] amd64 hppa
-                    '''):
+                    ''')):
                 pass
 
     def test_useflags_package_spec_kwreq(self):
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.KEYWORDREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         =test/amd64-testing-1[foo] amd64 hppa
-                    ''', allow_unspecific=True):
+                    ''')):
                 pass
 
     def test_repo_package_spec(self):
         """ Test package list including a repository name. """
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         =test/amd64-testing-1::foo amd64 hppa
-                    '''):
+                    ''')):
                 pass
 
     def test_repo_package_spec_kwreq(self):
         with self.assertRaises(PackageInvalid):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.KEYWORDREQ, '''
                         test/amd64-testing-2 amd64 hppa
                         =test/amd64-testing-1::foo amd64 hppa
-                    ''', allow_unspecific=True):
+                    ''')):
                 pass
 
     def test_no_match(self):
         """ Test package list containing package with no matches. """
         with self.assertRaises(PackageNoMatch):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-1 amd64 hppa
                         test/enoent-7
-                    '''):
+                    ''')):
                 pass
 
     def test_unknown_keywords(self):
         """ Test package list containing unknown keywords. """
         with self.assertRaises(KeywordNoMatch):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-1 amd64 hppa
                         test/amd64-testing-2 mysuperarch
-                    '''):
+                    ''')):
                 pass
 
     def test_previous_keywords(self):
         """Test use of ^ token to copy previous keywords"""
         self.assertEqual(
             list(((p.path, k) for p, k in match_package_list(
-                self.repo, '''
+                self.repo, makebug(BugCategory.STABLEREQ, '''
                     test/amd64-testing-1 amd64 hppa
                     test/amd64-testing-2 ^ alpha
                     test/amd64-stable-hppa-testing-1 ^
-                '''))), [
+                ''')))), [
                 (self.ebuild_path('test', 'amd64-testing', '1'),
                  ['amd64', 'hppa']),
                 (self.ebuild_path('test', 'amd64-testing', '2'),
@@ -425,19 +451,20 @@ class PackageMatcherTests(BaseRepoTestCase):
 
     def test_previous_keywords_on_first_line(self):
         with self.assertRaises(KeywordNoMatch):
-            for m in match_package_list(self.repo, '''
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-1 ^ alpha
                         test/amd64-testing-2 amd64 hppa
-                    '''):
+                    ''')):
                 pass
 
     def test_asterisk_kwreq(self):
         """Test use of * token to rekeyword existing"""
         self.assertEqual(
             list(((p.path, k) for p, k in match_package_list(
-                self.repo, '''
+                self.repo, makebug(BugCategory.KEYWORDREQ, '''
                     test/mixed-keywords-4 *
-                ''', streq=False))), [
+                ''')))), [
                 (self.ebuild_path('test', 'mixed-keywords', '4'),
                  ['alpha', 'hppa']),
             ])
@@ -446,9 +473,9 @@ class PackageMatcherTests(BaseRepoTestCase):
         """Test use of * token to stabilize existing"""
         self.assertEqual(
             list(((p.path, k) for p, k in match_package_list(
-                self.repo, '''
+                self.repo, makebug(BugCategory.STABLEREQ, '''
                     test/mixed-keywords-3 *
-                ''', streq=True))), [
+                ''')))), [
                 (self.ebuild_path('test', 'mixed-keywords', '3'),
                  ['amd64', 'hppa']),
             ])
@@ -457,9 +484,9 @@ class PackageMatcherTests(BaseRepoTestCase):
         """Test use of * token to stabilize existing with less ~arch"""
         self.assertEqual(
             list(((p.path, k) for p, k in match_package_list(
-                self.repo, '''
+                self.repo, makebug(BugCategory.STABLEREQ, '''
                     test/mixed-keywords-4 *
-                ''', streq=True))), [
+                ''')))), [
                 (self.ebuild_path('test', 'mixed-keywords', '4'),
                  ['amd64']),
             ])

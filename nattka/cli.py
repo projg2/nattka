@@ -227,10 +227,7 @@ class NattkaCommands(object):
                 print(f'# bug {bno}: neither stablereq nor keywordreq\n')
                 continue
 
-            is_kwreq = (b.category == BugCategory.KEYWORDREQ)
-            plist = dict(match_package_list(repo, b.atoms,
-                                            allow_unspecific=is_kwreq,
-                                            streq=not is_kwreq))
+            plist = dict(match_package_list(repo, b))
 
             if not plist:
                 print(f'# bug {bno}: empty package list\n')
@@ -300,10 +297,7 @@ class NattkaCommands(object):
                 ret = 1
                 continue
 
-            is_kwreq = (b.category == BugCategory.KEYWORDREQ)
-            plist = dict(match_package_list(repo, b.atoms,
-                                            allow_unspecific=is_kwreq,
-                                            streq=not is_kwreq))
+            plist = dict(match_package_list(repo, b))
 
             if not plist:
                 log.error(f'Bug {bno}: empty package list')
@@ -455,10 +449,7 @@ class NattkaCommands(object):
                     check_res: typing.Optional[bool] = None
                     cache_entry: typing.Optional[dict] = None
 
-                    is_kwreq = (b.category == BugCategory.KEYWORDREQ)
-                    plist = dict(match_package_list(repo, b.atoms,
-                                                    allow_unspecific=is_kwreq,
-                                                    streq=not is_kwreq))
+                    plist = dict(match_package_list(repo, b))
                     if not plist:
                         log.info('Skipping because of empty package list')
                         comment = ('Resetting sanity check; package list '
