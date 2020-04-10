@@ -20,7 +20,7 @@ from pkgcheck.results import Result, VersionResult
 
 from nattka import __version__
 from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
-                             get_combined_buginfo, arches_from_cc,
+                             arches_from_cc, split_dependent_bugs,
                              update_keywords_from_cc)
 from nattka.git import GitWorkTree, GitDirtyWorkTree, git_commit
 from nattka.package import (find_repository, match_package_list,
@@ -227,7 +227,7 @@ class NattkaCommands(object):
                 print(f'# bug {bno}: neither stablereq nor keywordreq\n')
                 continue
 
-            plist = dict(match_package_list(repo, b))
+            plist = dict(match_package_list(repo, [b]))
 
             if not plist:
                 print(f'# bug {bno}: empty package list\n')
@@ -297,7 +297,7 @@ class NattkaCommands(object):
                 ret = 1
                 continue
 
-            plist = dict(match_package_list(repo, b))
+            plist = dict(match_package_list(repo, [b]))
 
             if not plist:
                 log.error(f'Bug {bno}: empty package list')
@@ -431,13 +431,14 @@ class NattkaCommands(object):
                     log.info('Reached time limit')
                     break
 
-                b = get_combined_buginfo(bugs, bno)
+                b = bugs[bno]
                 if b.category is None:
                     log.info(f'Bug {bno}: neither stablereq nor keywordreq')
                     continue
+                kw_deps, reg_deps = split_dependent_bugs(bugs, bno)
                 # processing bug without its dependencies may result
                 # in issuing false positives
-                if any(dep not in bugs for dep in b.depends):
+                if any(dep not in bugs for dep in reg_deps):
                     log.warning(f'Bug {bno}: dependencies not fetched, '
                                 f'skipping')
                     continue
@@ -449,7 +450,8 @@ class NattkaCommands(object):
                     check_res: typing.Optional[bool] = None
                     cache_entry: typing.Optional[dict] = None
 
-                    plist = dict(match_package_list(repo, b))
+                    plist = dict(match_package_list(
+                        repo, (bugs[x] for x in kw_deps)))
                     if not plist:
                         log.info('Skipping because of empty package list')
                         comment = ('Resetting sanity check; package list '

@@ -996,6 +996,26 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_keywords_above(self, bugz):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560311: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-deps-1 ~alpha\r\n'
+                            'test/amd64-testing-1 ^\r\n',
+                            ),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560311']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560311])
+        bugz_inst.update_status.assert_called_with(
+            560311, True, None)
+        self.post_verify()
+
+    @patch('nattka.cli.NattkaBugzilla')
     def test_commit(self, bugz):
         assert subprocess.Popen(
             ['git', 'config', '--local', 'user.name', 'test'],

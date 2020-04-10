@@ -112,10 +112,10 @@ def select_best_version(matches: typing.Iterable[
 
 
 def match_package_list(repo: UnconfiguredTree,
-                       bug: BugInfo
+                       bugs: typing.Iterable[BugInfo]
                        ) -> typing.Iterator[PackageKeywords]:
     """
-    Match `bug` against packages in `repo`
+    Match `bugs` against packages in `repo`
 
     Return an iterator over pair of PackageKeywords.  If any of
     the items fail to match, raise an exception.
@@ -126,84 +126,85 @@ def match_package_list(repo: UnconfiguredTree,
     """
 
     valid_arches = frozenset(repo.known_arches)
-    cc_arches = arches_from_cc(bug.cc, valid_arches)
-    prev_keywords = None
-    for l in bug.atoms.splitlines():
-        sl = l.split()
-        if not sl:
-            continue
+    for bug in bugs:
+        cc_arches = arches_from_cc(bug.cc, valid_arches)
+        prev_keywords = None
+        for l in bug.atoms.splitlines():
+            sl = l.split()
+            if not sl:
+                continue
 
-        dep = None
-        for sdep in (f'={sl[0].strip()}', sl[0].strip()):
-            try:
-                dep = atom(sdep, eapi='5')
-                break
-            except MalformedAtom:
-                pass
+            dep = None
+            for sdep in (f'={sl[0].strip()}', sl[0].strip()):
+                try:
+                    dep = atom(sdep, eapi='5')
+                    break
+                except MalformedAtom:
+                    pass
 
-        streq = bug.category == BugCategory.STABLEREQ
+            streq = bug.category == BugCategory.STABLEREQ
 
-        if dep is None or dep.blocks or dep.use or dep.slot_operator:
-            raise PackageInvalid(
-                f'invalid package spec: {sdep}')
-        if streq and (dep.op != '=' or dep.slot):
-            raise PackageInvalid(
-                f'disallowed package spec (only = allowed): {dep}')
+            if dep is None or dep.blocks or dep.use or dep.slot_operator:
+                raise PackageInvalid(
+                    f'invalid package spec: {sdep}')
+            if streq and (dep.op != '=' or dep.slot):
+                raise PackageInvalid(
+                    f'disallowed package spec (only = allowed): {dep}')
 
-        m = repo.match(dep)
-        if not m:
-            raise PackageNoMatch(
-                f'no match for package: {sl[0]}')
+            m = repo.match(dep)
+            if not m:
+                raise PackageNoMatch(
+                    f'no match for package: {sl[0]}')
 
-        if not streq:
-            pkg = select_best_version(m)
-        else:
-            assert len(m) == 1
-            pkg = m[0]
-
-        keywords = [x.strip().lstrip('~') for x in sl[1:]]
-        if '*' in keywords:
-            # get keywords from other versions
-            keyword_iter = itertools.chain.from_iterable(
-                x.keywords for x in repo.match(dep.unversioned_atom))
-            disallow_prefix = ('-~' if streq else '-')
-            match_keywords = set(
-                x.lstrip('~') for x in keyword_iter
-                if x[0] not in disallow_prefix)
-
-            if streq:
-                # limit stablereq to whatever is ~arch right now
-                match_keywords.intersection_update(
-                    x.lstrip('~') for x in pkg.keywords
-                    if x[0] == '~')
+            if not streq:
+                pkg = select_best_version(m)
             else:
-                # limit keywordreq to missing keywords and not -*
-                # (i.e. strip all keywords already present)
-                match_keywords.difference_update(
-                    x.lstrip('~-') for x in pkg.keywords)
+                assert len(m) == 1
+                pkg = m[0]
 
-            keywords = (
-                sorted(match_keywords, key=keyword_sort_key)
-                + [x for x in keywords if x != '*'])
-        if '^' in keywords:
-            if prev_keywords is None:
+            keywords = [x.strip().lstrip('~') for x in sl[1:]]
+            if '*' in keywords:
+                # get keywords from other versions
+                keyword_iter = itertools.chain.from_iterable(
+                    x.keywords for x in repo.match(dep.unversioned_atom))
+                disallow_prefix = ('-~' if streq else '-')
+                match_keywords = set(
+                    x.lstrip('~') for x in keyword_iter
+                    if x[0] not in disallow_prefix)
+
+                if streq:
+                    # limit stablereq to whatever is ~arch right now
+                    match_keywords.intersection_update(
+                        x.lstrip('~') for x in pkg.keywords
+                        if x[0] == '~')
+                else:
+                    # limit keywordreq to missing keywords and not -*
+                    # (i.e. strip all keywords already present)
+                    match_keywords.difference_update(
+                        x.lstrip('~-') for x in pkg.keywords)
+
+                keywords = (
+                    sorted(match_keywords, key=keyword_sort_key)
+                    + [x for x in keywords if x != '*'])
+            if '^' in keywords:
+                if prev_keywords is None:
+                    raise KeywordNoMatch(
+                        'invalid use of ^ keyword on first line')
+                keywords = prev_keywords + [x for x in keywords if x != '^']
+
+            unknown_keywords = frozenset(keywords) - valid_arches
+            if unknown_keywords:
                 raise KeywordNoMatch(
-                    'invalid use of ^ keyword on first line')
-            keywords = prev_keywords + [x for x in keywords if x != '^']
+                    f'incorrect keywords: {" ".join(unknown_keywords)}')
 
-        unknown_keywords = frozenset(keywords) - valid_arches
-        if unknown_keywords:
-            raise KeywordNoMatch(
-                f'incorrect keywords: {" ".join(unknown_keywords)}')
+            if not keywords:
+                keywords = cc_arches
+            elif cc_arches:
+                # filter through CC list
+                keywords = [x for x in keywords if x in cc_arches]
 
-        if not keywords:
-            keywords = cc_arches
-        elif cc_arches:
-            # filter through CC list
-            keywords = [x for x in keywords if x in cc_arches]
-
-        yield PackageKeywords(pkg, keywords)
-        prev_keywords = keywords
+            yield PackageKeywords(pkg, keywords)
+            prev_keywords = keywords
 
 
 def add_keywords(tuples: PackageKeywordsIterable,
