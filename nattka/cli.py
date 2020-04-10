@@ -369,7 +369,7 @@ class NattkaCommands(object):
                 log.info(f'pretend: would un-CC '
                          f'{" ".join(sorted(to_remove))}')
                 if to_close:
-                    log.info(f'pretend: would resolve the bug')
+                    log.info('pretend: would resolve the bug')
             else:
                 comment = f'{" ".join(sorted(to_remove))} done'
                 if all_done:
@@ -407,8 +407,8 @@ class NattkaCommands(object):
         repo, git_repo = self.get_git_repository()
 
         if not self.args.update_bugs:
-            log.warning(f'Running in pretend mode.')
-            log.warning(f'(pass --update-bugs to enable bug updates)')
+            log.warning('Running in pretend mode.')
+            log.warning('(pass --update-bugs to enable bug updates)')
 
         cache = self.get_cache()
         cache.setdefault('bugs', {})
@@ -434,7 +434,7 @@ class NattkaCommands(object):
                     break
                 if (end_time is not None
                         and datetime.datetime.utcnow() > end_time):
-                    log.info(f'Reached time limit')
+                    log.info('Reached time limit')
                     break
 
                 b = get_combined_buginfo(bugs, bno)
