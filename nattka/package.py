@@ -183,7 +183,7 @@ def match_package_list(repo: UnconfiguredTree,
         if '^' in keywords:
             if prev_keywords is None:
                 raise KeywordNoMatch(
-                    f'invalid use of ^ keyword on first line')
+                    'invalid use of ^ keyword on first line')
             keywords = prev_keywords + [x for x in keywords if x != '^']
 
         unknown_keywords = frozenset(keywords) - valid_arches
