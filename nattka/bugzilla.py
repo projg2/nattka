@@ -386,47 +386,6 @@ def split_dependent_bugs(bugdict: typing.Dict[int, BugInfo],
     return sorted(kw_bugs), sorted(reg_bugs)
 
 
-def get_combined_buginfo(bugdict: typing.Dict[int, BugInfo],
-                         bugno: int
-                         ) -> BugInfo:
-    """
-    Combine information from linked (via 'depends on') bugs into
-    a single BugInfo.  @bugdict is the dict returned by Bugzilla search,
-    @bugno is the number of bug of interest.
-    """
-
-    topbug = bugdict[bugno]
-    combined_bugs = [topbug]
-    atoms = ''
-    deps = set()
-    cc = set()
-
-    i = 0
-    while i < len(combined_bugs):
-        atoms += combined_bugs[i].atoms
-        # note: this is a transitional hack to avoid premature
-        # arch filtering in match_package_list()
-        cc.update(combined_bugs[i].cc)
-        for b in combined_bugs[i].depends:
-            if (b in bugdict and not bugdict[b].resolved
-                    and bugdict[b].category == topbug.category):
-                combined_bugs.append(bugdict[b])
-            else:
-                deps.add(b)
-        i += 1
-
-    return BugInfo(category=topbug.category,
-                   security=topbug.security,
-                   atoms=atoms,
-                   cc=sorted(cc),
-                   depends=sorted(deps),
-                   blocks=topbug.blocks,
-                   sanity_check=topbug.sanity_check,
-                   resolved=topbug.resolved,
-                   keywords=topbug.keywords,
-                   whiteboard=topbug.whiteboard)
-
-
 def arches_from_cc(cc: typing.Iterable[str],
                    known_arches: typing.Iterable[str]
                    ) -> typing.List[str]:
@@ -445,44 +404,3 @@ def arches_from_cc(cc: typing.Iterable[str],
                          if x.endswith('@gentoo.org') or '@' not in x)
     return sorted(cc_names.intersection(known_arches),
                   key=keyword_sort_key)
-
-
-def update_keywords_from_cc(bug: BugInfo,
-                            known_arches: typing.Iterable[str]
-                            ) -> BugInfo:
-    """
-    Update package package list's keywords in @bug based on CC.
-    If at least one arch is CC-ed, the package's keywords are filtered
-    to intersect with CC.  If package's keyword are not specified,
-    they are defaulted to CC list.  Returns a BugInfo with updated
-    package list.
-    """
-
-    arches = arches_from_cc(bug.cc, known_arches)
-
-    # if no arches were CC-ed, we can't do anything
-    if not arches:
-        return bug
-
-    ret = ''
-    for line in bug.atoms.splitlines():
-        sl = line.split()
-        if len(sl) == 1:
-            sl += arches
-        else:
-            sl[1:] = (x for x in sl[1:] if x.lstrip('~') in arches)
-            # all arches filtered out? skip the package then
-            if len(sl) == 1:
-                continue
-        ret += f'{" ".join(sl)}\r\n'
-
-    return BugInfo(category=bug.category,
-                   security=bug.security,
-                   atoms=ret,
-                   cc=bug.cc,
-                   depends=bug.depends,
-                   blocks=bug.blocks,
-                   sanity_check=bug.sanity_check,
-                   resolved=bug.resolved,
-                   keywords=bug.keywords,
-                   whiteboard=bug.whiteboard)

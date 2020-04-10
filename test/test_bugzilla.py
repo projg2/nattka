@@ -11,9 +11,7 @@ from pathlib import Path
 import vcr
 
 from nattka.bugzilla import (NattkaBugzilla, BugCategory, BugInfo,
-                             get_combined_buginfo, arches_from_cc,
-                             update_keywords_from_cc,
-                             split_dependent_bugs)
+                             arches_from_cc, split_dependent_bugs)
 
 
 API_ENDPOINT = 'http://127.0.0.1:33113/rest'
@@ -451,97 +449,6 @@ class DestructiveUserBugzillaTests(unittest.TestCase):
             'hppa done\n\nall arches done, closing')
 
 
-class BugInfoCombinerTest(unittest.TestCase):
-    def test_combine_bugs(self):
-        """ Test combining linked bugs. """
-        self.assertEqual(
-            get_combined_buginfo(
-                {1: makebug(BugCategory.STABLEREQ,
-                            'test/foo-1 amd64 x86\r\n',
-                            ['amd64@gentoo.org', 'x86@gentoo.org'],
-                            depends=[2],
-                            sanity_check=True),
-                 2: makebug(BugCategory.STABLEREQ,
-                            'test/bar-2 x86\r\n',
-                            ['x86@gentoo.org'],
-                            blocks=[1],
-                            sanity_check=True)
-                 }, 1),
-            makebug(BugCategory.STABLEREQ,
-                    'test/foo-1 amd64 x86\r\n'
-                    'test/bar-2 x86\r\n',
-                    ['amd64@gentoo.org', 'x86@gentoo.org'],
-                    sanity_check=True))
-
-    def test_combine_with_blocker(self):
-        """ Test combining stabilization blocked by a regular bug. """
-        self.assertEqual(
-            get_combined_buginfo(
-                {1: makebug(BugCategory.STABLEREQ,
-                            'test/foo-1 amd64 x86\r\n',
-                            ['amd64@gentoo.org', 'x86@gentoo.org'],
-                            depends=[2, 3],
-                            sanity_check=True),
-                 2: makebug(BugCategory.STABLEREQ,
-                            'test/bar-2 x86\r\n',
-                            ['x86@gentoo.org'],
-                            depends=[3, 4],
-                            blocks=[1],
-                            sanity_check=True)
-                 }, 1),
-            makebug(BugCategory.STABLEREQ,
-                    'test/foo-1 amd64 x86\r\n'
-                    'test/bar-2 x86\r\n',
-                    ['amd64@gentoo.org', 'x86@gentoo.org'],
-                    depends=[3, 4],
-                    sanity_check=True))
-
-    def test_combine_keywordreq_stablereq(self):
-        """ Test combining keywordreq & stablereq. """
-        self.assertEqual(
-            get_combined_buginfo(
-                {1: makebug(BugCategory.STABLEREQ,
-                            'test/foo-1 amd64 x86\r\n',
-                            ['amd64@gentoo.org', 'x86@gentoo.org'],
-                            depends=[2],
-                            security=True,
-                            sanity_check=True),
-                 2: makebug(BugCategory.KEYWORDREQ,
-                            'test/foo-1 x86\r\n',
-                            ['x86@gentoo.org'],
-                            blocks=[1],
-                            sanity_check=True)
-                 }, 1),
-            makebug(BugCategory.STABLEREQ,
-                    'test/foo-1 amd64 x86\r\n',
-                    ['amd64@gentoo.org', 'x86@gentoo.org'],
-                    depends=[2],
-                    security=True,
-                    sanity_check=True))
-
-    def test_combine_bugs_resolved(self):
-        """ Test (not) combining with resolved bugs. """
-        self.assertEqual(
-            get_combined_buginfo(
-                {1: makebug(BugCategory.STABLEREQ,
-                            'test/foo-1 amd64 x86\r\n',
-                            ['amd64@gentoo.org', 'x86@gentoo.org'],
-                            depends=[2],
-                            sanity_check=True),
-                 2: makebug(BugCategory.STABLEREQ,
-                            'test/bar-2 x86\r\n',
-                            ['x86@gentoo.org'],
-                            blocks=[1],
-                            resolved=True,
-                            sanity_check=True)
-                 }, 1),
-            makebug(BugCategory.STABLEREQ,
-                    'test/foo-1 amd64 x86\r\n',
-                    ['amd64@gentoo.org', 'x86@gentoo.org'],
-                    depends=[2],
-                    sanity_check=True))
-
-
 class ArchesFromCCTest(unittest.TestCase):
     def test_email(self):
         self.assertEqual(
@@ -567,79 +474,6 @@ class ArchesFromCCTest(unittest.TestCase):
             arches_from_cc(['amd64', 'example', 'x86'],
                            ['amd64', 'arm64', 'x86']),
             ['amd64', 'x86'])
-
-
-class KeywordFillerTest(unittest.TestCase):
-    def test_fill_keywords_cc(self):
-        """ Test that missing keywords are copied from CC. """
-
-        self.assertEqual(
-            update_keywords_from_cc(
-                makebug(BugCategory.STABLEREQ,
-                        'test/foo-1 x86\r\n'
-                        'test/bar-2\r\n'
-                        'test/bar-3 \r\n',
-                        ['amd64@gentoo.org', 'x86@gentoo.org']),
-                ['amd64', 'arm64', 'x86']),
-            makebug(BugCategory.STABLEREQ,
-                    'test/foo-1 x86\r\n'
-                    'test/bar-2 amd64 x86\r\n'
-                    'test/bar-3 amd64 x86\r\n',
-                    ['amd64@gentoo.org', 'x86@gentoo.org']))
-
-    def test_filter_keywords_cc(self):
-        """ Test filtering keywords based on CC. """
-
-        self.assertEqual(
-            update_keywords_from_cc(
-                makebug(BugCategory.STABLEREQ,
-                        'test/foo-1 amd64 x86 arm\r\n'
-                        'test/bar-2 amd64 x86\r\n'
-                        'test/bar-3 arm\r\n',
-                        ['amd64@gentoo.org', 'x86@gentoo.org']),
-                ['amd64', 'arm64', 'x86']),
-            makebug(BugCategory.STABLEREQ,
-                    'test/foo-1 amd64 x86\r\n'
-                    'test/bar-2 amd64 x86\r\n',
-                    ['amd64@gentoo.org', 'x86@gentoo.org']))
-
-    def test_no_cc(self):
-        """
-        Test that packages are not dropped if no arches are CC-ed
-        and no keywords are provided.
-        """
-
-        self.assertEqual(
-            update_keywords_from_cc(
-                makebug(BugCategory.STABLEREQ,
-                        'test/foo-1 amd64 x86 arm\r\n'
-                        'test/bar-2 amd64 x86\r\n'
-                        'test/bar-3\r\n'),
-                ['amd64', 'arm64', 'x86']),
-            makebug(BugCategory.STABLEREQ,
-                    'test/foo-1 amd64 x86 arm\r\n'
-                    'test/bar-2 amd64 x86\r\n'
-                    'test/bar-3\r\n'))
-
-    def test_fill_keywords_cc_no_email(self):
-        """
-        Test filling keywords from CC containing only login parts
-        of e-mail addresses (i.e. obtained without API key).
-        """
-
-        self.assertEqual(
-            update_keywords_from_cc(
-                makebug(BugCategory.STABLEREQ,
-                        'test/foo-1 x86\r\n'
-                        'test/bar-2\r\n'
-                        'test/bar-3 \r\n',
-                        ['amd64', 'x86']),
-                ['amd64', 'arm64', 'x86']),
-            makebug(BugCategory.STABLEREQ,
-                    'test/foo-1 x86\r\n'
-                    'test/bar-2 amd64 x86\r\n'
-                    'test/bar-3 amd64 x86\r\n',
-                    ['amd64', 'x86']))
 
 
 class SplitDependentBugsTests(unittest.TestCase):
