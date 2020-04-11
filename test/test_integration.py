@@ -76,7 +76,8 @@ class IntegrationTestCase(unittest.TestCase):
 class IntegrationNoActionTests(IntegrationTestCase):
     """Test cases for bugs that can not be processed"""
 
-    reset_msg = 'Resetting sanity check; package list is empty.'
+    reset_msg = ('Resetting sanity check; package list is empty '
+                 'or all packages are done.')
 
     def bug_preset(self,
                    bugz: MagicMock,
@@ -841,7 +842,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         add_keywords.reset_mock()
         bugz_inst.resolve_dependencies.return_value.update({
             560311: makebug(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 ~alpha ~amd64\r\n',
+                            'test/amd64-testing-1 ~alpha ~hppa\r\n',
                             blocks=[560322]),
         })
         self.assertEqual(
@@ -1390,8 +1391,8 @@ class IntegrationLimiterTests(IntegrationTestCase):
                    ) -> MagicMock:
         bugs = {}
         for i in range(10):
-            bugs[100000 + i] = makebug(BugCategory.KEYWORDREQ,
-                                       'test/amd64-testing-1 ~amd64\r\n')
+            bugs[100000 + i] = makebug(BugCategory.STABLEREQ,
+                                       'test/amd64-testing-1 amd64\r\n')
 
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = bugs

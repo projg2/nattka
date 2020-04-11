@@ -112,7 +112,8 @@ def select_best_version(matches: typing.Iterable[
 
 
 def match_package_list(repo: UnconfiguredTree,
-                       bugs: typing.Iterable[BugInfo]
+                       bugs: typing.Iterable[BugInfo],
+                       only_new: bool = False
                        ) -> typing.Iterator[PackageKeywords]:
     """
     Match `bugs` against packages in `repo`
@@ -123,6 +124,9 @@ def match_package_list(repo: UnconfiguredTree,
     If no keywords are provided for a package, they are inferred
     from CC list (if present).  Otherwise, the specified keywords
     are filtered to intersection with CC list.
+
+    If `only_new` is True, keywords already present on the package
+    will be skipped, and only new keywords will be returned.
     """
 
     valid_arches = frozenset(repo.known_arches)
@@ -203,6 +207,14 @@ def match_package_list(repo: UnconfiguredTree,
                 # filter through CC list
                 keywords = [x for x in keywords if x in cc_arches]
                 # skip packages that are no longer relevant to CC
+                if not keywords:
+                    continue
+
+            if keywords and only_new:
+                keywords = [k for k in keywords
+                            if k not in pkg.keywords
+                            and (streq or f'~{k}' not in pkg.keywords)]
+                # skip packages that are done already
                 if not keywords:
                     continue
 

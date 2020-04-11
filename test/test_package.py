@@ -541,6 +541,29 @@ class PackageMatcherTests(BaseRepoTestCase):
                  ['amd64', 'hppa']),
             ])
 
+    def test_only_new_kwreq(self):
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, [makebug(BugCategory.KEYWORDREQ, '''
+                    test/amd64-testing-1 amd64 hppa
+                    test/amd64-testing-2 amd64
+                    test/amd64-stable-1 amd64
+                ''')], only_new=True))), [
+                (self.ebuild_path('test', 'amd64-testing', '1'),
+                 ['hppa']),
+            ])
+
+    def test_only_new_streq(self):
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, [makebug(BugCategory.STABLEREQ, '''
+                    test/amd64-stable-1 amd64 hppa
+                    test/amd64-stable-hppa-testing-1 amd64
+                ''')], only_new=True))), [
+                (self.ebuild_path('test', 'amd64-stable', '1'),
+                 ['hppa']),
+            ])
+
 
 class FakeEbuild(object):
     """

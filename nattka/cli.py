@@ -223,7 +223,7 @@ class NattkaCommands(object):
                 print(f'# bug {bno}: neither stablereq nor keywordreq\n')
                 continue
 
-            plist = dict(match_package_list(repo, [b]))
+            plist = dict(match_package_list(repo, [b], only_new=True))
 
             if not plist:
                 print(f'# bug {bno}: empty package list\n')
@@ -447,11 +447,11 @@ class NattkaCommands(object):
                     cache_entry: typing.Optional[dict] = None
 
                     plist = dict(match_package_list(
-                        repo, (bugs[x] for x in kw_deps)))
+                        repo, (bugs[x] for x in kw_deps), only_new=True))
                     if not plist:
                         log.info('Skipping because of empty package list')
                         comment = ('Resetting sanity check; package list '
-                                   'is empty.')
+                                   'is empty or all packages are done.')
                         raise SkipBug()
 
                     if any(not x for x in plist.values()):
