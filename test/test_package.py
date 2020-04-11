@@ -514,6 +514,18 @@ class PackageMatcherTests(BaseRepoTestCase):
                  ['amd64']),
             ])
 
+    def test_filter_package_cc(self):
+        """Test filtering whole packages out based on CC"""
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, [makebug(BugCategory.STABLEREQ, '''
+                    test/mixed-keywords-4 amd64 hppa
+                    test/amd64-testing-1 hppa
+                ''', ['amd64@gentoo.org'])]))), [
+                (self.ebuild_path('test', 'mixed-keywords', '4'),
+                 ['amd64']),
+            ])
+
     def test_fill_keywords_cc_no_email(self):
         """
         Test filling keywords from CC containing only login parts
