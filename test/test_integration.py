@@ -1040,6 +1040,28 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_keywords_partial_cc_match(self, bugz):
+        """Test package list where some of the packages do not match CC"""
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560311: makebug(BugCategory.STABLEREQ,
+                            'test/amd64-testing-1 amd64 hppa\r\n'
+                            'test/amd64-testing-2 amd64\r\n',
+                            cc=['hppa@gentoo.org']
+                            ),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560311']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560311])
+        bugz_inst.update_status.assert_called_with(
+            560311, True, None)
+        self.post_verify()
+
+    @patch('nattka.cli.NattkaBugzilla')
     def test_commit(self, bugz):
         assert subprocess.Popen(
             ['git', 'config', '--local', 'user.name', 'test'],

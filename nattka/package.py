@@ -202,6 +202,9 @@ def match_package_list(repo: UnconfiguredTree,
             elif cc_arches:
                 # filter through CC list
                 keywords = [x for x in keywords if x in cc_arches]
+                # skip packages that are no longer relevant to CC
+                if not keywords:
+                    continue
 
             yield PackageKeywords(pkg, keywords)
             prev_keywords = keywords
