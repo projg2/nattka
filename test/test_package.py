@@ -3,6 +3,7 @@
 
 """ Tests for package processing. """
 
+import os
 import shutil
 import tempfile
 import unittest
@@ -28,11 +29,73 @@ def get_test_repo(path: Path = Path(__file__).parent):
     return find_repository(data_path, conf_path)
 
 
-class FindRepositoryTests(unittest.TestCase):
+class FindRepositoryDomainTests(unittest.TestCase):
     def test_arch(self):
         """Test whether arch is correctly determined."""
         domain, _ = get_test_repo()
         self.assertEqual(domain.arch, 'hppa')
+
+
+class FindRepositoryUnconfiguredAbsoluteTests(unittest.TestCase):
+    def setUp(self):
+        top = Path(__file__).parent
+        self.conf_path = top / 'conf'
+        self.data_path = top / 'data'
+        assert self.data_path.is_absolute()
+
+    def do_test(self, path):
+        _, r = find_repository(path, self.conf_path)
+        self.assertIsNotNone(r)
+        self.assertTrue(self.data_path.samefile(r.location))
+
+    def test_top(self):
+        self.do_test(self.data_path)
+
+    def test_cat(self):
+        self.do_test(self.data_path / 'test')
+
+    def test_pkg(self):
+        self.do_test(self.data_path / 'test' / 'amd64-testing')
+
+    def test_profiles(self):
+        self.do_test(self.data_path / 'profiles')
+
+
+class FindRepositoryUnconfiguredRelativeTests(
+        FindRepositoryUnconfiguredAbsoluteTests):
+
+    def setUp(self):
+        super().setUp()
+        self.cwd = Path.cwd()
+
+    def tearDown(self):
+        os.chdir(self.cwd)
+
+    def do_test(self, path):
+        os.chdir(path)
+        _, r = find_repository(Path('.'), self.conf_path)
+        self.assertIsNotNone(r)
+        self.assertTrue(self.data_path.samefile(r.location))
+
+
+class FindRepositoryConfiguredAbsoluteTests(
+        FindRepositoryUnconfiguredAbsoluteTests):
+
+    def setUp(self):
+        super().setUp()
+
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.conf_path = Path(self.tempdir.name)
+        os.symlink(self.data_path / 'profiles' / 'hppa',
+                   self.conf_path / 'make.profile')
+        with open(self.conf_path / 'repos.conf', 'w') as f:
+            f.write(f'''
+[DEFAULT]
+main-repo = nattka
+
+[nattka]
+location = {self.data_path}
+''')
 
 
 class BaseRepoTestCase(unittest.TestCase):
