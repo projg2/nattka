@@ -680,6 +680,26 @@ class PackageMatcherTests(BaseRepoTestCase):
                  ['hppa', 'alpha']),
             ])
 
+    def test_previous_with_only_new(self):
+        """Verify that only_new=True doesn't strip ^ too much"""
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, makebug(BugCategory.KEYWORDREQ, '''
+                    test/amd64-testing-1 amd64 hppa alpha
+                    test/amd64-testing-10 ^
+                    test/amd64-testing-2 ^
+                    test/amd64-testing-20 ^
+                '''), only_new=True))), [
+                (self.ebuild_path('test', 'amd64-testing', '1'),
+                 ['hppa', 'alpha']),
+                (self.ebuild_path('test', 'amd64-testing', '10'),
+                 ['amd64', 'hppa', 'alpha']),
+                (self.ebuild_path('test', 'amd64-testing', '2'),
+                 ['hppa', 'alpha']),
+                (self.ebuild_path('test', 'amd64-testing', '20'),
+                 ['amd64', 'hppa', 'alpha']),
+            ])
+
 
 class FakeEbuild(object):
     """

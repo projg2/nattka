@@ -145,6 +145,7 @@ def match_package_list(repo: UnconfiguredTree,
     filter_arch = frozenset(filter_arch)
     keyworded_already = False
     filtered = False
+    yielded = False
     prev_keywords = None
     for l in bug.atoms.splitlines():
         sl = l.split()
@@ -225,6 +226,7 @@ def match_package_list(repo: UnconfiguredTree,
 
         if not keywords:
             raise KeywordNotSpecified('incomplete keywords')
+        prev_keywords = keywords
 
         if only_new:
             keywords = [k for k in keywords
@@ -243,9 +245,9 @@ def match_package_list(repo: UnconfiguredTree,
                 continue
 
         yield PackageKeywords(pkg, keywords)
-        prev_keywords = keywords
+        yielded = True
 
-    if prev_keywords is None:
+    if not yielded:
         if filtered:
             raise PackageListEmpty('no packages match requested arch')
         elif keyworded_already:
