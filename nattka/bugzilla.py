@@ -141,7 +141,6 @@ class NattkaBugzilla(object):
         ret = self.session.put(self.api_url + '/' + endpoint,
                                json=data,
                                params=params)
-        print(ret.json())
         ret.raise_for_status()
         return ret
 
