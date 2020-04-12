@@ -27,7 +27,8 @@ from nattka.git import GitWorkTree, GitDirtyWorkTree, git_commit
 from nattka.package import (find_repository, match_package_list,
                             add_keywords, check_dependencies,
                             PackageNoMatch, KeywordNoMatch,
-                            PackageInvalid, package_list_to_json)
+                            PackageInvalid, KeywordNotSpecified,
+                            package_list_to_json)
 
 try:
     from nattka.depgraph import (get_ordered_nodes,
@@ -37,7 +38,8 @@ except ImportError:
     have_nattka_depgraph = False
 
 
-MATCH_EXCEPTIONS = (PackageInvalid, PackageNoMatch, KeywordNoMatch)
+MATCH_EXCEPTIONS = (PackageInvalid, PackageNoMatch, KeywordNoMatch,
+                    KeywordNotSpecified)
 
 
 log = logging.getLogger('nattka')
@@ -245,10 +247,6 @@ class NattkaCommands(object):
                 print(f'# bug {bno}: empty package list\n')
                 ret = 1
                 continue
-            if any(not x for x in plist.values()):
-                print(f'# bug {bno}: incomplete keywords\n')
-                ret = 1
-                continue
             if (b.sanity_check is not True
                     and not self.args.ignore_sanity_check):
                 if b.sanity_check is False:
@@ -322,10 +320,6 @@ class NattkaCommands(object):
 
             if not plist:
                 log.error(f'Bug {bno}: empty package list')
-                ret = 1
-                continue
-            if any(not x for x in plist.values()):
-                log.error(f'Bug {bno}: incomplete keywords')
                 ret = 1
                 continue
 
@@ -478,12 +472,12 @@ class NattkaCommands(object):
                         try:
                             newplist = dict(match_package_list(
                                 repo, bugs[kw_dep], only_new=True))
+                        except KeywordNotSpecified:
+                            raise DependentBugError(
+                                f'dependent bug #{kw_dep} is missing keywords')
                         except MATCH_EXCEPTIONS:
                             raise DependentBugError(
                                 f'dependent bug #{kw_dep} has errors')
-                        if any(not x for x in newplist.values()):
-                            raise DependentBugError(
-                                f'dependent bug #{kw_dep} is missing keywords')
                         plist.update(newplist)
 
                     plist.update(match_package_list(repo, b, only_new=True))
@@ -492,16 +486,6 @@ class NattkaCommands(object):
                         log.info('Skipping because of empty package list')
                         comment = ('Resetting sanity check; package list '
                                    'is empty or all packages are done.')
-                        raise SkipBug()
-
-                    if any(not x for x in plist.values()):
-                        # skip the bug if at least one package has undefined
-                        # keywords (i.e. neither explicitly specified nor
-                        # arches CC-ed)
-                        log.info('Skipping because of incomplete keywords')
-                        comment = ('Resetting sanity check; keywords are '
-                                   'not fully specified and arches are not '
-                                   'CC-ed.')
                         raise SkipBug()
 
                     plist_json = package_list_to_json(plist.items())
@@ -565,6 +549,12 @@ class NattkaCommands(object):
                             comment = ('Sanity check failed:\n\n'
                                        + '\n'.join(issues))
                             log.info('Sanity check failed')
+                except KeywordNotSpecified:
+                    log.info('Skipping because of incomplete keywords')
+                    comment = ('Resetting sanity check; keywords are '
+                               'not fully specified and arches are not '
+                               'CC-ed.')
+                    assert check_res is None
                 except MATCH_EXCEPTIONS + (DependentBugError,) as e:
                     log.error(e)
                     check_res = False

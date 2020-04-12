@@ -17,8 +17,8 @@ from nattka.keyword import KEYWORDS_RE
 from nattka.package import (match_package_list, add_keywords,
                             check_dependencies, PackageNoMatch,
                             KeywordNoMatch, PackageInvalid,
-                            find_repository, select_best_version,
-                            package_list_to_json)
+                            KeywordNotSpecified, find_repository,
+                            select_best_version, package_list_to_json)
 
 from test.test_bugzilla import makebug
 
@@ -216,15 +216,14 @@ class PackageMatcherTests(BaseRepoTestCase):
         self.assertEqual(
             list(((p.path, k) for p, k in match_package_list(
                 self.repo, makebug(BugCategory.STABLEREQ, '''
-                    test/amd64-testing-1
-                    test/amd64-testing-2
-                    test/amd64-stable-hppa-testing-1
+                    test/amd64-testing-1 amd64
+                    test/amd64-testing-2 amd64
+                    test/amd64-stable-hppa-testing-1 hppa
                 ''')))), [
-                (self.ebuild_path('test', 'amd64-testing', '1'), []),
-                (self.ebuild_path('test', 'amd64-testing', '2'), []),
+                (self.ebuild_path('test', 'amd64-testing', '1'), ['amd64']),
+                (self.ebuild_path('test', 'amd64-testing', '2'), ['amd64']),
                 (self.ebuild_path(
-                    'test', 'amd64-stable-hppa-testing', '1'),
-                    []),
+                    'test', 'amd64-stable-hppa-testing', '1'), ['hppa']),
             ])
 
     def test_versioned_package_list_equals(self):
@@ -232,28 +231,11 @@ class PackageMatcherTests(BaseRepoTestCase):
         self.assertEqual(
             list(((p.path, k) for p, k in match_package_list(
                 self.repo, makebug(BugCategory.STABLEREQ, '''
-                    test/amd64-testing-1
-                    =test/amd64-testing-2
+                    test/amd64-testing-1 amd64
+                    =test/amd64-testing-2 amd64
                 ''')))), [
-                (self.ebuild_path('test', 'amd64-testing', '1'), []),
-                (self.ebuild_path('test', 'amd64-testing', '2'), []),
-            ])
-
-    def test_versioned_package_list_with_keywords(self):
-        """ Test versioned package lists with keywords. """
-        self.assertEqual(
-            list(((p.path, k) for p, k in match_package_list(
-                self.repo, makebug(BugCategory.STABLEREQ, '''
-                    test/amd64-testing-1 amd64 hppa
-                    test/amd64-testing-2 ~hppa ~alpha
-                    test/amd64-stable-hppa-testing-1
-                ''')))), [
-                (self.ebuild_path('test', 'amd64-testing', '1'),
-                 ['amd64', 'hppa']),
-                (self.ebuild_path('test', 'amd64-testing', '2'),
-                 ['hppa', 'alpha']),
-                (self.ebuild_path('test', 'amd64-stable-hppa-testing', '1'),
-                 []),
+                (self.ebuild_path('test', 'amd64-testing', '1'), ['amd64']),
+                (self.ebuild_path('test', 'amd64-testing', '2'), ['amd64']),
             ])
 
     def test_invalid_spec(self):
@@ -662,6 +644,15 @@ class PackageMatcherTests(BaseRepoTestCase):
                 (self.ebuild_path('test', 'amd64-stable', '1'),
                  ['hppa']),
             ])
+
+    def test_missing_keywords(self):
+        with self.assertRaises(KeywordNotSpecified):
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
+                        test/amd64-testing-1 amd64
+                        test/amd64-testing-2
+                    ''')):
+                pass
 
 
 class FakeEbuild(object):

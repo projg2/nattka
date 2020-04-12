@@ -58,6 +58,10 @@ class PackageInvalid(Exception):
     pass
 
 
+class KeywordNotSpecified(Exception):
+    pass
+
+
 def find_repository(path: Path,
                     conf_path: typing.Optional[Path] = None
                     ) -> RepoTuple:
@@ -215,6 +219,9 @@ def match_package_list(repo: UnconfiguredTree,
             # skip packages that are done already
             if not keywords:
                 continue
+
+        if not keywords:
+            raise KeywordNotSpecified('incomplete keywords')
 
         yield PackageKeywords(pkg, keywords)
         prev_keywords = keywords
