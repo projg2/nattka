@@ -140,11 +140,13 @@ class NattkaBugzilla(object):
         # NB: using .request() makes mypy unhappy
         if put_data is None:
             ret = self.session.get(self.api_url + '/' + endpoint,
-                                   params=params)
+                                   params=params,
+                                   timeout=30)
         else:
             ret = self.session.put(self.api_url + '/' + endpoint,
                                    params=params,
-                                   json=put_data)
+                                   json=put_data,
+                                   timeout=30)
         ret.raise_for_status()
         return ret
 
