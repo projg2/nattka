@@ -118,13 +118,11 @@ class NattkaBugzilla(object):
 
     def _request(self,
                  endpoint: str,
-                 params: typing.Mapping[str, typing.Union[
-                     typing.Iterable[str], str
-                 ]] = {}
+                 params: typing.Mapping[str, typing.List[str]] = {}
                  ) -> requests.Response:
         params = dict(params)
         if self.api_key is not None:
-            params['Bugzilla_api_key'] = self.api_key
+            params['Bugzilla_api_key'] = [self.api_key]
         ret = self.session.get(self.api_url + '/' + endpoint,
                                params=params)
         ret.raise_for_status()
