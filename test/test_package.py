@@ -97,6 +97,42 @@ main-repo = nattka
 location = {self.data_path}
 ''')
 
+    def tearDown(self):
+        self.tempdir.cleanup()
+
+
+class FindRepositoryConfiguredRelativeTests(
+        FindRepositoryConfiguredAbsoluteTests):
+
+    def setUp(self):
+        super().setUp()
+        self.cwd = Path.cwd()
+
+    def tearDown(self):
+        os.chdir(self.cwd)
+        super().tearDown()
+
+    def do_test(self, path):
+        os.chdir(path)
+        _, r = find_repository(Path('.'), self.conf_path)
+        self.assertIsNotNone(r)
+        self.assertTrue(self.data_path.samefile(r.location))
+
+
+class FindRepositoryConfiguredSymlinkTests(
+        FindRepositoryConfiguredAbsoluteTests):
+
+    def setUp(self):
+        super().setUp()
+        self.symlinkdir = tempfile.TemporaryDirectory()
+        symlink_path = Path(self.symlinkdir.name) / 'symlink'
+        os.symlink(self.data_path, symlink_path)
+        self.data_path = symlink_path
+
+    def tearDown(self):
+        super().tearDown()
+        self.symlinkdir.cleanup()
+
 
 class BaseRepoTestCase(unittest.TestCase):
     def setUp(self):

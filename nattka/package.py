@@ -76,12 +76,11 @@ def find_repository(path: Path,
     # started with longest paths in case of nested repos
     for repo in reversed(sorted(domain.ebuild_repos_raw,
                                 key=lambda x: len(x.location))):
-        try:
-            path.relative_to(repo.location)
-        except ValueError:
-            pass
-        else:
-            return RepoTuple(domain, repo)
+        p = path
+        while not p.samefile(p / '..'):
+            if p.samefile(repo.location):
+                return RepoTuple(domain, repo)
+            p = p / '..'
 
     # fallback to unconfigured repo search
     return RepoTuple(domain, domain.find_repo(str(path),
