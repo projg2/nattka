@@ -222,7 +222,10 @@ def match_package_list(repo: UnconfiguredTree,
             if not keywords:
                 continue
 
-        if keywords and only_new:
+        if not keywords:
+            raise KeywordNotSpecified('incomplete keywords')
+
+        if only_new:
             keywords = [k for k in keywords
                         if k not in pkg.keywords
                         and (streq or f'~{k}' not in pkg.keywords)]
@@ -230,15 +233,12 @@ def match_package_list(repo: UnconfiguredTree,
             if not keywords:
                 continue
 
-        if keywords and filter_arch:
+        if filter_arch:
             keywords = [k for k in keywords if k in filter_arch]
             # skip packages that are filtered away entirely
             if not keywords:
                 filtered = True
                 continue
-
-        if not keywords:
-            raise KeywordNotSpecified('incomplete keywords')
 
         yield PackageKeywords(pkg, keywords)
         prev_keywords = keywords
