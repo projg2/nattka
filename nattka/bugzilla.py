@@ -118,27 +118,33 @@ class NattkaBugzilla(object):
 
     def _request(self,
                  endpoint: str,
-                 params: typing.Mapping[str, typing.List[str]] = {}
+                 params: typing.Mapping[str, typing.List[str]] = {},
+                 put_data: typing.Optional[dict] = None
                  ) -> requests.Response:
+        """
+        Issue a request against Bugzilla REST API and return the response
+
+        Issue a request against specified `endpoint`.  `params` are
+        put in query string.  If `put_data` is None, a GET request
+        is issued.  Otherwise, a PUT request is issued and `put_data`
+        is passed as JSON request body.
+
+        If the request is successfully issued, the JSON response body
+        is returned.  Otherwise, an exception is raised.
+        """
+
         params = dict(params)
         if self.api_key is not None:
             params['Bugzilla_api_key'] = [self.api_key]
-        ret = self.session.get(self.api_url + '/' + endpoint,
-                               params=params)
-        ret.raise_for_status()
-        return ret
 
-    def _request_put(self,
-                     endpoint: str,
-                     data: dict
-                     ) -> requests.Response:
-        data = dict(data)
-        params = {}
-        if self.api_key is not None:
-            params['Bugzilla_api_key'] = self.api_key
-        ret = self.session.put(self.api_url + '/' + endpoint,
-                               json=data,
-                               params=params)
+        # NB: using .request() makes mypy unhappy
+        if put_data is None:
+            ret = self.session.get(self.api_url + '/' + endpoint,
+                                   params=params)
+        else:
+            ret = self.session.put(self.api_url + '/' + endpoint,
+                                   params=params,
+                                   json=put_data)
         ret.raise_for_status()
         return ret
 
@@ -311,7 +317,7 @@ class NattkaBugzilla(object):
                 'body': comment,
             }
 
-        resp = self._request_put(f'bug/{bugno}', data=req).json()
+        resp = self._request(f'bug/{bugno}', put_data=req).json()
         assert resp['bugs'][0]['id'] == bugno
 
     def resolve_bug(self,
@@ -343,7 +349,7 @@ class NattkaBugzilla(object):
                 'resolution': 'FIXED',
             })
 
-        resp = self._request_put(f'bug/{bugno}', data=req).json()
+        resp = self._request(f'bug/{bugno}', put_data=req).json()
         assert resp['bugs'][0]['id'] == bugno
 
 
