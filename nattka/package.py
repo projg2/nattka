@@ -143,6 +143,7 @@ def match_package_list(repo: UnconfiguredTree,
     valid_arches = frozenset(repo.known_arches)
     cc_arches = arches_from_cc(bug.cc, valid_arches)
     filter_arch = frozenset(filter_arch)
+    keyworded_already = False
     filtered = False
     prev_keywords = None
     for l in bug.atoms.splitlines():
@@ -231,6 +232,7 @@ def match_package_list(repo: UnconfiguredTree,
                         and (streq or f'~{k}' not in pkg.keywords)]
             # skip packages that are done already
             if not keywords:
+                keyworded_already = True
                 continue
 
         if filter_arch:
@@ -246,6 +248,8 @@ def match_package_list(repo: UnconfiguredTree,
     if prev_keywords is None:
         if filtered:
             raise PackageListEmpty('no packages match requested arch')
+        elif keyworded_already:
+            raise PackageListEmpty('all packages keyworded already')
         else:
             raise PackageListEmpty('empty package list')
 
