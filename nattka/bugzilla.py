@@ -359,9 +359,9 @@ def split_dependent_bugs(bugdict: typing.Dict[int, BugInfo],
     Traverse dependency tree of `bugno`, using data from `bugdict`.
     Return a tuple of two bug lists.  The first list contains bugs that
     are of the same category (keywording or stabilization bugs),
-    the second list other bugs.  The requested bug itself is always
-    returned in the first list.  Resolved bugs are skipped.  Bugs
-    missing from `bugdict` are returned in the second list.
+    the second list other bugs.  The requested bug itself is not
+    included in the list.  Resolved bugs are skipped.  Bugs missing
+    from `bugdict` are returned in the second list.
     """
 
     kw_bugs = [bugno]
@@ -383,7 +383,7 @@ def split_dependent_bugs(bugdict: typing.Dict[int, BugInfo],
                 reg_bugs.add(b)
         i += 1
 
-    return sorted(kw_bugs), sorted(reg_bugs)
+    return sorted(kw_bugs[1:]), sorted(reg_bugs)
 
 
 def arches_from_cc(cc: typing.Iterable[str],

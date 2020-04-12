@@ -44,6 +44,10 @@ class SkipBug(Exception):
     pass
 
 
+class DependentBugError(Exception):
+    pass
+
+
 class NattkaCommands(object):
     args: argparse.Namespace
     bz: typing.Optional[NattkaBugzilla]
@@ -452,8 +456,15 @@ class NattkaCommands(object):
                         pkgcore.ebuild.ebuild_src.package,
                         typing.List[str]] = {}
                     for kw_dep in kw_deps:
-                        plist.update(match_package_list(
-                            repo, bugs[kw_dep], only_new=True))
+                        try:
+                            plist.update(match_package_list(
+                                repo, bugs[kw_dep], only_new=True))
+                        except (PackageInvalid, PackageNoMatch,
+                                KeywordNoMatch):
+                            raise DependentBugError(
+                                f'dependent bug #{kw_dep} has errors')
+                    plist.update(match_package_list(repo, b, only_new=True))
+
                     if not plist:
                         log.info('Skipping because of empty package list')
                         comment = ('Resetting sanity check; package list '
@@ -531,7 +542,8 @@ class NattkaCommands(object):
                             comment = ('Sanity check failed:\n\n'
                                        + '\n'.join(issues))
                             log.info('Sanity check failed')
-                except (PackageInvalid, PackageNoMatch, KeywordNoMatch) as e:
+                except (PackageInvalid, PackageNoMatch, KeywordNoMatch,
+                        DependentBugError) as e:
                     log.error(e)
                     check_res = False
                     comment = f'Unable to check for sanity:\n\n> {e}'

@@ -482,7 +482,7 @@ class SplitDependentBugsTests(unittest.TestCase):
             split_dependent_bugs(
                 {1: makebug(BugCategory.STABLEREQ, '')
                  }, 1),
-            ([1], []))
+            ([], []))
 
     def test_kwreq(self):
         self.assertEqual(
@@ -492,7 +492,7 @@ class SplitDependentBugsTests(unittest.TestCase):
                             blocks=[1]),
                  3: makebug(BugCategory.KEYWORDREQ, '', blocks=[2]),
                  }, 1),
-            ([1, 2, 3], []))
+            ([2, 3], []))
 
     def test_streq(self):
         self.assertEqual(
@@ -502,7 +502,7 @@ class SplitDependentBugsTests(unittest.TestCase):
                             blocks=[1]),
                  3: makebug(BugCategory.STABLEREQ, '', blocks=[2]),
                  }, 1),
-            ([1, 2, 3], []))
+            ([2, 3], []))
 
     def test_kwreq_mixed(self):
         self.assertEqual(
@@ -512,7 +512,7 @@ class SplitDependentBugsTests(unittest.TestCase):
                             blocks=[1]),
                  3: makebug(BugCategory.KEYWORDREQ, '', blocks=[2]),
                  }, 1),
-            ([1], [2]))
+            ([], [2]))
 
     def test_streq_mixed(self):
         self.assertEqual(
@@ -522,7 +522,7 @@ class SplitDependentBugsTests(unittest.TestCase):
                             blocks=[1]),
                  3: makebug(BugCategory.STABLEREQ, '', blocks=[2]),
                  }, 1),
-            ([1], [2]))
+            ([], [2]))
 
     def test_common_dep(self):
         self.assertEqual(
@@ -534,7 +534,7 @@ class SplitDependentBugsTests(unittest.TestCase):
                             blocks=[1]),
                  4: makebug(BugCategory.STABLEREQ, '', blocks=[2, 3]),
                  }, 1),
-            ([1, 2, 3, 4], []))
+            ([2, 3, 4], []))
 
     def test_regular(self):
         self.assertEqual(
@@ -542,7 +542,7 @@ class SplitDependentBugsTests(unittest.TestCase):
                 {1: makebug(BugCategory.STABLEREQ, '', depends=[2]),
                  2: makebug(None, '', blocks=[1]),
                  }, 1),
-            ([1], [2]))
+            ([], [2]))
 
     def test_regular_mixed(self):
         self.assertEqual(
@@ -552,4 +552,4 @@ class SplitDependentBugsTests(unittest.TestCase):
                  3: makebug(BugCategory.STABLEREQ, '', blocks=[1]),
                  4: makebug(BugCategory.STABLEREQ, '', blocks=[2]),
                  }, 1),
-            ([1, 3], [2]))
+            ([3], [2]))
