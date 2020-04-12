@@ -61,10 +61,10 @@ The primary advantages of NATTkA over stable-bot are:
   or package list changes, NATTkA periodically verifies that the lists
   are still up-to-date.
 
-- *Easier rekeywording of stable packages*: stable-bot requires you
-  to provide precise arch list for rekeywording of dependencies that
-  are stable on some architectures already, NATTkA lets you specify all
-  arches and just ignores those having stable keywords already.
+- *Smarter dealing with keywordreqs and stablereqs*: stable-bot requires
+  you to get everything right, or it may try to downgrade stable
+  packages to ``~arch``.  NATTkA ignores requests for package-arch
+  combinations that have matching or better keyword already.
 
 - *Relaxed package specifications for keywording*: stable-bot requires
   you to specify exact versions of keyworded packages.  This results
@@ -77,5 +77,11 @@ The primary advantages of NATTkA over stable-bot are:
   otherwise.  NATTkA extends the package list syntax to support
   additional tokens: ``^`` to copy keywords from the previous package
   on the list, ``*`` to align keywords to other versions.
+
+- *Better handling of problematic dependencies*: stable-bot tended
+  to ignore problematic dependencies.  NATTkA ignores them only when
+  the package list is clearly empty or processed arches render them
+  irrelevant, and otherwise explicitly informs the developer that
+  a blocking bug is causing an issue.
 
 .. _pkgcheck: https://github.com/pkgcore/pkgcheck/
