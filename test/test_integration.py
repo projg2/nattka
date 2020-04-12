@@ -100,7 +100,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
-            0)
+            1)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
             cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
@@ -165,7 +165,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
         bugz_inst = self.empty_keywords_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
-            0)
+            1)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
             cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
@@ -202,7 +202,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
         bugz_inst = self.wrong_category_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
-            0)
+            1)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
             cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
@@ -380,7 +380,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst = self.bug_preset(bugz, False)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
-            0)
+            1)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
             cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
@@ -436,7 +436,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             bugz_inst.find_bugs.return_value)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
-            0)
+            1)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
             cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])

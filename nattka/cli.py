@@ -37,6 +37,9 @@ except ImportError:
     have_nattka_depgraph = False
 
 
+MATCH_EXCEPTIONS = (PackageInvalid, PackageNoMatch, KeywordNoMatch)
+
+
 log = logging.getLogger('nattka')
 
 
@@ -222,20 +225,29 @@ class NattkaCommands(object):
                 'will not be available')
             log.warning('(nattka.depgraph requires networkx)')
 
+        ret = 0
         bugnos, bugs = self.find_bugs(arch=arch)
         for bno in bugnos:
             b = bugs[bno]
             if b.category is None:
                 print(f'# bug {bno}: neither stablereq nor keywordreq\n')
+                ret = 1
                 continue
 
-            plist = dict(match_package_list(repo, b, only_new=True))
+            try:
+                plist = dict(match_package_list(repo, b, only_new=True))
+            except MATCH_EXCEPTIONS as e:
+                print(f'# bug {bno}: {e}\n')
+                ret = 1
+                continue
 
             if not plist:
                 print(f'# bug {bno}: empty package list\n')
+                ret = 1
                 continue
             if any(not x for x in plist.values()):
                 print(f'# bug {bno}: incomplete keywords\n')
+                ret = 1
                 continue
             if (b.sanity_check is not True
                     and not self.args.ignore_sanity_check):
@@ -243,12 +255,14 @@ class NattkaCommands(object):
                     print(f'# bug {bno}: sanity check failed\n')
                 else:
                     print(f'# bug {bno}: no sanity check result\n')
+                ret = 1
                 continue
             unresolved_deps = [depno for depno in b.depends
                                if not bugs[depno].resolved]
             if unresolved_deps and not self.args.ignore_dependencies:
                 print(f'# bug {bno}: unresolved dependency on '
                       f'{", ".join(str(x) for x in unresolved_deps)}\n')
+                ret = 1
                 continue
 
             if have_nattka_depgraph:
@@ -278,7 +292,7 @@ class NattkaCommands(object):
                 add_keywords(plist.items(), b.category
                                             == BugCategory.STABLEREQ)
 
-        return 0
+        return ret
 
     def commit(self) -> int:
         repo, git_repo = self.get_git_repository()
@@ -299,7 +313,12 @@ class NattkaCommands(object):
                 ret = 1
                 continue
 
-            plist = dict(match_package_list(repo, b))
+            try:
+                plist = dict(match_package_list(repo, b))
+            except MATCH_EXCEPTIONS as e:
+                log.error(f'Bug {bno}: {e}')
+                ret = 1
+                continue
 
             if not plist:
                 log.error(f'Bug {bno}: empty package list')
@@ -459,8 +478,7 @@ class NattkaCommands(object):
                         try:
                             newplist = dict(match_package_list(
                                 repo, bugs[kw_dep], only_new=True))
-                        except (PackageInvalid, PackageNoMatch,
-                                KeywordNoMatch):
+                        except MATCH_EXCEPTIONS:
                             raise DependentBugError(
                                 f'dependent bug #{kw_dep} has errors')
                         if any(not x for x in newplist.values()):
@@ -547,8 +565,7 @@ class NattkaCommands(object):
                             comment = ('Sanity check failed:\n\n'
                                        + '\n'.join(issues))
                             log.info('Sanity check failed')
-                except (PackageInvalid, PackageNoMatch, KeywordNoMatch,
-                        DependentBugError) as e:
+                except MATCH_EXCEPTIONS + (DependentBugError,) as e:
                     log.error(e)
                     check_res = False
                     comment = f'Unable to check for sanity:\n\n> {e}'
