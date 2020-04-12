@@ -442,7 +442,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/alpha-amd64-hppa-testing-2 ~amd64 ~hppa''')
 
     @patch('nattka.cli.NattkaBugzilla')
-    def test_apply_skip_dependencies(self, bugz):
+    def test_apply_depend_unresolved(self, bugz):
         """Test that apply skips bug with unresolved dependencies"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -474,7 +474,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
-    def test_apply_resolved_dependencies(self, bugz, sout):
+    def test_apply_depend_resolved(self, bugz, sout):
         """Test that apply does not block on resolved dependencies"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -511,7 +511,76 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
-    def test_apply_ignore_dependencies(self, bugz, sout):
+    def test_apply_depend_empty(self, bugz, sout):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-deps-1 ~alpha ~hppa\r\n',
+                            depends=[560311], sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value = {
+            560311: makebug(BugCategory.KEYWORDREQ,
+                            '',
+                            blocks=[560322]),
+        }
+        bugz_inst.resolve_dependencies.return_value.update(
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', 'hppa', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['hppa@gentoo.org'])
+        bugz_inst.resolve_dependencies.assert_called()
+
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-deps-1').keywords,
+            ('~amd64', '~hppa'))
+
+        self.assertEqual(
+            sout.getvalue().strip(),
+            '''# bug 560322 (KEYWORDREQ)
+=test/amd64-testing-deps-1 **  # -> ~hppa''')
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_apply_depend_irrelevant(self, bugz, sout):
+        """Test that apply does not block on deps for other arches"""
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-deps-1 ~alpha ~hppa\r\n',
+                            depends=[560311], sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value = {
+            560311: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-1 ~alpha\r\n',
+                            blocks=[560322]),
+        }
+        bugz_inst.resolve_dependencies.return_value.update(
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', 'hppa', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['hppa@gentoo.org'])
+        bugz_inst.resolve_dependencies.assert_called()
+
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-deps-1').keywords,
+            ('~amd64', '~hppa'))
+        self.assertEqual(
+            self.get_package('=test/amd64-testing-1').keywords,
+            ('~amd64',))
+
+        self.assertEqual(
+            sout.getvalue().strip(),
+            '''# bug 560322 (KEYWORDREQ)
+=test/amd64-testing-deps-1 **  # -> ~hppa''')
+
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_apply_depend_ignore(self, bugz, sout):
         """Test that apply --ignore-dependencies works"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {

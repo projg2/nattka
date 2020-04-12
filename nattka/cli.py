@@ -248,8 +248,29 @@ class NattkaCommands(object):
                     print(f'# bug {bno}: no sanity check result\n')
                 ret = 1
                 continue
-            unresolved_deps = [depno for depno in b.depends
-                               if not bugs[depno].resolved]
+
+            all_keywords = frozenset(
+                itertools.chain.from_iterable(plist.values()))
+            unresolved_deps = []
+            for depno in b.depends:
+                depb = bugs[depno]
+                if depb.resolved:
+                    continue
+                if depb.category == b.category:
+                    try:
+                        for depp, depkw in match_package_list(
+                                repo, depb, only_new=True,
+                                filter_arch=all_keywords):
+                            pass
+                    except PackageListEmpty:
+                        # ignore dependent bugs with empty package list
+                        # or mismatched keywords
+                        # (assuming the bug passed sanity-check anyway)
+                        continue
+                    except MATCH_EXCEPTIONS:
+                        pass
+                unresolved_deps.append(depno)
+
             if unresolved_deps and not self.args.ignore_dependencies:
                 print(f'# bug {bno}: unresolved dependency on '
                       f'{", ".join(str(x) for x in unresolved_deps)}\n')
