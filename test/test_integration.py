@@ -374,6 +374,29 @@ class IntegrationSuccessTests(IntegrationTestCase):
             '''# bug 560322 (STABLEREQ)
 =test/alpha-amd64-hppa-testing-2 ~hppa''')
 
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_apply_filter_arch_to_empty(self, bugz, sout):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-1 hppa\r\n'
+                            'test/alpha-amd64-hppa-testing-2 hppa\r\n',
+                            ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                            sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', 'amd64', '560322']),
+            1)
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['amd64@gentoo.org'])
+        self.assertEqual(
+            sout.getvalue().strip(),
+            '''# bug 560322: no packages match requested arch''')
+
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_skip_sanity_check(self, bugz):
         """Test that apply skips bug with failing sanity check"""

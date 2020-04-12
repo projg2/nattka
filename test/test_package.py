@@ -669,6 +669,17 @@ class PackageMatcherTests(BaseRepoTestCase):
                     ''', ['hppa@gentoo.org'])):
                 pass
 
+    def test_filter_arch(self):
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, makebug(BugCategory.KEYWORDREQ, '''
+                    test/amd64-stable-1 amd64 hppa alpha
+                    test/amd64-stable-hppa-testing-1 amd64
+                '''), filter_arch=['hppa', 'alpha']))), [
+                (self.ebuild_path('test', 'amd64-stable', '1'),
+                 ['hppa', 'alpha']),
+            ])
+
 
 class FakeEbuild(object):
     """

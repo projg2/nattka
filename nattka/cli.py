@@ -233,7 +233,8 @@ class NattkaCommands(object):
                 continue
 
             try:
-                plist = dict(match_package_list(repo, b, only_new=True))
+                plist = dict(match_package_list(repo, b, only_new=True,
+                                                filter_arch=arch))
             except MATCH_EXCEPTIONS as e:
                 print(f'# bug {bno}: {e}\n')
                 ret = 1
@@ -266,13 +267,7 @@ class NattkaCommands(object):
 
             print(f'# bug {bno} ({b.category.name})')
             for p in order:
-                keywords = [k for k in plist[p] if k in arch]
-                if not keywords:
-                    del plist[p]
-                    continue
-
-                plist[p] = keywords
-                kws = ' '.join(f'~{k}' for k in keywords)
+                kws = ' '.join(f'~{k}' for k in plist[p])
                 if b.category == BugCategory.STABLEREQ:
                     print(f'={p.cpvstr} {kws}')
                 else:

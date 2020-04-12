@@ -120,7 +120,8 @@ def select_best_version(matches: typing.Iterable[
 
 def match_package_list(repo: UnconfiguredTree,
                        bug: BugInfo,
-                       only_new: bool = False
+                       only_new: bool = False,
+                       filter_arch: typing.Iterable[str] = []
                        ) -> typing.Iterator[PackageKeywords]:
     """
     Match `bug` against packages in `repo`
@@ -134,10 +135,15 @@ def match_package_list(repo: UnconfiguredTree,
 
     If `only_new` is True, keywords already present on the package
     will be skipped, and only new keywords will be returned.
+
+    If `filter_arch` is non-empty, only arches present in the list
+    will be returned.
     """
 
     valid_arches = frozenset(repo.known_arches)
     cc_arches = arches_from_cc(bug.cc, valid_arches)
+    filter_arch = frozenset(filter_arch)
+    filtered = False
     prev_keywords = None
     for l in bug.atoms.splitlines():
         sl = l.split()
@@ -224,6 +230,13 @@ def match_package_list(repo: UnconfiguredTree,
             if not keywords:
                 continue
 
+        if keywords and filter_arch:
+            keywords = [k for k in keywords if k in filter_arch]
+            # skip packages that are filtered away entirely
+            if not keywords:
+                filtered = True
+                continue
+
         if not keywords:
             raise KeywordNotSpecified('incomplete keywords')
 
@@ -231,7 +244,10 @@ def match_package_list(repo: UnconfiguredTree,
         prev_keywords = keywords
 
     if prev_keywords is None:
-        raise PackageListEmpty('empty package list')
+        if filtered:
+            raise PackageListEmpty('no packages match requested arch')
+        else:
+            raise PackageListEmpty('empty package list')
 
 
 def add_keywords(tuples: PackageKeywordsIterable,
