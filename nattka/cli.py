@@ -457,12 +457,17 @@ class NattkaCommands(object):
                         typing.List[str]] = {}
                     for kw_dep in kw_deps:
                         try:
-                            plist.update(match_package_list(
+                            newplist = dict(match_package_list(
                                 repo, bugs[kw_dep], only_new=True))
                         except (PackageInvalid, PackageNoMatch,
                                 KeywordNoMatch):
                             raise DependentBugError(
                                 f'dependent bug #{kw_dep} has errors')
+                        if any(not x for x in newplist.values()):
+                            raise DependentBugError(
+                                f'dependent bug #{kw_dep} is missing keywords')
+                        plist.update(newplist)
+
                     plist.update(match_package_list(repo, b, only_new=True))
 
                     if not plist:

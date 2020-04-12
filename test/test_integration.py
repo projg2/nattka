@@ -1408,6 +1408,34 @@ class IntegrationFailureTests(IntegrationTestCase):
                            '> dependent bug #560311 has errors')
         self.post_verify()
 
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_depend_missing_keywords(self, bugz):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-deps-1 ~alpha\r\n',
+                            depends=[560311]),
+        }
+        bugz_inst.resolve_dependencies.return_value = {
+            560311: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-1',
+                            blocks=[560322]),
+        }
+        bugz_inst.resolve_dependencies.return_value.update(
+            bugz_inst.find_bugs.return_value)
+
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.resolve_dependencies.assert_called()
+        self.assertEqual(bugz_inst.update_status.call_count, 1)
+        bugz_inst.update_status.assert_called_with(
+            560322, False, 'Unable to check for sanity:\n\n'
+                           '> dependent bug #560311 is missing keywords')
+        self.post_verify()
+
 
 class IntegrationLimiterTests(IntegrationTestCase):
     """
