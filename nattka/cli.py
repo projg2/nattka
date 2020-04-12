@@ -14,6 +14,8 @@ import typing
 
 from pathlib import Path
 
+import pkgcore.ebuild.ebuild_src
+
 from snakeoil.fileutils import AtomicWriteFile
 from pkgcore.ebuild.repository import UnconfiguredTree
 from pkgcheck.results import Result, VersionResult
@@ -223,7 +225,7 @@ class NattkaCommands(object):
                 print(f'# bug {bno}: neither stablereq nor keywordreq\n')
                 continue
 
-            plist = dict(match_package_list(repo, [b], only_new=True))
+            plist = dict(match_package_list(repo, b, only_new=True))
 
             if not plist:
                 print(f'# bug {bno}: empty package list\n')
@@ -293,7 +295,7 @@ class NattkaCommands(object):
                 ret = 1
                 continue
 
-            plist = dict(match_package_list(repo, [b]))
+            plist = dict(match_package_list(repo, b))
 
             if not plist:
                 log.error(f'Bug {bno}: empty package list')
@@ -446,8 +448,12 @@ class NattkaCommands(object):
                     check_res: typing.Optional[bool] = None
                     cache_entry: typing.Optional[dict] = None
 
-                    plist = dict(match_package_list(
-                        repo, (bugs[x] for x in kw_deps), only_new=True))
+                    plist: typing.Dict[
+                        pkgcore.ebuild.ebuild_src.package,
+                        typing.List[str]] = {}
+                    for kw_dep in kw_deps:
+                        plist.update(match_package_list(
+                            repo, bugs[kw_dep], only_new=True))
                     if not plist:
                         log.info('Skipping because of empty package list')
                         comment = ('Resetting sanity check; package list '
