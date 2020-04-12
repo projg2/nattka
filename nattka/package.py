@@ -62,6 +62,10 @@ class KeywordNotSpecified(Exception):
     pass
 
 
+class PackageListEmpty(Exception):
+    pass
+
+
 def find_repository(path: Path,
                     conf_path: typing.Optional[Path] = None
                     ) -> RepoTuple:
@@ -225,6 +229,9 @@ def match_package_list(repo: UnconfiguredTree,
 
         yield PackageKeywords(pkg, keywords)
         prev_keywords = keywords
+
+    if prev_keywords is None:
+        raise PackageListEmpty('empty package list')
 
 
 def add_keywords(tuples: PackageKeywordsIterable,

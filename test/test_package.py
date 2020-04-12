@@ -17,8 +17,9 @@ from nattka.keyword import KEYWORDS_RE
 from nattka.package import (match_package_list, add_keywords,
                             check_dependencies, PackageNoMatch,
                             KeywordNoMatch, PackageInvalid,
-                            KeywordNotSpecified, find_repository,
-                            select_best_version, package_list_to_json)
+                            KeywordNotSpecified, PackageListEmpty,
+                            find_repository, select_best_version,
+                            package_list_to_json)
 
 from test.test_bugzilla import makebug
 
@@ -652,6 +653,20 @@ class PackageMatcherTests(BaseRepoTestCase):
                         test/amd64-testing-1 amd64
                         test/amd64-testing-2
                     ''')):
+                pass
+
+    def test_empty_plist(self):
+        with self.assertRaises(PackageListEmpty):
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '')):
+                pass
+
+    def test_empty_plist_after_filtering(self):
+        with self.assertRaises(PackageListEmpty):
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
+                        test/amd64-testing-1 amd64
+                    ''', ['hppa@gentoo.org'])):
                 pass
 
 

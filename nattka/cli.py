@@ -28,7 +28,7 @@ from nattka.package import (find_repository, match_package_list,
                             add_keywords, check_dependencies,
                             PackageNoMatch, KeywordNoMatch,
                             PackageInvalid, KeywordNotSpecified,
-                            package_list_to_json)
+                            PackageListEmpty, package_list_to_json)
 
 try:
     from nattka.depgraph import (get_ordered_nodes,
@@ -39,14 +39,10 @@ except ImportError:
 
 
 MATCH_EXCEPTIONS = (PackageInvalid, PackageNoMatch, KeywordNoMatch,
-                    KeywordNotSpecified)
+                    KeywordNotSpecified, PackageListEmpty)
 
 
 log = logging.getLogger('nattka')
-
-
-class SkipBug(Exception):
-    pass
 
 
 class DependentBugError(Exception):
@@ -243,10 +239,6 @@ class NattkaCommands(object):
                 ret = 1
                 continue
 
-            if not plist:
-                print(f'# bug {bno}: empty package list\n')
-                ret = 1
-                continue
             if (b.sanity_check is not True
                     and not self.args.ignore_sanity_check):
                 if b.sanity_check is False:
@@ -315,11 +307,6 @@ class NattkaCommands(object):
                 plist = dict(match_package_list(repo, b))
             except MATCH_EXCEPTIONS as e:
                 log.error(f'Bug {bno}: {e}')
-                ret = 1
-                continue
-
-            if not plist:
-                log.error(f'Bug {bno}: empty package list')
                 ret = 1
                 continue
 
@@ -475,18 +462,15 @@ class NattkaCommands(object):
                         except KeywordNotSpecified:
                             raise DependentBugError(
                                 f'dependent bug #{kw_dep} is missing keywords')
+                        except PackageListEmpty:
+                            # ignore the dependent bug
+                            continue
                         except MATCH_EXCEPTIONS:
                             raise DependentBugError(
                                 f'dependent bug #{kw_dep} has errors')
                         plist.update(newplist)
 
                     plist.update(match_package_list(repo, b, only_new=True))
-
-                    if not plist:
-                        log.info('Skipping because of empty package list')
-                        comment = ('Resetting sanity check; package list '
-                                   'is empty or all packages are done.')
-                        raise SkipBug()
 
                     plist_json = package_list_to_json(plist.items())
                     cache_entry = cache['bugs'].get(str(bno), {})
@@ -555,6 +539,11 @@ class NattkaCommands(object):
                                'not fully specified and arches are not '
                                'CC-ed.')
                     assert check_res is None
+                except PackageListEmpty:
+                    log.info('Skipping because of empty package list')
+                    comment = ('Resetting sanity check; package list '
+                               'is empty or all packages are done.')
+                    assert check_res is None
                 except MATCH_EXCEPTIONS + (DependentBugError,) as e:
                     log.error(e)
                     check_res = False
@@ -563,8 +552,6 @@ class NattkaCommands(object):
                     log.critical(
                         f'{git_repo.path}: working tree is dirty')
                     raise SystemExit(1)
-                except SkipBug:
-                    assert check_res is None
 
                 # if we can not check it, and it's not been marked
                 # as checked, just skip it;  otherwise, reset the flag
