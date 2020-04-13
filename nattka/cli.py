@@ -25,8 +25,8 @@ from nattka.git import GitWorkTree, GitDirtyWorkTree, git_commit
 from nattka.package import (find_repository, match_package_list,
                             add_keywords, check_dependencies,
                             PackageMatchException, KeywordNotSpecified,
-                            PackageListEmpty, package_list_to_json,
-                            merge_package_list)
+                            PackageListEmpty, PackageListDoneAlready,
+                            package_list_to_json, merge_package_list)
 
 try:
     from nattka.depgraph import (get_ordered_nodes,
@@ -547,6 +547,10 @@ class NattkaCommands(object):
                                'not fully specified and arches are not '
                                'CC-ed.')
                     assert check_res is None
+                except PackageListDoneAlready:
+                    # do not update bug status if done already
+                    log.info('Skipping, work done already')
+                    continue
                 except PackageListEmpty:
                     log.info('Skipping because of empty package list')
                     comment = ('Resetting sanity check; package list '

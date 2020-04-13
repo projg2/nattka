@@ -220,6 +220,25 @@ class IntegrationNoActionTests(IntegrationTestCase):
         match_package_list.assert_not_called()
         bugz_inst.update_status.assert_not_called()
 
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_finished_package_list(self, bugz, add_keywords):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ, '''
+                test/amd64-stable-1 amd64
+            ''', sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        add_keywords.assert_not_called()
+        bugz_inst.update_status.assert_not_called()
+
 
 class IntegrationSuccessTests(IntegrationTestCase):
     """Integration tests that pass sanity-check"""

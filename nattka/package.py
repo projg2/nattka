@@ -73,6 +73,10 @@ class PackageListEmpty(PackageMatchException):
     pass
 
 
+class PackageListDoneAlready(PackageListEmpty):
+    pass
+
+
 def find_repository(path: Path,
                     conf_path: typing.Optional[Path] = None
                     ) -> RepoTuple:
@@ -258,7 +262,7 @@ def match_package_list(repo: UnconfiguredTree,
         if filtered:
             raise PackageListEmpty('no packages match requested arch')
         elif keyworded_already:
-            raise PackageListEmpty('all packages keyworded already')
+            raise PackageListDoneAlready('all packages keyworded already')
         else:
             raise PackageListEmpty('empty package list')
 
