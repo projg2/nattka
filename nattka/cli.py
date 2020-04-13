@@ -26,7 +26,8 @@ from nattka.package import (find_repository, match_package_list,
                             add_keywords, check_dependencies,
                             PackageNoMatch, KeywordNoMatch,
                             PackageInvalid, KeywordNotSpecified,
-                            PackageListEmpty, package_list_to_json)
+                            PackageListEmpty, package_list_to_json,
+                            merge_package_list)
 
 try:
     from nattka.depgraph import (get_ordered_nodes,
@@ -469,8 +470,10 @@ class NattkaCommands(object):
                     plist = dict(match_package_list(repo, b, only_new=True))
                     for kw_dep in kw_deps:
                         try:
-                            newplist = dict(match_package_list(
-                                repo, bugs[kw_dep], only_new=True))
+                            merge_package_list(
+                                plist,
+                                match_package_list(
+                                    repo, bugs[kw_dep], only_new=True))
                         except KeywordNotSpecified:
                             raise DependentBugError(
                                 f'dependent bug #{kw_dep} is missing keywords')
@@ -480,7 +483,6 @@ class NattkaCommands(object):
                         except MATCH_EXCEPTIONS:
                             raise DependentBugError(
                                 f'dependent bug #{kw_dep} has errors')
-                        plist.update(newplist)
 
                     plist_json = package_list_to_json(plist.items())
                     cache_entry = cache['bugs'].get(str(bno), {})
