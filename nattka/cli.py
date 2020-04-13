@@ -14,8 +14,6 @@ import typing
 
 from pathlib import Path
 
-import pkgcore.ebuild.ebuild_src
-
 from snakeoil.fileutils import AtomicWriteFile
 from pkgcore.ebuild.repository import UnconfiguredTree
 from pkgcheck.results import Result, VersionResult
@@ -468,9 +466,7 @@ class NattkaCommands(object):
                     check_res: typing.Optional[bool] = None
                     cache_entry: typing.Optional[dict] = None
 
-                    plist: typing.Dict[
-                        pkgcore.ebuild.ebuild_src.package,
-                        typing.List[str]] = {}
+                    plist = dict(match_package_list(repo, b, only_new=True))
                     for kw_dep in kw_deps:
                         try:
                             newplist = dict(match_package_list(
@@ -485,8 +481,6 @@ class NattkaCommands(object):
                             raise DependentBugError(
                                 f'dependent bug #{kw_dep} has errors')
                         plist.update(newplist)
-
-                    plist.update(match_package_list(repo, b, only_new=True))
 
                     plist_json = package_list_to_json(plist.items())
                     cache_entry = cache['bugs'].get(str(bno), {})

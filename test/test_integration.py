@@ -1501,6 +1501,35 @@ class IntegrationFailureTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_depend_and_bug_invalid(self, bugz):
+        """Verify that issues with current bug take precedence over deps"""
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            'test/enoent-1 ~alpha\r\n',
+                            depends=[560311]),
+        }
+        bugz_inst.resolve_dependencies.return_value = {
+            560311: makebug(BugCategory.KEYWORDREQ,
+                            'test/enoent-7 ~alpha\r\n',
+                            blocks=[560322]),
+        }
+        bugz_inst.resolve_dependencies.return_value.update(
+            bugz_inst.find_bugs.return_value)
+
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.resolve_dependencies.assert_called()
+        self.assertEqual(bugz_inst.update_status.call_count, 1)
+        bugz_inst.update_status.assert_called_with(
+            560322, False, 'Unable to check for sanity:\n\n'
+                           '> no match for package: test/enoent-1')
+        self.post_verify()
+
+    @patch('nattka.cli.NattkaBugzilla')
     def test_sanity_depend_missing_keywords(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
