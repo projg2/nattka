@@ -1049,6 +1049,36 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_depend_failing(self, bugz):
+        """
+        Test that dependent sanity-check failure is not reported
+        """
+
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.KEYWORDREQ,
+                            'test/mixed-keywords-4 ~alpha\r\n',
+                            depends=[560311]),
+        }
+        bugz_inst.resolve_dependencies.return_value = {
+            560311: makebug(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-deps-1 ~alpha\r\n',
+                            blocks=[560322]),
+        }
+        bugz_inst.resolve_dependencies.return_value.update(
+            bugz_inst.find_bugs.return_value)
+
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.resolve_dependencies.assert_called()
+        self.assertEqual(bugz_inst.update_status.call_count, 1)
+        bugz_inst.update_status.assert_called_with(560322, True, None)
+        self.post_verify()
+
+    @patch('nattka.cli.NattkaBugzilla')
     def test_sanity_depend_no_fetch_deps(self, bugz):
         """
         Test for depending on another bug with --no-fetch-dependencies

@@ -468,6 +468,7 @@ class NattkaCommands(object):
                     cache_entry: typing.Optional[dict] = None
 
                     plist = dict(match_package_list(repo, b, only_new=True))
+                    check_packages = dict(plist)
                     for kw_dep in kw_deps:
                         try:
                             merge_package_list(
@@ -513,7 +514,7 @@ class NattkaCommands(object):
                         add_keywords(plist.items(),
                                      b.category == BugCategory.STABLEREQ)
                         check_res, issues = check_dependencies(
-                            repo, plist.items())
+                            repo, check_packages.items())
 
                         bugs_done += 1
                         if bugs_done > 0 and bugs_done % 10 == 0:
