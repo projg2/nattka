@@ -40,6 +40,9 @@ PackageKeywordsIterable = (
     typing.Iterable[typing.Tuple[pkgcore.ebuild.ebuild_src.package,
                                  typing.List[str]]])
 
+PackageKeywordsDict = (
+    typing.Dict[pkgcore.ebuild.ebuild_src.package, typing.List[str]])
+
 
 class CheckResult(typing.NamedTuple):
     success: bool
@@ -305,3 +308,22 @@ def package_list_to_json(tuples: PackageKeywordsIterable
 
     return dict((k.cpvstr, sorted(v, key=keyword_sort_key))
                 for k, v in tuples)
+
+
+def merge_package_list(dest: PackageKeywordsDict,
+                       other: PackageKeywordsIterable
+                       ) -> PackageKeywordsDict:
+    """
+    Merge package list `other` into `dest` and return `dest`
+    """
+
+    for pkg, keywords in other:
+        newkw = dest.setdefault(pkg, [])
+        for k in keywords:
+            while f'~{k}' in newkw:
+                # upgrade from ~arch to stable
+                newkw.remove(f'~{k}')
+            if k not in newkw:
+                newkw.append(k)
+
+    return dest

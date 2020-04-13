@@ -19,7 +19,7 @@ from nattka.package import (match_package_list, add_keywords,
                             KeywordNoMatch, PackageInvalid,
                             KeywordNotSpecified, PackageListEmpty,
                             find_repository, select_best_version,
-                            package_list_to_json)
+                            package_list_to_json, merge_package_list)
 
 from test.test_bugzilla import makebug
 
@@ -887,4 +887,75 @@ class PackageListToJSONTests(BaseRepoTestCase):
                  ]),
             {'test/amd64-testing-deps-1': ['amd64', 'x86'],
              'test/amd64-testing-2': [],
+             })
+
+
+class MergePackageListTests(BaseRepoTestCase):
+    def test_disjoint_packages(self):
+        self.assertEqual(
+            merge_package_list(
+                {self.get_package('=test/amd64-testing-deps-1'):
+                 ['x86', 'amd64'],
+                 },
+                {self.get_package('=test/amd64-testing-2'):
+                 ['~alpha'],
+                 }.items()),
+            {self.get_package('=test/amd64-testing-deps-1'):
+             ['x86', 'amd64'],
+             self.get_package('=test/amd64-testing-2'):
+             ['~alpha'],
+             })
+
+    def test_disjoint_versions(self):
+        self.assertEqual(
+            merge_package_list(
+                {self.get_package('=test/amd64-testing-1'):
+                 ['x86', 'amd64'],
+                 },
+                {self.get_package('=test/amd64-testing-2'):
+                 ['~alpha'],
+                 }.items()),
+            {self.get_package('=test/amd64-testing-1'):
+             ['x86', 'amd64'],
+             self.get_package('=test/amd64-testing-2'):
+             ['~alpha'],
+             })
+
+    def test_disjoint_arches(self):
+        self.assertEqual(
+            merge_package_list(
+                {self.get_package('=test/amd64-testing-deps-1'):
+                 ['x86', 'amd64'],
+                 },
+                {self.get_package('=test/amd64-testing-deps-1'):
+                 ['alpha'],
+                 }.items()),
+            {self.get_package('=test/amd64-testing-deps-1'):
+             ['x86', 'amd64', 'alpha'],
+             })
+
+    def test_overlapping_arches(self):
+        self.assertEqual(
+            merge_package_list(
+                {self.get_package('=test/amd64-testing-deps-1'):
+                 ['x86', 'amd64'],
+                 },
+                {self.get_package('=test/amd64-testing-deps-1'):
+                 ['alpha', 'amd64'],
+                 }.items()),
+            {self.get_package('=test/amd64-testing-deps-1'):
+             ['x86', 'amd64', 'alpha'],
+             })
+
+    def test_overlapping_kw_st(self):
+        self.assertEqual(
+            merge_package_list(
+                {self.get_package('=test/amd64-testing-deps-1'):
+                 ['~x86', '~amd64'],
+                 },
+                {self.get_package('=test/amd64-testing-deps-1'):
+                 ['alpha', 'amd64'],
+                 }.items()),
+            {self.get_package('=test/amd64-testing-deps-1'):
+             ['~x86', 'alpha', 'amd64'],
              })
