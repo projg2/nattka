@@ -49,23 +49,27 @@ class CheckResult(typing.NamedTuple):
     output: typing.List[Result]
 
 
-class PackageNoMatch(Exception):
+class PackageMatchException(Exception):
     pass
 
 
-class KeywordNoMatch(Exception):
+class PackageNoMatch(PackageMatchException):
     pass
 
 
-class PackageInvalid(Exception):
+class KeywordNoMatch(PackageMatchException):
     pass
 
 
-class KeywordNotSpecified(Exception):
+class PackageInvalid(PackageMatchException):
     pass
 
 
-class PackageListEmpty(Exception):
+class KeywordNotSpecified(PackageMatchException):
+    pass
+
+
+class PackageListEmpty(PackageMatchException):
     pass
 
 

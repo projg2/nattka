@@ -24,8 +24,7 @@ from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
 from nattka.git import GitWorkTree, GitDirtyWorkTree, git_commit
 from nattka.package import (find_repository, match_package_list,
                             add_keywords, check_dependencies,
-                            PackageNoMatch, KeywordNoMatch,
-                            PackageInvalid, KeywordNotSpecified,
+                            PackageMatchException, KeywordNotSpecified,
                             PackageListEmpty, package_list_to_json,
                             merge_package_list)
 
@@ -35,10 +34,6 @@ try:
     have_nattka_depgraph = True
 except ImportError:
     have_nattka_depgraph = False
-
-
-MATCH_EXCEPTIONS = (PackageInvalid, PackageNoMatch, KeywordNoMatch,
-                    KeywordNotSpecified, PackageListEmpty)
 
 
 log = logging.getLogger('nattka')
@@ -234,7 +229,7 @@ class NattkaCommands(object):
             try:
                 plist = dict(match_package_list(repo, b, only_new=True,
                                                 filter_arch=arch))
-            except MATCH_EXCEPTIONS as e:
+            except PackageMatchException as e:
                 print(f'# bug {bno}: {e}\n')
                 ret = 1
                 continue
@@ -266,7 +261,7 @@ class NattkaCommands(object):
                         # or mismatched keywords
                         # (assuming the bug passed sanity-check anyway)
                         continue
-                    except MATCH_EXCEPTIONS:
+                    except PackageMatchException:
                         pass
                 unresolved_deps.append(depno)
 
@@ -320,7 +315,7 @@ class NattkaCommands(object):
 
             try:
                 plist = dict(match_package_list(repo, b))
-            except MATCH_EXCEPTIONS as e:
+            except PackageMatchException as e:
                 log.error(f'Bug {bno}: {e}')
                 ret = 1
                 continue
@@ -481,7 +476,7 @@ class NattkaCommands(object):
                         except PackageListEmpty:
                             # ignore the dependent bug
                             continue
-                        except MATCH_EXCEPTIONS:
+                        except PackageMatchException:
                             raise DependentBugError(
                                 f'dependent bug #{kw_dep} has errors')
 
@@ -557,7 +552,7 @@ class NattkaCommands(object):
                     comment = ('Resetting sanity check; package list '
                                'is empty or all packages are done.')
                     assert check_res is None
-                except MATCH_EXCEPTIONS + (DependentBugError,) as e:
+                except (PackageMatchException, DependentBugError) as e:
                     log.error(e)
                     check_res = False
                     comment = f'Unable to check for sanity:\n\n> {e}'
