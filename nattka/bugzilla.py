@@ -287,12 +287,16 @@ class NattkaBugzilla(object):
     def update_status(self,
                       bugno: int,
                       status: typing.Optional[bool],
-                      comment: typing.Optional[str] = None
+                      comment: typing.Optional[str] = None,
+                      cc_add: typing.List[str] = []
                       ) -> None:
         """
-        Update the sanity-check status of bug @bugno.  @status specifies
-        the new status (True, False or None to remove the flag),
-        @comment is an optional comment to add.
+        Update the sanity-check status of bug
+
+        `bugno` specifies the bug to update.  `status` is the new status
+        (True for '+', False for '-', None to reset).  `comment`
+        is an optional comment to add to the bug.  `cc_add` specifies
+        CC entries (arches) to add, if not empty.
         """
 
         if status is True:
@@ -317,6 +321,10 @@ class NattkaBugzilla(object):
         if comment is not None:
             req['comment'] = {
                 'body': comment,
+            }
+        if cc_add:
+            req['cc'] = {
+                'add': cc_add,
             }
 
         resp = self._request(f'bug/{bugno}', put_data=req).json()

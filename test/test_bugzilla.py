@@ -362,6 +362,29 @@ class DestructiveBugzillaTests(unittest.TestCase):
         self.assertIsNone(
             self.bz.get_latest_comment(2, BUGZILLA_USERNAME))
 
+    @rec.use_cassette()
+    def test_set_status_and_cc(self):
+        bug = self.bz.find_bugs([6])[6]
+        self.assertIsNone(
+            bug.sanity_check,
+            'Bugzilla instance tainted, please reset')
+        self.assertEqual(
+            bug.cc,
+            [],
+            'Bugzilla instance tainted, please reset')
+        self.assertIsNone(
+            self.bz.get_latest_comment(6, BUGZILLA_USERNAME),
+            'Bugzilla instance tainted, please reset')
+
+        self.bz.update_status(6, True, cc_add=['amd64@gentoo.org',
+                                               'hppa@gentoo.org'])
+
+        bug = self.bz.find_bugs([6])[6]
+        self.assertTrue(bug.sanity_check)
+        self.assertEqual(bug.cc, ['amd64@gentoo.org', 'hppa@gentoo.org'])
+        self.assertIsNone(
+            self.bz.get_latest_comment(6, BUGZILLA_USERNAME))
+
 
 class DestructiveUserBugzillaTests(unittest.TestCase):
     bz: NattkaBugzilla
