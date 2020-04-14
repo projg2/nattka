@@ -536,11 +536,10 @@ class NattkaCommands(object):
                                          check_packages.values()))])
 
                             # if nothing changed, do nothing
-                            if b.sanity_check is True:
+                            if b.sanity_check is True and not cc_arches:
                                 cache_entry['updated'] = True
                                 log.info('Still good')
-                                if not cc_arches:
-                                    continue
+                                continue
 
                             # otherwise, update the bug status
                             log.info('All good')
