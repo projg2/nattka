@@ -674,6 +674,20 @@ class PackageMatcherTests(BaseRepoTestCase):
                     ''')):
                 pass
 
+    def test_missing_keywords_probably_done_on_some(self):
+        """
+        KeywordNoneLeft must not be raised if there are meaningful entries
+        """
+
+        with self.assertRaises(KeywordNotSpecified) as e:
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
+                        test/amd64-testing-1 amd64
+                        test/amd64-stable-1
+                    ''')):
+                pass
+        self.assertNotIsInstance(e.exception, KeywordNoneLeft)
+
     def test_empty_plist(self):
         with self.assertRaises(PackageListEmpty):
             for m in match_package_list(

@@ -289,8 +289,13 @@ def match_package_list(repo: UnconfiguredTree,
     if no_keywords:
         raise KeywordNotSpecified('incomplete keywords')
     elif no_potential_keywords:
-        raise KeywordNoneLeft('package keywords in line with other '
-                              'versions and none specified')
+        # report KeywordNoneLeft only if no other entries were reported
+        # otherwise, the bug is still considered interesting
+        if not yielded:
+            raise KeywordNoneLeft('package keywords in line with other '
+                                  'versions and none specified')
+        else:
+            raise KeywordNotSpecified('incomplete keywords')
     if not yielded:
         if filtered:
             raise PackageListEmpty('no packages match requested arch')
