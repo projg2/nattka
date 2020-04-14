@@ -264,14 +264,16 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
     def bug_preset(self,
                    bugz: MagicMock,
-                   initial_status: typing.Optional[bool] = None
+                   initial_status: typing.Optional[bool] = None,
+                   **kwargs
                    ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.STABLEREQ,
                             'test/amd64-testing-1 amd64\r\n'
                             'test/alpha-amd64-hppa-testing-2 amd64 hppa\r\n',
-                            sanity_check=initial_status),
+                            sanity_check=initial_status,
+                            **kwargs),
         }
         bugz_inst.resolve_dependencies.return_value = (
             bugz_inst.find_bugs.return_value)
@@ -1223,6 +1225,34 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_cc_from_none(self, bugz):
+        bugz_inst = self.bug_preset(bugz, keywords=['CC-ARCHES'])
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, True, None,
+            cc_add=['amd64@gentoo.org', 'hppa@gentoo.org'])
+        self.post_verify()
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_cc_from_success(self, bugz):
+        bugz_inst = self.bug_preset(bugz,
+                                    keywords=['CC-ARCHES'],
+                                    initial_status=True)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, True, None,
+            cc_add=['amd64@gentoo.org', 'hppa@gentoo.org'])
+        self.post_verify()
+
+    @patch('nattka.cli.NattkaBugzilla')
     def test_commit(self, bugz):
         assert subprocess.Popen(
             ['git', 'config', '--local', 'user.name', 'test'],
@@ -1315,13 +1345,15 @@ class IntegrationFailureTests(IntegrationTestCase):
 
     def bug_preset(self,
                    bugz: MagicMock,
-                   initial_status: typing.Optional[bool] = None
+                   initial_status: typing.Optional[bool] = None,
+                   **kwargs
                    ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
-                            sanity_check=initial_status),
+                            sanity_check=initial_status,
+                            **kwargs),
         }
         bugz_inst.resolve_dependencies.return_value = (
             bugz_inst.find_bugs.return_value)
@@ -1623,6 +1655,18 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst.update_status.assert_called_with(
             560322, False, 'Unable to check for sanity:\n\n'
                            '> dependent bug #560311 is missing keywords')
+        self.post_verify()
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_cc(self, bugz):
+        bugz_inst = self.bug_preset(bugz, keywords=['CC-ARCHES'])
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, False, self.fail_msg)
         self.post_verify()
 
 

@@ -462,6 +462,7 @@ class NattkaCommands(object):
                     comment: typing.Optional[str] = None
                     check_res: typing.Optional[bool] = None
                     cache_entry: typing.Optional[dict] = None
+                    cc_arches: typing.List[str] = []
 
                     plist = dict(match_package_list(repo, b, only_new=True))
                     check_packages = dict(plist)
@@ -525,11 +526,21 @@ class NattkaCommands(object):
                         }
 
                         if check_res:
+                            # check if we have arches to CC
+                            if ('CC-ARCHES' in b.keywords
+                                    and not arches_from_cc(b.cc,
+                                                           repo.known_arches)):
+                                cc_arches = sorted(
+                                    [f'{x}@gentoo.org' for x
+                                     in set(itertools.chain.from_iterable(
+                                         check_packages.values()))])
+
                             # if nothing changed, do nothing
                             if b.sanity_check is True:
                                 cache_entry['updated'] = True
                                 log.info('Still good')
-                                continue
+                                if not cc_arches:
+                                    continue
 
                             # otherwise, update the bug status
                             log.info('All good')
@@ -588,8 +599,14 @@ class NattkaCommands(object):
                         log.info('Failure reported already')
                         continue
 
+                if cc_arches:
+                    log.info(f'CC arches: {" ".join(cc_arches)}')
                 if self.args.update_bugs:
-                    bz.update_status(bno, check_res, comment)
+                    if cc_arches:
+                        bz.update_status(bno, check_res, comment,
+                                         cc_add=cc_arches)
+                    else:
+                        bz.update_status(bno, check_res, comment)
                     if cache_entry is not None:
                         cache_entry['updated'] = True
                     log.info('Bug status updated')
