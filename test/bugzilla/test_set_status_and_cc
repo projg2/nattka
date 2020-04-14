@@ -1,0 +1,239 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: GET
+    uri: http://127.0.0.1:33113/rest/bug?id=6&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
+  response:
+    body:
+      string: '{"bugs":[{"product":"Gentoo Security","blocks":[],"resolution":"","cc_detail":[],"cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6","depends_on":[],"keywords":[],"component":"Kernel","whiteboard":"","flags":[],"id":6,"cc":[]}]}'
+    headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
+      Date:
+      - Tue, 14 Apr 2020 08:14:07 GMT
+      Etag:
+      - jt58KnFhpS8+4asPTW46KA
+      Keep-Alive:
+      - timeout=15, max=100
+      Server:
+      - Apache
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
+      - nosniff
+      X-frame-options:
+      - SAMEORIGIN
+      X-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: GET
+    uri: http://127.0.0.1:33113/rest/bug/6/comment
+  response:
+    body:
+      string: '{"bugs":{"6":{"comments":[{"tags":[],"time":"2020-04-03T13:27:05Z","id":6,"is_private":false,"text":"","attachment_id":null,"creation_time":"2020-04-03T13:27:05Z","bug_id":6,"creator":"test@example.com","count":0}]}},"comments":{}}'
+    headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
+      Date:
+      - Tue, 14 Apr 2020 08:14:09 GMT
+      Etag:
+      - b+gppQt3tHjVWaHZ4U2b3w
+      Keep-Alive:
+      - timeout=15, max=99
+      Server:
+      - Apache
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
+      - nosniff
+      X-frame-options:
+      - SAMEORIGIN
+      X-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"ids": [6], "flags": [{"name": "sanity-check", "status": "+"}], "cc":
+      {"add": ["amd64@gentoo.org", "hppa@gentoo.org"]}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '120'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.23.0
+    method: PUT
+    uri: http://127.0.0.1:33113/rest/bug/6
+  response:
+    body:
+      string: '{"bugs":[{"changes":{"cc":{"added":"amd64@gentoo.org, hppa@gentoo.org","removed":""},"flagtypes.name":{"added":"sanity-check+","removed":""}},"alias":[],"id":6,"last_change_time":"2020-04-14T08:14:12Z"}]}'
+    headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
+      Date:
+      - Tue, 14 Apr 2020 08:14:11 GMT
+      Etag:
+      - OHzkp8rJNH9s7h9l0z3kLg
+      Keep-Alive:
+      - timeout=15, max=98
+      Server:
+      - Apache
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
+      - nosniff
+      X-frame-options:
+      - SAMEORIGIN
+      X-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: GET
+    uri: http://127.0.0.1:33113/rest/bug?id=6&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
+  response:
+    body:
+      string: '{"bugs":[{"flags":[{"status":"+","setter":"nattka@gentoo.org","type_id":1,"id":4,"creation_date":"2020-04-14T08:14:12Z","modification_date":"2020-04-14T08:14:12Z","name":"sanity-check"}],"product":"Gentoo
+        Security","depends_on":[],"cc_detail":[{"real_name":"AMD64 arch team","id":4,"email":"amd64@gentoo.org","name":"amd64@gentoo.org"},{"name":"hppa@gentoo.org","email":"hppa@gentoo.org","id":5,"real_name":"HPPA
+        arch team"}],"blocks":[],"id":6,"whiteboard":"","resolution":"","cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6","keywords":[],"component":"Kernel","cc":["amd64@gentoo.org","hppa@gentoo.org"]}]}'
+    headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
+      Date:
+      - Tue, 14 Apr 2020 08:14:13 GMT
+      Etag:
+      - v/qXpIleQbiqNKBEj7Rqbg
+      Keep-Alive:
+      - timeout=15, max=97
+      Server:
+      - Apache
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
+      - nosniff
+      X-frame-options:
+      - SAMEORIGIN
+      X-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: GET
+    uri: http://127.0.0.1:33113/rest/bug/6/comment
+  response:
+    body:
+      string: '{"bugs":{"6":{"comments":[{"id":6,"is_private":false,"attachment_id":null,"bug_id":6,"creation_time":"2020-04-03T13:27:05Z","time":"2020-04-03T13:27:05Z","creator":"test@example.com","text":"","tags":[],"count":0}]}},"comments":{}}'
+    headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
+      Date:
+      - Tue, 14 Apr 2020 08:14:14 GMT
+      Etag:
+      - b+gppQt3tHjVWaHZ4U2b3w
+      Keep-Alive:
+      - timeout=15, max=96
+      Server:
+      - Apache
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
+      - nosniff
+      X-frame-options:
+      - SAMEORIGIN
+      X-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1
