@@ -18,6 +18,7 @@ from nattka.package import (match_package_list, add_keywords,
                             check_dependencies, PackageNoMatch,
                             KeywordNoMatch, PackageInvalid,
                             KeywordNotSpecified, PackageListEmpty,
+                            KeywordNoneLeft,
                             find_repository, select_best_version,
                             package_list_to_json, merge_package_list)
 
@@ -662,6 +663,14 @@ class PackageMatcherTests(BaseRepoTestCase):
                     self.repo, makebug(BugCategory.STABLEREQ, '''
                         test/amd64-testing-1 amd64
                         test/amd64-testing-2
+                    ''')):
+                pass
+
+    def test_missing_keywords_probably_done(self):
+        with self.assertRaises(KeywordNoneLeft):
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
+                        test/amd64-stable-1
                     ''')):
                 pass
 

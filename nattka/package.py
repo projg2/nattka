@@ -69,6 +69,10 @@ class KeywordNotSpecified(PackageMatchException):
     pass
 
 
+class KeywordNoneLeft(KeywordNotSpecified):
+    pass
+
+
 class PackageListEmpty(PackageMatchException):
     pass
 
@@ -192,6 +196,7 @@ def match_package_list(repo: UnconfiguredTree,
     keyworded_already = False
     filtered = False
     yielded = False
+    no_potential_keywords = False
     no_keywords = False
 
     prev_keywords = None
@@ -255,7 +260,10 @@ def match_package_list(repo: UnconfiguredTree,
                 continue
 
         if not keywords:
-            no_keywords = True
+            if not get_suggested_keywords(repo, pkg, streq):
+                no_potential_keywords = True
+            else:
+                no_keywords = True
             continue
         prev_keywords = keywords
 
@@ -280,6 +288,9 @@ def match_package_list(repo: UnconfiguredTree,
 
     if no_keywords:
         raise KeywordNotSpecified('incomplete keywords')
+    elif no_potential_keywords:
+        raise KeywordNoneLeft('package keywords in line with other '
+                              'versions and none specified')
     if not yielded:
         if filtered:
             raise PackageListEmpty('no packages match requested arch')
