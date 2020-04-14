@@ -504,6 +504,16 @@ class PackageMatcherTests(BaseRepoTestCase):
                     ''')):
                 pass
 
+    def test_no_match_plus_empty_keywords(self):
+        """Test that no match is reported even with empty keywords earlier"""
+        with self.assertRaises(PackageNoMatch):
+            for m in match_package_list(
+                    self.repo, makebug(BugCategory.STABLEREQ, '''
+                        test/amd64-testing-1
+                        test/enoent-7
+                    ''')):
+                pass
+
     def test_unknown_keywords(self):
         """ Test package list containing unknown keywords. """
         with self.assertRaises(KeywordNoMatch):

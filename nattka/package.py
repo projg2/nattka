@@ -154,9 +154,12 @@ def match_package_list(repo: UnconfiguredTree,
     valid_arches = frozenset(repo.known_arches)
     cc_arches = arches_from_cc(bug.cc, valid_arches)
     filter_arch = frozenset(filter_arch)
+
     keyworded_already = False
     filtered = False
     yielded = False
+    no_keywords = False
+
     prev_keywords = None
     for l in bug.atoms.splitlines():
         sl = l.split()
@@ -236,7 +239,8 @@ def match_package_list(repo: UnconfiguredTree,
                 continue
 
         if not keywords:
-            raise KeywordNotSpecified('incomplete keywords')
+            no_keywords = True
+            continue
         prev_keywords = keywords
 
         if only_new:
@@ -258,6 +262,8 @@ def match_package_list(repo: UnconfiguredTree,
         yield PackageKeywords(pkg, keywords)
         yielded = True
 
+    if no_keywords:
+        raise KeywordNotSpecified('incomplete keywords')
     if not yielded:
         if filtered:
             raise PackageListEmpty('no packages match requested arch')
