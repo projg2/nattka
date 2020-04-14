@@ -26,6 +26,7 @@ from nattka.package import (find_repository, match_package_list,
                             add_keywords, check_dependencies,
                             PackageMatchException, KeywordNotSpecified,
                             PackageListEmpty, PackageListDoneAlready,
+                            KeywordNoneLeft,
                             package_list_to_json, merge_package_list)
 
 try:
@@ -541,6 +542,10 @@ class NattkaCommands(object):
                             comment = ('Sanity check failed:\n\n'
                                        + '\n'.join(issues))
                             log.info('Sanity check failed')
+                except KeywordNoneLeft:
+                    # do not update bug status, it's probably done
+                    log.info('Skipping, no CC and probably no work to do')
+                    continue
                 except KeywordNotSpecified:
                     log.info('Skipping because of incomplete keywords')
                     comment = ('Resetting sanity check; keywords are '
