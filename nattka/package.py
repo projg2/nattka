@@ -129,6 +129,40 @@ def select_best_version(matches: typing.Iterable[
         return m
 
 
+def get_suggested_keywords(repo: UnconfiguredTree,
+                           pkg: pkgcore.ebuild.ebuild_src.package,
+                           streq: bool
+                           ) -> typing.Set[str]:
+    """
+    Get suggested (`*`) keywords for a given package
+
+    `repo` is the repository instance, `pkg` is the matched package,
+    `streq` specifies whether we're dealing with a stablereq (True)
+    or keywordreq (False).
+    """
+
+    # get keywords from other versions
+    keyword_iter = itertools.chain.from_iterable(
+        x.keywords for x in repo.match(pkg.unversioned_atom))
+    disallow_prefix = ('-~' if streq else '-')
+    match_keywords = set(
+        x.lstrip('~') for x in keyword_iter
+        if x[0] not in disallow_prefix)
+
+    if streq:
+        # limit stablereq to whatever is ~arch right now
+        match_keywords.intersection_update(
+            x.lstrip('~') for x in pkg.keywords
+            if x[0] == '~')
+    else:
+        # limit keywordreq to missing keywords and not -*
+        # (i.e. strip all keywords already present)
+        match_keywords.difference_update(
+            x.lstrip('~-') for x in pkg.keywords)
+
+    return match_keywords
+
+
 def match_package_list(repo: UnconfiguredTree,
                        bug: BugInfo,
                        only_new: bool = False,
@@ -196,25 +230,7 @@ def match_package_list(repo: UnconfiguredTree,
 
         keywords = [x.strip().lstrip('~') for x in sl[1:]]
         if '*' in keywords:
-            # get keywords from other versions
-            keyword_iter = itertools.chain.from_iterable(
-                x.keywords for x in repo.match(dep.unversioned_atom))
-            disallow_prefix = ('-~' if streq else '-')
-            match_keywords = set(
-                x.lstrip('~') for x in keyword_iter
-                if x[0] not in disallow_prefix)
-
-            if streq:
-                # limit stablereq to whatever is ~arch right now
-                match_keywords.intersection_update(
-                    x.lstrip('~') for x in pkg.keywords
-                    if x[0] == '~')
-            else:
-                # limit keywordreq to missing keywords and not -*
-                # (i.e. strip all keywords already present)
-                match_keywords.difference_update(
-                    x.lstrip('~-') for x in pkg.keywords)
-
+            match_keywords = get_suggested_keywords(repo, pkg, streq)
             keywords = (
                 sorted(match_keywords, key=keyword_sort_key)
                 + [x for x in keywords if x != '*'])
