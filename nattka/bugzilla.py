@@ -330,10 +330,11 @@ class NattkaBugzilla(object):
             req['cc'] = {
                 'add': cc_add,
             }
-        if keywords_add:
-            req.setdefault('keywords', {})['add'] = keywords_add
-        if keywords_remove:
-            req.setdefault('keywords', {})['remove'] = keywords_remove
+        if keywords_add or keywords_remove:
+            req['keywords'] = {
+                'add': keywords_add,
+                'remove': keywords_remove,
+            }
 
         resp = self._request(f'bug/{bugno}', put_data=req).json()
         assert resp['bugs'][0]['id'] == bugno

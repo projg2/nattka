@@ -14,8 +14,8 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug?id=8&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"keywords":[],"cc_detail":[],"flags":[],"product":"Gentoo
-        Linux","cc":[],"resolution":"FIXED","depends_on":[],"blocks":[],"id":8,"whiteboard":"","component":"Stabilization","cf_stabilisation_atoms":"dev-lang/python-3.7.7"}]}'
+      string: '{"bugs":[{"cf_stabilisation_atoms":"dev-lang/python-3.7.7","whiteboard":"","id":8,"component":"Stabilization","depends_on":[],"resolution":"FIXED","flags":[],"cc":[],"keywords":[],"cc_detail":[],"blocks":[],"product":"Gentoo
+        Linux"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -28,7 +28,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 15 Apr 2020 07:32:41 GMT
+      - Wed, 15 Apr 2020 10:01:53 GMT
       Etag:
       - wk0OG1JoGdgfDzLtX0qzwA
       Keep-Alive:
@@ -61,8 +61,8 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug/8/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"8":{"comments":[{"creation_time":"2020-04-04T07:07:40Z","tags":[],"time":"2020-04-04T07:07:40Z","attachment_id":null,"count":0,"bug_id":8,"text":"Resolved
-        bugs should appear when requested via id but not in search.","is_private":false,"id":12,"creator":"test@example.com"}]}}}'
+      string: '{"comments":{},"bugs":{"8":{"comments":[{"time":"2020-04-04T07:07:40Z","tags":[],"is_private":false,"count":0,"creator":"test@example.com","bug_id":8,"id":12,"creation_time":"2020-04-04T07:07:40Z","text":"Resolved
+        bugs should appear when requested via id but not in search.","attachment_id":null}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -75,7 +75,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 15 Apr 2020 07:32:45 GMT
+      - Wed, 15 Apr 2020 10:01:55 GMT
       Etag:
       - SmkLlM4MqrWeOKN5IJ3Yig
       Keep-Alive:
@@ -95,7 +95,7 @@ interactions:
       message: OK
 - request:
     body: '{"ids": [8], "flags": [{"name": "sanity-check", "status": "+"}], "keywords":
-      {"add": ["ALLARCHES"]}}'
+      {"add": ["ALLARCHES"], "remove": []}}'
     headers:
       Accept:
       - '*/*'
@@ -104,7 +104,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '100'
+      - '114'
       Content-Type:
       - application/json
       User-Agent:
@@ -113,7 +113,7 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug/8
   response:
     body:
-      string: '{"bugs":[{"changes":{"flagtypes.name":{"removed":"","added":"sanity-check+"},"keywords":{"added":"ALLARCHES","removed":""}},"alias":[],"last_change_time":"2020-04-15T07:32:52Z","id":8}]}'
+      string: '{"bugs":[{"id":8,"last_change_time":"2020-04-15T10:01:58Z","changes":{"keywords":{"removed":"","added":"ALLARCHES"},"flagtypes.name":{"added":"sanity-check+","removed":""}},"alias":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -126,9 +126,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 15 Apr 2020 07:32:48 GMT
+      - Wed, 15 Apr 2020 10:01:57 GMT
       Etag:
-      - MJMbxspoV5i1gO2wA4fXTA
+      - uvsxG1O+a6prqacOJSu+kQ
       Keep-Alive:
       - timeout=15, max=98
       Server:
@@ -159,8 +159,8 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug?id=8&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"flags":[{"id":4,"name":"sanity-check","status":"+","type_id":1,"creation_date":"2020-04-15T07:32:52Z","setter":"nattka@gentoo.org","modification_date":"2020-04-15T07:32:52Z"}],"whiteboard":"","resolution":"FIXED","cc_detail":[],"keywords":["ALLARCHES"],"id":8,"blocks":[],"component":"Stabilization","depends_on":[],"product":"Gentoo
-        Linux","cf_stabilisation_atoms":"dev-lang/python-3.7.7","cc":[]}]}'
+      string: '{"bugs":[{"component":"Stabilization","cc":[],"cf_stabilisation_atoms":"dev-lang/python-3.7.7","resolution":"FIXED","whiteboard":"","flags":[{"setter":"nattka@gentoo.org","status":"+","creation_date":"2020-04-15T10:01:58Z","id":4,"type_id":1,"modification_date":"2020-04-15T10:01:58Z","name":"sanity-check"}],"id":8,"depends_on":[],"blocks":[],"keywords":["ALLARCHES"],"cc_detail":[],"product":"Gentoo
+        Linux"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -173,9 +173,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 15 Apr 2020 07:32:52 GMT
+      - Wed, 15 Apr 2020 10:01:59 GMT
       Etag:
-      - 0HBvVox6184rS2j7n9043Q
+      - NMvf+e5/PmIc6DyEA2bksw
       Keep-Alive:
       - timeout=15, max=97
       Server:
@@ -206,8 +206,8 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug/8/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"8":{"comments":[{"creation_time":"2020-04-04T07:07:40Z","tags":[],"is_private":false,"id":12,"creator":"test@example.com","count":0,"text":"Resolved
-        bugs should appear when requested via id but not in search.","attachment_id":null,"bug_id":8,"time":"2020-04-04T07:07:40Z"}]}}}'
+      string: '{"bugs":{"8":{"comments":[{"id":12,"creation_time":"2020-04-04T07:07:40Z","attachment_id":null,"bug_id":8,"count":0,"text":"Resolved
+        bugs should appear when requested via id but not in search.","time":"2020-04-04T07:07:40Z","tags":[],"creator":"test@example.com","is_private":false}]}},"comments":{}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -220,7 +220,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 15 Apr 2020 07:32:57 GMT
+      - Wed, 15 Apr 2020 10:02:01 GMT
       Etag:
       - SmkLlM4MqrWeOKN5IJ3Yig
       Keep-Alive:

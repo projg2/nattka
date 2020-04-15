@@ -14,8 +14,8 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug?id=7&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"cc_detail":[],"depends_on":[],"blocks":[3],"component":"Stabilization","id":7,"keywords":["ALLARCHES"],"whiteboard":"","flags":[],"cc":[],"resolution":"","cf_stabilisation_atoms":"dev-python/pytest-5.4.1","product":"Gentoo
-        Linux"}]}'
+      string: '{"bugs":[{"resolution":"","blocks":[3],"depends_on":[],"component":"Stabilization","cc_detail":[],"whiteboard":"","cc":[],"cf_stabilisation_atoms":"dev-python/pytest-5.4.1","keywords":["ALLARCHES"],"id":7,"product":"Gentoo
+        Linux","flags":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -28,7 +28,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 15 Apr 2020 07:33:00 GMT
+      - Wed, 15 Apr 2020 10:03:33 GMT
       Etag:
       - 5bBwwKEoZTq5gX/n590FhA
       Keep-Alive:
@@ -61,7 +61,7 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug/7/comment
   response:
     body:
-      string: '{"bugs":{"7":{"comments":[{"creation_time":"2020-04-03T13:28:17Z","attachment_id":null,"count":0,"time":"2020-04-03T13:28:17Z","id":7,"is_private":false,"tags":[],"bug_id":7,"text":"","creator":"test@example.com"}]}},"comments":{}}'
+      string: '{"bugs":{"7":{"comments":[{"tags":[],"bug_id":7,"attachment_id":null,"creator":"test@example.com","time":"2020-04-03T13:28:17Z","id":7,"creation_time":"2020-04-03T13:28:17Z","count":0,"text":"","is_private":false}]}},"comments":{}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -74,7 +74,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 15 Apr 2020 07:33:04 GMT
+      - Wed, 15 Apr 2020 10:03:35 GMT
       Etag:
       - wexzKYpVkNextHp5XZ9gqw
       Keep-Alive:
@@ -94,7 +94,7 @@ interactions:
       message: OK
 - request:
     body: '{"ids": [7], "flags": [{"name": "sanity-check", "status": "+"}], "keywords":
-      {"remove": ["ALLARCHES"]}}'
+      {"add": [], "remove": ["ALLARCHES"]}}'
     headers:
       Accept:
       - '*/*'
@@ -103,7 +103,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '103'
+      - '114'
       Content-Type:
       - application/json
       User-Agent:
@@ -112,7 +112,7 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug/7
   response:
     body:
-      string: '{"bugs":[{"changes":{"flagtypes.name":{"removed":"","added":"sanity-check+"},"keywords":{"removed":"ALLARCHES","added":""}},"id":7,"last_change_time":"2020-04-15T07:33:10Z","alias":[]}]}'
+      string: '{"bugs":[{"alias":[],"id":7,"changes":{"flagtypes.name":{"removed":"","added":"sanity-check+"},"keywords":{"added":"","removed":"ALLARCHES"}},"last_change_time":"2020-04-15T10:03:39Z"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -125,9 +125,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 15 Apr 2020 07:33:08 GMT
+      - Wed, 15 Apr 2020 10:03:37 GMT
       Etag:
-      - ofznOQFPejjEhFBkDldX4w
+      - Ptm3DQNJXv+ryiPlqXbHMQ
       Keep-Alive:
       - timeout=15, max=98
       Server:
@@ -158,8 +158,8 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug?id=7&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"blocks":[3],"keywords":[],"id":7,"cc_detail":[],"depends_on":[],"cc":[],"product":"Gentoo
-        Linux","cf_stabilisation_atoms":"dev-python/pytest-5.4.1","flags":[{"id":5,"creation_date":"2020-04-15T07:33:10Z","setter":"nattka@gentoo.org","modification_date":"2020-04-15T07:33:10Z","type_id":1,"status":"+","name":"sanity-check"}],"resolution":"","component":"Stabilization","whiteboard":""}]}'
+      string: '{"bugs":[{"component":"Stabilization","whiteboard":"","flags":[{"status":"+","setter":"nattka@gentoo.org","modification_date":"2020-04-15T10:03:39Z","id":5,"creation_date":"2020-04-15T10:03:39Z","type_id":1,"name":"sanity-check"}],"cc":[],"blocks":[3],"cc_detail":[],"product":"Gentoo
+        Linux","id":7,"depends_on":[],"resolution":"","cf_stabilisation_atoms":"dev-python/pytest-5.4.1","keywords":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -172,9 +172,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 15 Apr 2020 07:33:11 GMT
+      - Wed, 15 Apr 2020 10:03:40 GMT
       Etag:
-      - IUqhZ4Sd/yJ0tVq+qMbNnQ
+      - /yQzL3Y6K8svi19ClcWNWA
       Keep-Alive:
       - timeout=15, max=97
       Server:
@@ -205,7 +205,7 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug/7/comment
   response:
     body:
-      string: '{"bugs":{"7":{"comments":[{"bug_id":7,"is_private":false,"text":"","tags":[],"creation_time":"2020-04-03T13:28:17Z","time":"2020-04-03T13:28:17Z","attachment_id":null,"count":0,"creator":"test@example.com","id":7}]}},"comments":{}}'
+      string: '{"bugs":{"7":{"comments":[{"creator":"test@example.com","is_private":false,"tags":[],"attachment_id":null,"count":0,"creation_time":"2020-04-03T13:28:17Z","id":7,"text":"","bug_id":7,"time":"2020-04-03T13:28:17Z"}]}},"comments":{}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -218,7 +218,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Wed, 15 Apr 2020 07:33:14 GMT
+      - Wed, 15 Apr 2020 10:03:42 GMT
       Etag:
       - wexzKYpVkNextHp5XZ9gqw
       Keep-Alive:
