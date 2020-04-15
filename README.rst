@@ -68,6 +68,16 @@ Once arch teams are CC-ed, effective keywords are determined
 as the intersection of specified keywords and CC-ed arches.  Packages
 listed without keywords are assumed to be requested on all CC-ed arches.
 
+Alternatively to CC-ing arch teams, the ``CC-ARCHES`` keyword can be
+added to a bug.  In that case, NATTkA will automatically determine arch
+teams from the package list field and CC them, as long as the bug passes
+sanity check.
+
+NATTkA scans package ``metadata.xml`` files for ``stabilize-allarches``
+element.  If all packages on the package list have one, it automatically
+adds ``ALLARCHES`` keyword.  Otherwise, it ensures that this keyword
+is not present.
+
 Example package list follows::
 
     dev-bar/libfrobnicate-9.0

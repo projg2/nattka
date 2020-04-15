@@ -115,3 +115,18 @@ NATTkA can act on them only if you are using an API key.
 
 Set ``nattka:skip`` tag to omit the bug from search results.  It will
 still be acted upon if passed explicitly.
+
+
+CC-ARCHES keyword
+=================
+If the ``CC-ARCHES`` keyword is added to a bug, NATTkA will determine
+correct arch teams from the package list, and add them to CC on next
+iteration.  This will happen only if sanity-check passes.
+
+
+ALLARCHES keyword
+=================
+NATTkA scans package ``metadata.xml`` files for ``stabilize-allarches``
+elements.  If all packages from the package list have one, it adds
+``ALLARCHES`` keyword to the bug.  On the contrary, if at least one
+package is not marked this way, it removes the keyword from the bug.
