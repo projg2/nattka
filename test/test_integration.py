@@ -1263,11 +1263,11 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.find_bugs.return_value = {
             560322: makebug(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 amd64 hppa amd64-linux '
-                            'x86-macos sparc-freebsd\r\n'),
+                            'x86-macos sparc-freebsd\r\n',
+                            keywords=['CC-ARCHES']),
         }
         bugz_inst.resolve_dependencies.return_value = (
             bugz_inst.find_bugs.return_value)
-        bugz_inst = self.bug_preset(bugz, keywords=['CC-ARCHES'])
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
@@ -1275,7 +1275,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_called_with(
             560322, True, None,
-            cc_add=['amd64@gentoo.org', 'hppa@gentoo.org'])
+            cc_add=['hppa@gentoo.org'])
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
