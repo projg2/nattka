@@ -1258,6 +1258,33 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_cc_from_success_cache(self, bugz):
+        bugz_inst = self.bug_preset(bugz, initial_status=None)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '--cache-file', self.cache_file,
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, True, None)
+        self.post_verify()
+
+        bugz_inst = self.bug_preset(bugz,
+                                    keywords=['CC-ARCHES'],
+                                    initial_status=True)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '--cache-file', self.cache_file,
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, True, None,
+            cc_add=['amd64@gentoo.org', 'hppa@gentoo.org'])
+        self.post_verify()
+
+    @patch('nattka.cli.NattkaBugzilla')
     def test_sanity_cc_prefix(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {

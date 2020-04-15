@@ -44,6 +44,10 @@ class DependentBugError(Exception):
     pass
 
 
+class NoChanges(Exception):
+    pass
+
+
 class NattkaCommands(object):
     args: argparse.Namespace
     bz: typing.Optional[NattkaBugzilla]
@@ -482,6 +486,18 @@ class NattkaCommands(object):
                             raise DependentBugError(
                                 f'dependent bug #{kw_dep} has errors')
 
+                    # check if we have arches to CC
+                    if ('CC-ARCHES' in b.keywords
+                            and not arches_from_cc(b.cc,
+                                                   repo.known_arches)):
+                        # TODO: this technically eliminates *-fbsd
+                        # as well as prefix
+                        cc_arches = sorted(
+                            [f'{x}@gentoo.org' for x
+                             in set(itertools.chain.from_iterable(
+                                 check_packages.values()))
+                             if '-' not in x])
+
                     plist_json = package_list_to_json(plist.items())
                     cache_entry = cache['bugs'].get(str(bno), {})
                     assert cache_entry is not None
@@ -504,8 +520,8 @@ class NattkaCommands(object):
                             log.info('Cache entry from no-update mode, '
                                      'will recheck.')
                         else:
-                            log.info('Cache entry is up-to-date, skipping.')
-                            continue
+                            log.info('Cache entry is up-to-date.')
+                            raise NoChanges()
 
                     with git_repo:
                         add_keywords(plist.items(),
@@ -526,23 +542,11 @@ class NattkaCommands(object):
                         }
 
                         if check_res:
-                            # check if we have arches to CC
-                            if ('CC-ARCHES' in b.keywords
-                                    and not arches_from_cc(b.cc,
-                                                           repo.known_arches)):
-                                # TODO: this technically eliminates *-fbsd
-                                # as well as prefix
-                                cc_arches = sorted(
-                                    [f'{x}@gentoo.org' for x
-                                     in set(itertools.chain.from_iterable(
-                                         check_packages.values()))
-                                     if '-' not in x])
-
                             # if nothing changed, do nothing
-                            if b.sanity_check is True and not cc_arches:
+                            if b.sanity_check is True:
                                 cache_entry['updated'] = True
                                 log.info('Still good')
-                                continue
+                                raise NoChanges()
 
                             # otherwise, update the bug status
                             log.info('All good')
@@ -578,6 +582,14 @@ class NattkaCommands(object):
                     log.error(e)
                     check_res = False
                     comment = f'Unable to check for sanity:\n\n> {e}'
+                except NoChanges:
+                    # if it's not positive, don't do extra work
+                    if b.sanity_check is not True:
+                        continue
+                    # check if there's anything related to do
+                    if not cc_arches:
+                        continue
+                    check_res = True
                 except GitDirtyWorkTree:
                     log.critical(
                         f'{git_repo.path}: working tree is dirty')
@@ -604,11 +616,11 @@ class NattkaCommands(object):
                 if cc_arches:
                     log.info(f'CC arches: {" ".join(cc_arches)}')
                 if self.args.update_bugs:
-                    if cc_arches:
-                        bz.update_status(bno, check_res, comment,
-                                         cc_add=cc_arches)
-                    else:
-                        bz.update_status(bno, check_res, comment)
+                    kwargs = {}
+                    if check_res is True and cc_arches:
+                        kwargs['cc_add'] = cc_arches
+                    bz.update_status(bno, check_res, comment,
+                                     **kwargs)
                     if cache_entry is not None:
                         cache_entry['updated'] = True
                     log.info('Bug status updated')
