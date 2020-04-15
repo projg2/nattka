@@ -620,6 +620,9 @@ class NattkaCommands(object):
 
                 if cc_arches:
                     log.info(f'CC arches: {" ".join(cc_arches)}')
+                if allarches_chg:
+                    log.info(f'{"Adding" if allarches else "Removing"} '
+                             f'ALLARCHES')
                 if self.args.update_bugs:
                     kwargs = {}
                     if check_res is True and cc_arches:
