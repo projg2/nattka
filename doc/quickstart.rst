@@ -19,6 +19,7 @@ be installed inside a virtualenv):
 - snakeoil_ utility library.
 - pkgcore_ package manager and pkgcheck_ linting tool.
 - requests_ HTTP library.
+- lxml_ XML parsing library.
 
 Running tests additionally requires:
 
@@ -35,6 +36,7 @@ standard unittest runner (but they are quite noisy).
 .. _pkgcore: https://github.com/pkgcore/pkgcore/
 .. _pkgcheck: https://github.com/pkgcore/pkgcheck/
 .. _requests: http://python-requests.org/
+.. _lxml: https://lxml.de/
 .. _vcrpy: https://vcrpy.readthedocs.io/
 .. _freezegun: https://github.com/spulec/freezegun
 .. _pytest: https://pytest.org/

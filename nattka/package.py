@@ -10,6 +10,8 @@ import typing
 
 from pathlib import Path
 
+import lxml.etree
+
 # need to preload it to fix pkgcheck.reporters import error
 __import__('pkgcheck.checks')
 from pkgcheck.reporters import PickleStream
@@ -373,3 +375,36 @@ def merge_package_list(dest: PackageKeywordsDict,
                 newkw.append(k)
 
     return dest
+
+
+def is_allarches(pkg: pkgcore.ebuild.ebuild_src.package
+                 ) -> bool:
+    """
+    Verify whether `pkg` is marked for ALLARCHES stabilization
+
+    Return True if it is, False otherwise (including when metadata.xml
+    is missing).  Raise exception if metadata.xml is malformed.
+    """
+
+    try:
+        # we open it ourselves because error handling in lxml sucks
+        # (doesn't return errno / distinguish failure reason)
+        with open(Path(pkg.path).parent / 'metadata.xml', 'r') as f:
+            xml = lxml.etree.parse(f)
+    except FileNotFoundError:
+        return False
+
+    for allarches in xml.findall('stabilize-allarches'):
+        r = allarches.get('restrict')
+        try:
+            if r is None:
+                return True
+            dep = atom(r, eapi='0')
+            if dep.key != pkg.key:
+                raise PackageInvalid(f'restrict refers to wrong package: {r} '
+                                     f'(in {pkg.cpvstr})')
+            if dep.match(pkg):
+                return True
+        except MalformedAtom:
+            raise PackageInvalid(f'invalid restrict: {r} (in {pkg.cpvstr})')
+    return False

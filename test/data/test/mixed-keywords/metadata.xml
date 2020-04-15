@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<maintainer type="person">
+<email>foo@example.com</email>
+</maintainer>
+<stabilize-allarches restrict="&lt;test/mixed-keywords-3"/>
+<stabilize-allarches restrict="&gt;=test/mixed-keywords-5"/>
+</pkgmetadata>

@@ -10,6 +10,8 @@ import unittest
 
 from pathlib import Path
 
+import lxml.etree
+
 from pkgcore.ebuild.atom import atom
 
 from nattka.bugzilla import BugCategory
@@ -18,9 +20,9 @@ from nattka.package import (match_package_list, add_keywords,
                             check_dependencies, PackageNoMatch,
                             KeywordNoMatch, PackageInvalid,
                             KeywordNotSpecified, PackageListEmpty,
-                            KeywordNoneLeft,
-                            find_repository, select_best_version,
-                            package_list_to_json, merge_package_list)
+                            KeywordNoneLeft, find_repository,
+                            select_best_version, package_list_to_json,
+                            merge_package_list, is_allarches)
 
 from test.test_bugzilla import makebug
 
@@ -992,3 +994,50 @@ class MergePackageListTests(BaseRepoTestCase):
             {self.get_package('=test/amd64-testing-deps-1'):
              ['~x86', 'alpha', 'amd64'],
              })
+
+
+class IsAllArchesTests(BaseRepoTestCase):
+    def test_allarches(self):
+        self.assertTrue(
+            is_allarches(
+                self.get_package('=test/amd64-stable-hppa-testing-1')))
+
+    def test_not_allarches(self):
+        self.assertFalse(
+            is_allarches(
+                self.get_package('=test/amd64-stable-1')))
+
+    def test_no_metadata_xml(self):
+        self.assertFalse(
+            is_allarches(
+                self.get_package('=test/amd64-testing-1')))
+
+    def test_restrict_match1(self):
+        self.assertTrue(
+            is_allarches(
+                self.get_package('=test/mixed-keywords-1')))
+
+    def test_restrict_mismatch(self):
+        self.assertFalse(
+            is_allarches(
+                self.get_package('=test/mixed-keywords-3')))
+
+    def test_restrict_match2(self):
+        self.assertTrue(
+            is_allarches(
+                self.get_package('=test/mixed-keywords-9999')))
+
+    def test_malformed_xml(self):
+        with self.assertRaises(lxml.etree.XMLSyntaxError):
+            is_allarches(
+                self.get_package('=test/malformed-metadata-xml-1'))
+
+    def test_malformed_restrict(self):
+        with self.assertRaises(PackageInvalid):
+            is_allarches(
+                self.get_package('=test/malformed-restrict-1'))
+
+    def test_wrong_packagerestrict(self):
+        with self.assertRaises(PackageInvalid):
+            is_allarches(
+                self.get_package('=test/wrong-package-restrict-1'))
