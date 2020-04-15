@@ -1,3 +1,6 @@
 alpha
 amd64
 hppa
+amd64-linux
+sparc-freebsd
+x86-macos

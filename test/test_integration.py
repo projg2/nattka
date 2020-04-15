@@ -27,6 +27,11 @@ from test.test_bugzilla import makebug
 from test.test_package import get_test_repo
 
 
+FULL_CC = ['alpha@gentoo.org', 'amd64-linux@gentoo.org',
+           'amd64@gentoo.org', 'hppa@gentoo.org',
+           'sparc-freebsd@gentoo.org', 'x86-macos@gentoo.org']
+
+
 class IntegrationTestCase(unittest.TestCase):
     """
     A test case for an integration test.  Combines Bugzilla support
@@ -103,7 +108,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
             1)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
-            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+            cc=FULL_CC)
         add_keywords.assert_not_called()
 
     @patch('nattka.cli.add_keywords')
@@ -168,7 +173,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
             1)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
-            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+            cc=FULL_CC)
         add_keywords.assert_not_called()
 
     @patch('nattka.cli.add_keywords')
@@ -205,7 +210,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
             1)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
-            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+            cc=FULL_CC)
         match_package_list.assert_not_called()
 
     @patch('nattka.cli.match_package_list')
@@ -300,7 +305,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             0)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
-            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+            cc=FULL_CC)
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -331,7 +336,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             0)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
-            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+            cc=FULL_CC)
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -352,7 +357,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             0)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
-            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+            cc=FULL_CC)
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -446,7 +451,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             1)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
-            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+            cc=FULL_CC)
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -466,7 +471,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             0)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
-            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+            cc=FULL_CC)
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -502,7 +507,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             1)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
-            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+            cc=FULL_CC)
         bugz_inst.resolve_dependencies.assert_called()
 
         self.assertEqual(
@@ -534,7 +539,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             0)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
-            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+            cc=FULL_CC)
         bugz_inst.resolve_dependencies.assert_called()
 
         self.assertEqual(
@@ -641,7 +646,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             0)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
-            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+            cc=FULL_CC)
         bugz_inst.resolve_dependencies.assert_called()
 
         self.assertEqual(
@@ -675,7 +680,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             0)
         bugz_inst.find_bugs.assert_called_with(
             bugs=[560322],
-            cc=['alpha@gentoo.org', 'amd64@gentoo.org', 'hppa@gentoo.org'])
+            cc=FULL_CC)
 
         self.assertEqual(
             sout.getvalue().strip(),
