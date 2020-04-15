@@ -385,6 +385,50 @@ class DestructiveBugzillaTests(unittest.TestCase):
         self.assertIsNone(
             self.bz.get_latest_comment(6, BUGZILLA_USERNAME))
 
+    @rec.use_cassette()
+    def test_set_status_and_add_keywords(self):
+        bug = self.bz.find_bugs([8])[8]
+        self.assertIsNone(
+            bug.sanity_check,
+            'Bugzilla instance tainted, please reset')
+        self.assertEqual(
+            bug.keywords,
+            [],
+            'Bugzilla instance tainted, please reset')
+        self.assertIsNone(
+            self.bz.get_latest_comment(8, BUGZILLA_USERNAME),
+            'Bugzilla instance tainted, please reset')
+
+        self.bz.update_status(8, True, keywords_add=['ALLARCHES'])
+
+        bug = self.bz.find_bugs([8])[8]
+        self.assertTrue(bug.sanity_check)
+        self.assertEqual(bug.keywords, ['ALLARCHES'])
+        self.assertIsNone(
+            self.bz.get_latest_comment(8, BUGZILLA_USERNAME))
+
+    @rec.use_cassette()
+    def test_set_status_and_remove_keywords(self):
+        bug = self.bz.find_bugs([7])[7]
+        self.assertIsNone(
+            bug.sanity_check,
+            'Bugzilla instance tainted, please reset')
+        self.assertEqual(
+            bug.keywords,
+            ['ALLARCHES'],
+            'Bugzilla instance tainted, please reset')
+        self.assertIsNone(
+            self.bz.get_latest_comment(7, BUGZILLA_USERNAME),
+            'Bugzilla instance tainted, please reset')
+
+        self.bz.update_status(7, True, keywords_remove=['ALLARCHES'])
+
+        bug = self.bz.find_bugs([7])[7]
+        self.assertTrue(bug.sanity_check)
+        self.assertEqual(bug.keywords, [])
+        self.assertIsNone(
+            self.bz.get_latest_comment(7, BUGZILLA_USERNAME))
+
 
 class DestructiveUserBugzillaTests(unittest.TestCase):
     bz: NattkaBugzilla

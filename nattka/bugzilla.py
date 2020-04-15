@@ -288,7 +288,9 @@ class NattkaBugzilla(object):
                       bugno: int,
                       status: typing.Optional[bool],
                       comment: typing.Optional[str] = None,
-                      cc_add: typing.List[str] = []
+                      cc_add: typing.List[str] = [],
+                      keywords_add: typing.List[str] = [],
+                      keywords_remove: typing.List[str] = []
                       ) -> None:
         """
         Update the sanity-check status of bug
@@ -296,7 +298,9 @@ class NattkaBugzilla(object):
         `bugno` specifies the bug to update.  `status` is the new status
         (True for '+', False for '-', None to reset).  `comment`
         is an optional comment to add to the bug.  `cc_add` specifies
-        CC entries (arches) to add, if not empty.
+        CC entries (arches) to add, if not empty.  `keywords_add`
+        and `keywords_remove` specified KEYWORDS to appropriately add
+        or remove.
         """
 
         if status is True:
@@ -326,6 +330,10 @@ class NattkaBugzilla(object):
             req['cc'] = {
                 'add': cc_add,
             }
+        if keywords_add:
+            req.setdefault('keywords', {})['add'] = keywords_add
+        if keywords_remove:
+            req.setdefault('keywords', {})['remove'] = keywords_remove
 
         resp = self._request(f'bug/{bugno}', put_data=req).json()
         assert resp['bugs'][0]['id'] == bugno
