@@ -1306,6 +1306,45 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_allarches_add(self, bugz):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/amd64-stable-hppa-testing-1 hppa\r\n'),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, True, None,
+            keywords_add=['ALLARCHES'])
+        self.post_verify()
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_allarches_remove(self, bugz):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/amd64-testing-1 amd64\r\n',
+                            keywords=['ALLARCHES']),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, True, None,
+            keywords_remove=['ALLARCHES'])
+        self.post_verify()
+
+    @patch('nattka.cli.NattkaBugzilla')
     def test_commit(self, bugz):
         assert subprocess.Popen(
             ['git', 'config', '--local', 'user.name', 'test'],

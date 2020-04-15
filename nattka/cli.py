@@ -26,7 +26,7 @@ from nattka.package import (find_repository, match_package_list,
                             add_keywords, check_dependencies,
                             PackageMatchException, KeywordNotSpecified,
                             PackageListEmpty, PackageListDoneAlready,
-                            KeywordNoneLeft,
+                            KeywordNoneLeft, is_allarches,
                             package_list_to_json, merge_package_list)
 
 try:
@@ -462,12 +462,13 @@ class NattkaCommands(object):
 
                 log.info(f'Bug {bno} ({b.category.name})')
 
-                try:
-                    comment: typing.Optional[str] = None
-                    check_res: typing.Optional[bool] = None
-                    cache_entry: typing.Optional[dict] = None
-                    cc_arches: typing.List[str] = []
+                comment: typing.Optional[str] = None
+                check_res: typing.Optional[bool] = None
+                cache_entry: typing.Optional[dict] = None
+                cc_arches: typing.List[str] = []
+                allarches_chg = False
 
+                try:
                     plist = dict(match_package_list(repo, b, only_new=True))
                     check_packages = dict(plist)
                     for kw_dep in kw_deps:
@@ -497,6 +498,10 @@ class NattkaCommands(object):
                              in set(itertools.chain.from_iterable(
                                  check_packages.values()))
                              if '-' not in x])
+                    # check if we have ALLARCHES to toggle
+                    allarches = (b.category == BugCategory.STABLEREQ
+                                 and all(is_allarches(x) for x in plist))
+                    allarches_chg = (allarches != ('ALLARCHES' in b.keywords))
 
                     plist_json = package_list_to_json(plist.items())
                     cache_entry = cache['bugs'].get(str(bno), {})
@@ -587,7 +592,7 @@ class NattkaCommands(object):
                     if b.sanity_check is not True:
                         continue
                     # check if there's anything related to do
-                    if not cc_arches:
+                    if not cc_arches and not allarches_chg:
                         continue
                     check_res = True
                 except GitDirtyWorkTree:
@@ -619,6 +624,13 @@ class NattkaCommands(object):
                     kwargs = {}
                     if check_res is True and cc_arches:
                         kwargs['cc_add'] = cc_arches
+                    # we toggle it either if we're on sanity-check+
+                    # or doing some other change
+                    if allarches_chg:
+                        if allarches:
+                            kwargs['keywords_add'] = ['ALLARCHES']
+                        else:
+                            kwargs['keywords_remove'] = ['ALLARCHES']
                     bz.update_status(bno, check_res, comment,
                                      **kwargs)
                     if cache_entry is not None:
