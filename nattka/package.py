@@ -212,7 +212,8 @@ def match_package_list(repo: UnconfiguredTree,
             continue
 
         dep = None
-        for sdep in (f'={sl[0].strip()}', sl[0].strip()):
+        for prefix in ('=', ''):
+            sdep = prefix + sl[0]
             try:
                 dep = atom(sdep, eapi='5')
                 break
