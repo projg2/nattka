@@ -592,7 +592,7 @@ class NattkaCommands(object):
                     if b.sanity_check is not True:
                         continue
                     # check if there's anything related to do
-                    if not cc_arches and not allarches_chg:
+                    if not cc_arches:
                         continue
                     check_res = True
                 except GitDirtyWorkTree:
@@ -618,6 +618,15 @@ class NattkaCommands(object):
                         log.info('Failure reported already')
                         continue
 
+                if check_res is not True:
+                    # CC arches and change ALLARCHES only after
+                    # successful check
+                    cc_arches = []
+                    allarches_chg = False
+                elif b.sanity_check is True:
+                    # change ALLARCHES only on state changes
+                    allarches_chg = False
+
                 if cc_arches:
                     log.info(f'CC arches: {" ".join(cc_arches)}')
                 if allarches_chg:
@@ -625,10 +634,8 @@ class NattkaCommands(object):
                              f'ALLARCHES')
                 if self.args.update_bugs:
                     kwargs = {}
-                    if check_res is True and cc_arches:
+                    if cc_arches:
                         kwargs['cc_add'] = cc_arches
-                    # we toggle it either if we're on sanity-check+
-                    # or doing some other change
                     if allarches_chg:
                         if allarches:
                             kwargs['keywords_add'] = ['ALLARCHES']
