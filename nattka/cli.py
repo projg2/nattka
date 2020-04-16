@@ -27,7 +27,8 @@ from nattka.package import (find_repository, match_package_list,
                             PackageMatchException, KeywordNotSpecified,
                             PackageListEmpty, PackageListDoneAlready,
                             KeywordNoneLeft, is_allarches,
-                            package_list_to_json, merge_package_list)
+                            package_list_to_json, merge_package_list,
+                            expand_package_list, ExpandImpossible)
 
 try:
     from nattka.depgraph import (get_ordered_nodes,
@@ -467,6 +468,7 @@ class NattkaCommands(object):
                 cache_entry: typing.Optional[dict] = None
                 cc_arches: typing.List[str] = []
                 allarches_chg = False
+                expanded_plist: typing.Optional[str] = None
 
                 try:
                     plist = dict(match_package_list(repo, b, only_new=True))
@@ -488,9 +490,9 @@ class NattkaCommands(object):
                                 f'dependent bug #{kw_dep} has errors')
 
                     # check if we have arches to CC
-                    if ('CC-ARCHES' in b.keywords
-                            and not arches_from_cc(b.cc,
-                                                   repo.known_arches)):
+                    arches_cced = bool(
+                        arches_from_cc(b.cc, repo.known_arches))
+                    if 'CC-ARCHES' in b.keywords and not arches_cced:
                         # TODO: this technically eliminates *-fbsd
                         # as well as prefix
                         cc_arches = sorted(
@@ -564,6 +566,14 @@ class NattkaCommands(object):
                             comment = ('Sanity check failed:\n\n'
                                        + '\n'.join(issues))
                             log.info('Sanity check failed')
+
+                    # check if keywords need expanding
+                    if (check_res and ('*' in b.atoms or '^' in b.atoms)
+                            and (arches_cced or cc_arches)):
+                        try:
+                            expanded_plist = expand_package_list(repo, b)
+                        except ExpandImpossible:
+                            pass
                 except KeywordNoneLeft:
                     # do not update bug status, it's probably done
                     log.info('Skipping, no CC and probably no work to do')
@@ -632,6 +642,8 @@ class NattkaCommands(object):
                 if allarches_chg:
                     log.info(f'{"Adding" if allarches else "Removing"} '
                              f'ALLARCHES')
+                if expanded_plist:
+                    log.info('Expanding package list')
                 if self.args.update_bugs:
                     kwargs = {}
                     if cc_arches:
@@ -641,6 +653,8 @@ class NattkaCommands(object):
                             kwargs['keywords_add'] = ['ALLARCHES']
                         else:
                             kwargs['keywords_remove'] = ['ALLARCHES']
+                    if expanded_plist:
+                        kwargs['new_package_list'] = [expanded_plist]
                     bz.update_status(bno, check_res, comment,
                                      **kwargs)
                     if cache_entry is not None:
