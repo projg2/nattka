@@ -290,7 +290,8 @@ class NattkaBugzilla(object):
                       comment: typing.Optional[str] = None,
                       cc_add: typing.List[str] = [],
                       keywords_add: typing.List[str] = [],
-                      keywords_remove: typing.List[str] = []
+                      keywords_remove: typing.List[str] = [],
+                      new_package_list: typing.List[str] = []
                       ) -> None:
         """
         Update the sanity-check status of bug
@@ -300,7 +301,9 @@ class NattkaBugzilla(object):
         is an optional comment to add to the bug.  `cc_add` specifies
         CC entries (arches) to add, if not empty.  `keywords_add`
         and `keywords_remove` specified KEYWORDS to appropriately add
-        or remove.
+        or remove.  If `new_package_list` is set to a non-empty list,
+        the package list will be updated to combination of its all
+        elements.
         """
 
         if status is True:
@@ -335,6 +338,8 @@ class NattkaBugzilla(object):
                 'add': keywords_add,
                 'remove': keywords_remove,
             }
+        if new_package_list is not None:
+            req['cf_stabilisation_atoms'] = ''.join(new_package_list)
 
         resp = self._request(f'bug/{bugno}', put_data=req).json()
         assert resp['bugs'][0]['id'] == bugno

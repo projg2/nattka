@@ -429,6 +429,31 @@ class DestructiveBugzillaTests(unittest.TestCase):
         self.assertIsNone(
             self.bz.get_latest_comment(7, BUGZILLA_USERNAME))
 
+    @rec.use_cassette()
+    def test_set_status_and_package_list(self):
+        bug = self.bz.find_bugs([9])[9]
+        self.assertIsNone(
+            bug.sanity_check,
+            'Bugzilla instance tainted, please reset')
+        self.assertEqual(
+            bug.atoms,
+            'dev-python/frobnicate-11\r\n',
+            'Bugzilla instance tainted, please reset')
+        self.assertIsNone(
+            self.bz.get_latest_comment(9, BUGZILLA_USERNAME),
+            'Bugzilla instance tainted, please reset')
+
+        self.bz.update_status(
+            9, True,
+            new_package_list=['dev-python/frobnicate-11 amd64 x86\r\n'])
+
+        bug = self.bz.find_bugs([9])[9]
+        self.assertTrue(bug.sanity_check)
+        self.assertEqual(
+            bug.atoms, 'dev-python/frobnicate-11 amd64 x86\r\n')
+        self.assertIsNone(
+            self.bz.get_latest_comment(9, BUGZILLA_USERNAME))
+
 
 class DestructiveUserBugzillaTests(unittest.TestCase):
     bz: NattkaBugzilla
