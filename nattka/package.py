@@ -5,6 +5,7 @@
 
 import io
 import itertools
+import re
 import subprocess
 import typing
 
@@ -81,6 +82,9 @@ class PackageListEmpty(PackageMatchException):
 
 class PackageListDoneAlready(PackageListEmpty):
     pass
+
+
+COMMENT_RE = re.compile(r'(^|\s)#.*$')
 
 
 def find_repository(path: Path,
@@ -203,7 +207,7 @@ def match_package_list(repo: UnconfiguredTree,
 
     prev_keywords = None
     for l in bug.atoms.splitlines():
-        sl = l.split()
+        sl = COMMENT_RE.sub('', l).split()
         if not sl:
             continue
 

@@ -750,6 +750,21 @@ class PackageMatcherTests(BaseRepoTestCase):
                  ['amd64', 'hppa', 'alpha']),
             ])
 
+    def test_comment(self):
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, makebug(BugCategory.STABLEREQ, '''
+test/amd64-testing-1 amd64
+# test comment
+# comment with # char
+
+test/amd64-testing-2 amd64  # also inline comment
+# test/amd64-stable-hppa-testing-1 hppa
+                ''')))), [
+                (self.ebuild_path('test', 'amd64-testing', '1'), ['amd64']),
+                (self.ebuild_path('test', 'amd64-testing', '2'), ['amd64']),
+            ])
+
 
 class FakeEbuild(object):
     """
