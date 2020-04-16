@@ -586,6 +586,21 @@ class PackageMatcherTests(BaseRepoTestCase):
                  ['amd64']),
             ])
 
+    def test_dash_keywords(self):
+        """Test use of - token to ignore package"""
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo, makebug(BugCategory.STABLEREQ, '''
+                    test/amd64-testing-1 amd64 hppa
+                    test/amd64-testing-2 -
+                    test/amd64-stable-hppa-testing-1 hppa
+                ''')))), [
+                (self.ebuild_path('test', 'amd64-testing', '1'),
+                 ['amd64', 'hppa']),
+                (self.ebuild_path('test', 'amd64-stable-hppa-testing', '1'),
+                 ['hppa']),
+            ])
+
     def test_fill_keywords_cc(self):
         """Test that missing keywords are copied from CC"""
         self.assertEqual(

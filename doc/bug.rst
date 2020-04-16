@@ -58,6 +58,9 @@ Additionally, the following tokens can be used in keyword list:
   all stable keywords present in other versions of the package,
   if the respective ``~arch`` keyword is present in this version.
 
+- ``-`` that is used internally to skip package from keywording
+  (without removing it from the list).
+
 .. code-block::
    :caption: Example package list for stabilization request
 

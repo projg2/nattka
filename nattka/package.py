@@ -236,6 +236,8 @@ def match_package_list(repo: UnconfiguredTree,
             pkg = m[0]
 
         keywords = [x.strip().lstrip('~') for x in sl[1:]]
+        if '-' in keywords:
+            continue
         if '*' in keywords:
             match_keywords = get_suggested_keywords(repo, pkg, streq)
             keywords = (
