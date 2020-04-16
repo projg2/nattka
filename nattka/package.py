@@ -84,7 +84,12 @@ class PackageListDoneAlready(PackageListEmpty):
     pass
 
 
+class ExpandImpossible(Exception):
+    pass
+
+
 COMMENT_RE = re.compile(r'(^|\s)#.*$')
+WS_RE = re.compile(r'(\s+)')
 
 
 def find_repository(path: Path,
@@ -312,6 +317,81 @@ def match_package_list(repo: UnconfiguredTree,
             raise PackageListDoneAlready('all packages keyworded already')
         else:
             raise PackageListEmpty('empty package list')
+
+
+def expand_package_list(repo: UnconfiguredTree,
+                        bug: BugInfo,
+                        ) -> str:
+    """
+    Expand `*` and `^` entries in package list
+
+    `repo` is the repository, `bug` is the original bug to work on.
+    Returns new package list contents.
+
+    Note that this function assumes that match_package_list() has been
+    called already, and did not raise any exceptions, i.e. that the bug
+    is known to have a valid package list.
+    """
+
+    ret = ''
+    prev_kw = None
+    for l in bug.atoms.splitlines(keepends=True):
+        it = iter(WS_RE.split(l))
+        pkg = None
+        cur_kw: typing.Optional[typing.List[str]] = None
+        had_empty_above = False
+        for w in it:
+            if w.startswith('#'):
+                ret += w
+                break
+            if w.strip() and pkg is None:
+                dep = None
+                for prefix in ('=', ''):
+                    sdep = prefix + w
+                    try:
+                        dep = atom(sdep, eapi='5')
+                        break
+                    except MalformedAtom:
+                        pass
+                assert dep
+
+                m = repo.match(dep)
+                assert m
+                pkg = select_best_version(m)
+                cur_kw = []
+            elif w == '*':
+                match_keywords = get_suggested_keywords(
+                    repo, pkg, bug.category == BugCategory.STABLEREQ)
+                if match_keywords:
+                    w = ' '.join(
+                        sorted(match_keywords, key=keyword_sort_key))
+                else:
+                    w = '-'
+            elif w == '^':
+                assert prev_kw is not None
+                if not prev_kw:
+                    if len(cur_kw) > 1:
+                        raise ExpandImpossible(
+                            'keywords along with empty ^')
+                    had_empty_above = True
+                # [0] is pkg string
+                w = ' '.join(prev_kw)
+            # collect keywords for next ^ occurence
+            if pkg is not None:
+                assert cur_kw is not None
+                if w.strip():
+                    if had_empty_above:
+                        raise ExpandImpossible(
+                            'keywords along with empty ^')
+                    cur_kw.append(w)
+            ret += w
+        if cur_kw is not None:
+            prev_kw = cur_kw[1:]
+
+        # copy remaining part
+        ret += ''.join(it)
+
+    return ret
 
 
 def add_keywords(tuples: PackageKeywordsIterable,

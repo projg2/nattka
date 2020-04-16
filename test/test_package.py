@@ -22,7 +22,8 @@ from nattka.package import (match_package_list, add_keywords,
                             KeywordNotSpecified, PackageListEmpty,
                             KeywordNoneLeft, find_repository,
                             select_best_version, package_list_to_json,
-                            merge_package_list, is_allarches)
+                            merge_package_list, is_allarches,
+                            expand_package_list, ExpandImpossible)
 
 from test.test_bugzilla import makebug
 
@@ -764,6 +765,106 @@ test/amd64-testing-2 amd64  # also inline comment
                 (self.ebuild_path('test', 'amd64-testing', '1'), ['amd64']),
                 (self.ebuild_path('test', 'amd64-testing', '2'), ['amd64']),
             ])
+
+
+class ExpandPackageListTests(BaseRepoTestCase):
+    def test_unmodified(self):
+        data = '''
+            # comment
+
+            # test/amd64-stable-1 *
+            test/amd64-testing-1             amd64
+            test/amd64-testing-2             amd64 hppa  # *
+            test/amd64-stable-hppa-testing-1 hppa
+        '''
+        self.assertEqual(
+            expand_package_list(self.repo,
+                                makebug(BugCategory.STABLEREQ, data)),
+            data)
+
+    def test_asterisk_streq(self):
+        data = '''
+            test/mixed-keywords-3    *
+            test/mixed-keywords-4    *
+            test/amd64-testing-1     *
+        '''
+        expect = '''
+            test/mixed-keywords-3    amd64 hppa
+            test/mixed-keywords-4    amd64
+            test/amd64-testing-1     -
+        '''
+        self.assertEqual(
+            expand_package_list(self.repo,
+                                makebug(BugCategory.STABLEREQ, data)),
+            expect)
+
+    def test_asterisk_kwreq(self):
+        data = '''
+            test/mixed-keywords-4    *
+            test/mixed-keywords-9999 *
+            test/amd64-stable-1      *
+        '''
+        expect = '''
+            test/mixed-keywords-4    alpha hppa
+            test/mixed-keywords-9999 alpha amd64 hppa
+            test/amd64-stable-1      -
+        '''
+        self.assertEqual(
+            expand_package_list(self.repo,
+                                makebug(BugCategory.KEYWORDREQ, data)),
+            expect)
+
+    def test_above(self):
+        data = '''
+            test/amd64-testing-1             amd64
+
+            test/amd64-testing-2             ^ hppa
+            # some comment to confuse
+            test/amd64-stable-hppa-testing-1 ^
+        '''
+        expect = '''
+            test/amd64-testing-1             amd64
+
+            test/amd64-testing-2             amd64 hppa
+            # some comment to confuse
+            test/amd64-stable-hppa-testing-1 amd64 hppa
+        '''
+        self.assertEqual(
+            expand_package_list(self.repo,
+                                makebug(BugCategory.STABLEREQ, data)),
+            expect)
+
+    def test_above_empty(self):
+        data = '''
+            test/amd64-testing-1
+            test/amd64-testing-2             ^
+        '''
+        expect = f'''
+            test/amd64-testing-1
+            test/amd64-testing-2             {""}
+        '''
+        self.assertEqual(
+            expand_package_list(self.repo,
+                                makebug(BugCategory.STABLEREQ, data)),
+            expect)
+
+    def test_above_empty_plus_keywords_left(self):
+        data = '''
+            test/amd64-testing-1
+            test/amd64-testing-2             hppa ^
+        '''
+        with self.assertRaises(ExpandImpossible):
+            expand_package_list(self.repo,
+                                makebug(BugCategory.STABLEREQ, data))
+
+    def test_above_empty_plus_keywords_right(self):
+        data = '''
+            test/amd64-testing-1
+            test/amd64-testing-2             ^ hppa
+        '''
+        with self.assertRaises(ExpandImpossible):
+            expand_package_list(self.repo,
+                                makebug(BugCategory.STABLEREQ, data))
 
 
 class FakeEbuild(object):
