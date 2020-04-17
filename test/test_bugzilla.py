@@ -24,6 +24,8 @@ rec = vcr.VCR(
     cassette_library_dir=str(Path(__file__).parent / 'bugzilla'),
     filter_query_parameters=['Bugzilla_api_key'],
     record_mode='once',
+    match_on=['method', 'scheme', 'host', 'port', 'path', 'query',
+              'body'],
 )
 
 
