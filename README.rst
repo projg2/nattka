@@ -148,10 +148,14 @@ unresolved dependencies::
     nattka apply --ignore-sanity-check ...
     nattka apply --ignore-dependencies ...
 
+To disable performing ``ALLARCHES`` stabilizations::
+
+    nattka apply --ignore-allarches ...
+
 After successfully testing the packages, use ``commit`` command
 to commit the changes::
 
-    nattka commit [-a ...] 123456
+    nattka commit [-a ...] [--ignore-allarches] 123456
 
 Then check and push them::
 
@@ -160,7 +164,7 @@ Then check and push them::
 
 Finally, update the bugs::
 
-    nattka resolve [-a ...] 123456
+    nattka resolve [-a ...] [--ignore-allarches] 123456
 
 A little more details can be found in the `quick start`_ section
 of the documentation.

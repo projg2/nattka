@@ -92,6 +92,11 @@ config) by default.  To work for another arch, pass it via ``-a``
 be used to specify multiple targets, in particular ``*`` enables
 all known arches.
 
+If a bug is marked ``ALLARCHES``, the ``apply`` command automatically
+applies other keywords suitable for stabilization on all arches.
+If this is not desirable, ``--ignore-allarches`` can be used to disable
+it.
+
 If you do not wish for NATTkA to apply keywords locally, and just print
 the list for you, pass ``-n`` (``--no-update``).
 
@@ -164,7 +169,8 @@ the correct package list and making reasonably good commit messages.
 
 At the moment, the ``commit`` command does not autodetect which keywords
 were changed.  Instead, you need to pass the same ``--arch`` options
-as to ``apply``.
+as to ``apply``.  You also need to pass ``--ignore-allarches`` if it
+was passed to ``apply``.
 
 Specific bug numbers must be specified as positional arguments
 to the command, e.g.::
@@ -180,7 +186,8 @@ if appropriate.
 
 When using ``resolve``, you need to pass the same ``--arch`` options
 as to ``apply``.  This is necessary in order to determine which arch(es)
-are done.
+are done.  You also need to pass ``--ignore-allarches`` if it was passed
+to ``apply``.
 
 Specific bug numbers must be specified as positional arguments
 to the command, e.g.::

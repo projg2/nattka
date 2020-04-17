@@ -111,6 +111,10 @@ unresolved dependencies::
     nattka apply --ignore-sanity-check ...
     nattka apply --ignore-dependencies ...
 
+If you wish to ignore ``ALLARCHES`` keywords on the bugs::
+
+    nattka apply --ignore-allarches ...
+
 
 Actual testing
 --------------
@@ -122,7 +126,7 @@ Committing
 Once packages are tested, ``commit`` command may be used to commit
 (previously applied) keyword changes::
 
-    nattka commit [-a ...] 123456
+    nattka commit [-a ...] [--ignore-allarches] 123456
 
 Note that you need to specify bug numbers explicitly, and the same
 ``-a`` value as for ``apply`` (this will be autodetected in the future).
@@ -139,7 +143,7 @@ Resolving bugs
 Once changes are committed, ``resolve`` command may be used to remove
 the arch team from the CC list and close the bug if appropriate::
 
-    nattka resolve [-a ...] 123456
+    nattka resolve [-a ...] [--ignore-allarches] 123456
 
 Note that you need to specify bug numbers explicitly, and the same
 ``-a`` value as for ``apply``.

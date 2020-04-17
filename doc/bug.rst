@@ -133,3 +133,6 @@ NATTkA scans package ``metadata.xml`` files for ``stabilize-allarches``
 elements.  If all packages from the package list have one, it adds
 ``ALLARCHES`` keyword to the bug.  On the contrary, if at least one
 package is not marked this way, it removes the keyword from the bug.
+
+The ``apply`` command performs stabilization on all suitable arches
+if ``ALLARCHES`` keyword is present on the bug.

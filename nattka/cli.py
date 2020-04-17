@@ -233,8 +233,9 @@ class NattkaCommands(object):
                 continue
 
             try:
-                plist = dict(match_package_list(repo, b, only_new=True,
-                                                filter_arch=arch))
+                plist = dict(match_package_list(
+                    repo, b, only_new=True, filter_arch=arch,
+                    permit_allarches=not self.args.ignore_allarches))
             except PackageMatchException as e:
                 print(f'# bug {bno}: {e}\n')
                 ret = 1
@@ -286,7 +287,10 @@ class NattkaCommands(object):
             else:
                 order = list(plist)
 
-            print(f'# bug {bno} ({b.category.name})')
+            allarches = (not self.args.ignore_allarches
+                         and 'ALLARCHES' in b.keywords)
+            print(f'# bug {bno} ({b.category.name})'
+                  f'{" ALLARCHES" if allarches else ""}')
             for p in order:
                 kws = ' '.join(f'~{k}' for k in plist[p])
                 if b.category == BugCategory.STABLEREQ:
@@ -320,7 +324,9 @@ class NattkaCommands(object):
                 continue
 
             try:
-                plist = dict(match_package_list(repo, b))
+                plist = dict(match_package_list(
+                    repo, b, filter_arch=arch,
+                    permit_allarches=not self.args.ignore_allarches))
             except PackageMatchException as e:
                 log.error(f'Bug {bno}: {e}')
                 ret = 1
@@ -335,7 +341,10 @@ class NattkaCommands(object):
             else:
                 order = list(plist)
 
-            log.info(f'Bug {bno} ({b.category.name})')
+            allarches = (not self.args.ignore_allarches
+                         and 'ALLARCHES' in b.keywords)
+            log.info(f'Bug {bno} ({b.category.name})'
+                     f'{" ALLARCHES" if allarches else ""}')
             for p in order:
                 keywords = [k for k in plist[p] if k in arch]
                 if not keywords:
@@ -345,7 +354,10 @@ class NattkaCommands(object):
                 pfx = f'{p.category}/{p.package}'
                 act = ('Stabilize' if b.category == BugCategory.STABLEREQ
                        else 'Keyword')
-                kws = ' '.join(keywords)
+                if allarches:
+                    kws = 'ALLARCHES'
+                else:
+                    kws = ' '.join(keywords)
                 msg = f'{pfx}: {act} {p.fullver} {kws}, #{bno}'
                 print(git_commit(git_repo.path, msg, [str(ebuild_path)]))
 
@@ -366,7 +378,12 @@ class NattkaCommands(object):
                 continue
 
             current_arches = set(arches_from_cc(b.cc, repo.known_arches))
-            to_remove = current_arches.intersection(arch)
+            allarches = (not self.args.ignore_allarches
+                         and 'ALLARCHES' in b.keywords)
+            if allarches:
+                to_remove = current_arches
+            else:
+                to_remove = current_arches.intersection(arch)
             if not to_remove:
                 log.warning(f'Bug {bno}: no specified arches CC-ed, '
                             f'found: {" ".join(sorted(current_arches))}')
@@ -379,11 +396,14 @@ class NattkaCommands(object):
             log.info(f'Bug {bno} ({b.category.name})')
             if self.args.pretend:
                 log.info(f'pretend: would un-CC '
-                         f'{" ".join(sorted(to_remove))}')
+                         f'{" ".join(sorted(to_remove))}'
+                         f'{" (ALLARCHES)" if allarches else ""}')
                 if to_close:
                     log.info('pretend: would resolve the bug')
             else:
-                comment = f'{" ".join(sorted(to_remove))} done'
+                comment = (f'{" ".join(sorted(to_remove))} '
+                           f'{"(ALLARCHES) " if allarches else ""}'
+                           f'done')
                 if all_done:
                     comment += '\n\nall arches done'
                 bz.resolve_bug(
@@ -722,6 +742,9 @@ def main(argv: typing.List[str]) -> int:
                       help='process specified arch (default: current '
                            'according to pkgcore config, accepts '
                            'fnmatch-style wildcards)')
+    appp.add_argument('--ignore-allarches', action='store_true',
+                      help='do not perform ALLARCHES stabilization '
+                           'even if the bug is keyworded for it')
     appp.add_argument('--ignore-dependencies', action='store_true',
                       help='do not skip bugs that have unresolved '
                            'dependencies')
@@ -741,6 +764,9 @@ def main(argv: typing.List[str]) -> int:
                       help='process specified arch (default: current '
                            'according to pkgcore config, accepts '
                            'fnmatch-style wildcards)')
+    comp.add_argument('--ignore-allarches', action='store_true',
+                      help='do not perform ALLARCHES stabilization '
+                           'even if the bug is keyworded for it')
 
     resp = subp.add_parser('resolve',
                            help='unCC arches from specified bugs '
@@ -751,6 +777,9 @@ def main(argv: typing.List[str]) -> int:
                       help='process specified arch (default: current '
                            'according to pkgcore config, accepts '
                            'fnmatch-style wildcards)')
+    resp.add_argument('--ignore-allarches', action='store_true',
+                      help='do not perform ALLARCHES stabilization '
+                           'even if the bug is keyworded for it')
     resp.add_argument('--no-resolve', action='store_true',
                       help='do not resolve bug even if it should '
                            'be closed per the usual rules')

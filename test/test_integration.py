@@ -688,6 +688,73 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/amd64-testing-1 ~amd64
 =test/amd64-testing-deps-1 ~amd64''')
 
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_apply_allarches(self, bugz, sout):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/mixed-keywords-3 amd64 hppa\r\n'
+                            'test/mixed-keywords-4 amd64 hppa\r\n',
+                            sanity_check=True,
+                            keywords=['ALLARCHES']),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', 'amd64', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['amd64@gentoo.org'])
+
+        self.assertEqual(
+            self.get_package('=test/mixed-keywords-3').keywords,
+            ('~alpha', 'amd64', 'hppa'))
+        self.assertEqual(
+            self.get_package('=test/mixed-keywords-4').keywords,
+            ('amd64',))
+
+        self.assertEqual(
+            sout.getvalue().strip(),
+            '''# bug 560322 (STABLEREQ) ALLARCHES
+=test/mixed-keywords-3 ~amd64 ~hppa
+=test/mixed-keywords-4 ~amd64''')
+
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_apply_allarches_ignore(self, bugz, sout):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/mixed-keywords-3 amd64 hppa\r\n'
+                            'test/mixed-keywords-4 amd64 hppa\r\n',
+                            sanity_check=True,
+                            keywords=['ALLARCHES']),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', 'amd64', '560322',
+                                     '--ignore-allarches']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            bugs=[560322],
+            cc=['amd64@gentoo.org'])
+
+        self.assertEqual(
+            self.get_package('=test/mixed-keywords-3').keywords,
+            ('~alpha', 'amd64', '~hppa'))
+        self.assertEqual(
+            self.get_package('=test/mixed-keywords-4').keywords,
+            ('amd64',))
+
+        self.assertEqual(
+            sout.getvalue().strip(),
+            '''# bug 560322 (STABLEREQ)
+=test/mixed-keywords-3 ~amd64
+=test/mixed-keywords-4 ~amd64''')
+
     @patch('nattka.cli.NattkaBugzilla')
     def test_sanity_n(self, bugz):
         """Test processing with '-n'"""
@@ -1503,6 +1570,98 @@ test/amd64-testing: Stabilize 1 amd64, #560322
 test/amd64-testing/amd64-testing-1.ebuild
 ''')
 
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_commit_allarches(self, bugz):
+        assert subprocess.Popen(
+            ['git', 'config', '--local', 'user.name', 'test'],
+            cwd=self.repo.location).wait() == 0
+        assert subprocess.Popen(
+            ['git', 'config', '--local', 'user.email', 'test@example.com'],
+            cwd=self.repo.location).wait() == 0
+
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/mixed-keywords-3 amd64 hppa\r\n'
+                            'test/mixed-keywords-4 amd64 hppa\r\n',
+                            sanity_check=True,
+                            keywords=['ALLARCHES']),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', 'amd64', '560322']),
+            0)
+        self.assertEqual(
+            main(self.common_args + ['commit', '-a', 'amd64', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+
+        s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%s',
+                              '--name-only'],
+                             cwd=self.repo.location,
+                             stdout=subprocess.PIPE)
+        sout, _ = s.communicate()
+        self.assertEqual(sout.decode(),
+                         '''test
+test@example.com
+test/mixed-keywords: Stabilize 4 ALLARCHES, #560322
+
+test/mixed-keywords/mixed-keywords-4.ebuild
+test
+test@example.com
+test/mixed-keywords: Stabilize 3 ALLARCHES, #560322
+
+test/mixed-keywords/mixed-keywords-3.ebuild
+''')
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_commit_allarches_ignore(self, bugz):
+        assert subprocess.Popen(
+            ['git', 'config', '--local', 'user.name', 'test'],
+            cwd=self.repo.location).wait() == 0
+        assert subprocess.Popen(
+            ['git', 'config', '--local', 'user.email', 'test@example.com'],
+            cwd=self.repo.location).wait() == 0
+
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/mixed-keywords-3 amd64 hppa\r\n'
+                            'test/mixed-keywords-4 amd64 hppa\r\n',
+                            sanity_check=True,
+                            keywords=['ALLARCHES']),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['apply', '-a', 'amd64', '560322',
+                                     '--ignore-allarches']),
+            0)
+        self.assertEqual(
+            main(self.common_args + ['commit', '-a', 'amd64', '560322',
+                                     '--ignore-allarches']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+
+        s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%s',
+                              '--name-only'],
+                             cwd=self.repo.location,
+                             stdout=subprocess.PIPE)
+        sout, _ = s.communicate()
+        self.assertEqual(sout.decode(),
+                         '''test
+test@example.com
+test/mixed-keywords: Stabilize 4 amd64, #560322
+
+test/mixed-keywords/mixed-keywords-4.ebuild
+test
+test@example.com
+test/mixed-keywords: Stabilize 3 amd64, #560322
+
+test/mixed-keywords/mixed-keywords-3.ebuild
+''')
+
 
 class IntegrationFailureTests(IntegrationTestCase):
     """Integration tests that fail sanity-check"""
@@ -2054,3 +2213,37 @@ class ResolveTests(IntegrationTestCase):
             0)
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.resolve_bug.assert_not_called()
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_resolve_allarches(self, bugz):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/example-1\r\n',
+                            ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                            keywords=['ALLARCHES']),
+        }
+        self.assertEqual(
+            main(self.common_args + ['resolve', '-a', 'hppa', '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.resolve_bug.assert_called_with(
+            560322, ['amd64@gentoo.org', 'hppa@gentoo.org'],
+            'amd64 hppa (ALLARCHES) done\n\nall arches done', True)
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_resolve_allarches_ignore(self, bugz):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/example-1\r\n',
+                            ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                            keywords=['ALLARCHES']),
+        }
+        self.assertEqual(
+            main(self.common_args + ['resolve', '-a', 'hppa', '560322',
+                                     '--ignore-allarches']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.resolve_bug.assert_called_with(
+            560322, ['hppa@gentoo.org'], 'hppa done', False)
