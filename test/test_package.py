@@ -766,6 +766,45 @@ test/amd64-testing-2 amd64  # also inline comment
                 (self.ebuild_path('test', 'amd64-testing', '2'), ['amd64']),
             ])
 
+    def test_allarches(self):
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo,
+                makebug(BugCategory.STABLEREQ, '''
+                    test/mixed-keywords-3 amd64 hppa
+                ''', keywords=['ALLARCHES']),
+                permit_allarches=True,
+                filter_arch=['amd64']))), [
+                (self.ebuild_path('test', 'mixed-keywords', '3'),
+                 ['amd64', 'hppa']),
+            ])
+
+    def test_allarches_no_kw(self):
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo,
+                makebug(BugCategory.STABLEREQ, '''
+                    test/mixed-keywords-4 amd64 hppa
+                ''', keywords=['ALLARCHES']),
+                permit_allarches=True,
+                filter_arch=['amd64']))), [
+                (self.ebuild_path('test', 'mixed-keywords', '4'),
+                 ['amd64']),
+            ])
+
+    def test_allarches_no_kw_force(self):
+        self.assertEqual(
+            list(((p.path, k) for p, k in match_package_list(
+                self.repo,
+                makebug(BugCategory.STABLEREQ, '''
+                    test/mixed-keywords-4 amd64 hppa
+                ''', keywords=['ALLARCHES']),
+                permit_allarches=True,
+                filter_arch=['hppa']))), [
+                (self.ebuild_path('test', 'mixed-keywords', '4'),
+                 ['hppa', 'amd64']),
+            ])
+
 
 class ExpandPackageListTests(BaseRepoTestCase):
     def test_unmodified(self):

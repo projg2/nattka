@@ -181,7 +181,8 @@ def get_suggested_keywords(repo: UnconfiguredTree,
 def match_package_list(repo: UnconfiguredTree,
                        bug: BugInfo,
                        only_new: bool = False,
-                       filter_arch: typing.Iterable[str] = []
+                       filter_arch: typing.Iterable[str] = [],
+                       permit_allarches: bool = False
                        ) -> typing.Iterator[PackageKeywords]:
     """
     Match `bug` against packages in `repo`
@@ -198,6 +199,10 @@ def match_package_list(repo: UnconfiguredTree,
 
     If `filter_arch` is non-empty, only arches present in the list
     will be returned.
+
+    If `permit_allarches` is True, all potential keywords will be
+    returned in packages requested for ALLARCHES stabilization,
+    even if they would normally be filtered out via `filter_arch`.
     """
 
     valid_arches = frozenset(repo.known_arches)
@@ -281,6 +286,16 @@ def match_package_list(repo: UnconfiguredTree,
             continue
         prev_keywords = keywords
 
+        # we still do filtering with ALLARCHES since the requested
+        # arches may be disjoint with ALLARCHES candidates
+        allarches_kw: typing.Set[str] = set()
+        if (permit_allarches and bug.category == BugCategory.STABLEREQ
+                and 'ALLARCHES' in bug.keywords):
+            # this is called only in 'apply' command
+            assert filter_arch
+            # ALLARCHES keywords are the same as `*`
+            allarches_kw = get_suggested_keywords(repo, pkg, True)
+
         if only_new:
             keywords = [k for k in keywords
                         if k not in pkg.keywords
@@ -292,6 +307,9 @@ def match_package_list(repo: UnconfiguredTree,
 
         if filter_arch:
             keywords = [k for k in keywords if k in filter_arch]
+            for k in allarches_kw:
+                if k not in keywords:
+                    keywords.append(k)
             # skip packages that are filtered away entirely
             if not keywords:
                 filtered = True
