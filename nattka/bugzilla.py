@@ -338,7 +338,7 @@ class NattkaBugzilla(object):
                 'add': keywords_add,
                 'remove': keywords_remove,
             }
-        if new_package_list is not None:
+        if new_package_list:
             req['cf_stabilisation_atoms'] = ''.join(new_package_list)
 
         resp = self._request(f'bug/{bugno}', put_data=req).json()
