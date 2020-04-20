@@ -16,8 +16,6 @@ from pathlib import Path
 
 from snakeoil.fileutils import AtomicWriteFile
 from pkgcore.ebuild.repository import UnconfiguredTree
-from pkgcheck.results import Result
-from pkgcheck.checks.visibility import _NonsolvableDeps
 
 from nattka import __version__
 from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
@@ -29,7 +27,8 @@ from nattka.package import (find_repository, match_package_list,
                             PackageListEmpty, PackageListDoneAlready,
                             KeywordNoneLeft, is_allarches,
                             package_list_to_json, merge_package_list,
-                            expand_package_list, ExpandImpossible)
+                            expand_package_list, ExpandImpossible,
+                            format_results)
 
 try:
     from nattka.depgraph import (get_ordered_nodes,
@@ -48,35 +47,6 @@ class DependentBugError(Exception):
 
 class NoChanges(Exception):
     pass
-
-
-def result_group_key(r: _NonsolvableDeps) -> tuple:
-    return (r.category, r.package, r.version)
-
-
-def result_sort_key(r: _NonsolvableDeps) -> tuple:
-    return (r.category, r.package, r.version,
-            r.keyword, r.attr, r.profile)
-
-
-def format_results(issues: typing.Iterable[Result]
-                   ) -> typing.Iterator[str]:
-    for r in issues:
-        assert isinstance(r, _NonsolvableDeps)
-    for key, values in itertools.groupby(
-            issues,
-            key=result_group_key):
-        yield f'> {key[0]}/{key[1]}-{key[2]}'
-        for r in sorted(values, key=result_sort_key):
-            profile_status = ('deprecated ' if r.profile_deprecated
-                              else '')
-            profile_status += r.profile_status
-            num_profiles = (f' ({r.num_profiles} total)'
-                            if r.num_profiles is not None else '')
-            yield (f'>   {r.attr} {r.keyword} {profile_status} '
-                   f'profile {r.profile}{num_profiles}')
-            for d in sorted(r.deps):
-                yield f'>     {d}'
 
 
 class NattkaCommands(object):

@@ -17,6 +17,7 @@ import lxml.etree
 __import__('pkgcheck.checks')
 from pkgcheck.reporters import PickleStream
 from pkgcheck.results import Result
+from pkgcheck.checks.visibility import _NonsolvableDeps
 
 import pkgcore.ebuild.domain
 import pkgcore.ebuild.ebuild_src
@@ -513,3 +514,37 @@ def is_allarches(pkg: pkgcore.ebuild.ebuild_src.package
         except MalformedAtom:
             raise PackageInvalid(f'invalid restrict: {r} (in {pkg.cpvstr})')
     return False
+
+
+def result_group_key(r: _NonsolvableDeps) -> tuple:
+    """Key used to group pkgcheck results"""
+    return (r.category, r.package, r.version)
+
+
+def result_sort_key(r: _NonsolvableDeps) -> tuple:
+    """Key used to sort pkgcheck results"""
+    return (r.category, r.package, r.version,
+            r.keyword, r.attr, r.profile)
+
+
+def format_results(issues: typing.Iterable[Result]
+                   ) -> typing.Iterator[str]:
+    """
+    Format pkgcheck results `issues` and yield list of result lines
+    """
+    for r in issues:
+        assert isinstance(r, _NonsolvableDeps)
+    for key, values in itertools.groupby(
+            issues,
+            key=result_group_key):
+        yield f'> {key[0]}/{key[1]}-{key[2]}'
+        for r in sorted(values, key=result_sort_key):
+            profile_status = ('deprecated ' if r.profile_deprecated
+                              else '')
+            profile_status += r.profile_status
+            num_profiles = (f' ({r.num_profiles} total)'
+                            if r.num_profiles is not None else '')
+            yield (f'>   {r.attr} {r.keyword} {profile_status} '
+                   f'profile {r.profile}{num_profiles}')
+            for d in sorted(r.deps):
+                yield f'>     {d}'
