@@ -665,6 +665,8 @@ class NattkaCommands(object):
                              f'ALLARCHES')
                 if expanded_plist:
                     log.info('Expanding package list')
+                    if not self.args.update_bugs:
+                        log.info(f'New package list: {expanded_plist}')
                 if self.args.update_bugs:
                     kwargs = {}
                     if cc_arches:
@@ -681,6 +683,8 @@ class NattkaCommands(object):
                     if cache_entry is not None:
                         cache_entry['updated'] = True
                     log.info('Bug status updated')
+                else:
+                    log.info(f'New comment: {comment}')
         finally:
             self.write_cache(cache)
             end_time = datetime.datetime.utcnow()
