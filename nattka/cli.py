@@ -525,6 +525,14 @@ class NattkaCommands(object):
                                  and all(is_allarches(x) for x in plist))
                     allarches_chg = (allarches != ('ALLARCHES' in b.keywords))
 
+                    # check if keywords need expanding
+                    if (('*' in b.atoms or '^' in b.atoms)
+                            and (arches_cced or cc_arches)):
+                        try:
+                            expanded_plist = expand_package_list(repo, b)
+                        except ExpandImpossible:
+                            pass
+
                     plist_json = package_list_to_json(plist.items())
                     cache_entry = cache['bugs'].get(str(bno), {})
                     assert cache_entry is not None
@@ -586,14 +594,6 @@ class NattkaCommands(object):
                             comment = ('Sanity check failed:\n\n'
                                        + '\n'.join(issues))
                             log.info('Sanity check failed')
-
-                    # check if keywords need expanding
-                    if (check_res and ('*' in b.atoms or '^' in b.atoms)
-                            and (arches_cced or cc_arches)):
-                        try:
-                            expanded_plist = expand_package_list(repo, b)
-                        except ExpandImpossible:
-                            pass
                 except KeywordNoneLeft:
                     # do not update bug status, it's probably done
                     log.info('Skipping, no CC and probably no work to do')
@@ -622,7 +622,7 @@ class NattkaCommands(object):
                     if b.sanity_check is not True:
                         continue
                     # check if there's anything related to do
-                    if not cc_arches:
+                    if not cc_arches and expanded_plist is None:
                         continue
                     check_res = True
                 except GitDirtyWorkTree:
@@ -653,6 +653,7 @@ class NattkaCommands(object):
                     # successful check
                     cc_arches = []
                     allarches_chg = False
+                    expanded_plist = None
                 elif b.sanity_check is True:
                     # change ALLARCHES only on state changes
                     allarches_chg = False

@@ -1470,6 +1470,47 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_expand_plist_after_cc(self, bugz):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/mixed-keywords-3 *\r\n'
+                            'test/amd64-testing-2 ^\r\n'),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '--cache-file', self.cache_file,
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, True, None)
+        self.post_verify()
+
+        bugz_inst.find_bugs.return_value = {
+            560322: makebug(BugCategory.STABLEREQ,
+                            'test/mixed-keywords-3 *\r\n'
+                            'test/amd64-testing-2 ^\r\n',
+                            ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                            sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '--cache-file', self.cache_file,
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, True, None,
+            new_package_list=['test/mixed-keywords-3 amd64 hppa\r\n'
+                              'test/amd64-testing-2 amd64 hppa\r\n'])
+        self.post_verify()
+
+    @patch('nattka.cli.NattkaBugzilla')
     def test_sanity_expand_plist_impossible(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
