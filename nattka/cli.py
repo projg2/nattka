@@ -16,7 +16,8 @@ from pathlib import Path
 
 from snakeoil.fileutils import AtomicWriteFile
 from pkgcore.ebuild.repository import UnconfiguredTree
-from pkgcheck.results import Result, VersionResult
+from pkgcheck.results import Result
+from pkgcheck.checks.visibility import _NonsolvableDeps
 
 from nattka import __version__
 from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
@@ -47,6 +48,35 @@ class DependentBugError(Exception):
 
 class NoChanges(Exception):
     pass
+
+
+def result_group_key(r: _NonsolvableDeps) -> tuple:
+    return (r.category, r.package, r.version)
+
+
+def result_sort_key(r: _NonsolvableDeps) -> tuple:
+    return (r.category, r.package, r.version,
+            r.keyword, r.attr, r.profile)
+
+
+def format_results(issues: typing.Iterable[Result]
+                   ) -> typing.Iterator[str]:
+    for r in issues:
+        assert isinstance(r, _NonsolvableDeps)
+    for key, values in itertools.groupby(
+            issues,
+            key=result_group_key):
+        yield f'> {key[0]}/{key[1]}-{key[2]}'
+        for r in sorted(values, key=result_sort_key):
+            profile_status = ('deprecated ' if r.profile_deprecated
+                              else '')
+            profile_status += r.profile_status
+            num_profiles = (f' ({r.num_profiles} total)'
+                            if r.num_profiles is not None else '')
+            yield (f'>   {r.attr} {r.keyword} {profile_status} '
+                   f'profile {r.profile}{num_profiles}')
+            for d in sorted(r.deps):
+                yield f'>     {d}'
 
 
 class NattkaCommands(object):
@@ -415,26 +445,6 @@ class NattkaCommands(object):
 
         return ret
 
-    @staticmethod
-    def format_results(issues: typing.Iterable[Result]
-                       ) -> typing.Iterator[str]:
-        for r in issues:
-            assert isinstance(r, VersionResult)
-        for key, values in itertools.groupby(
-                issues,
-                key=lambda r: (r.category, r.package, r.version)):
-            yield f'> {key[0]}/{key[1]}-{key[2]}'
-            for r in sorted(values):
-                profile_status = ('deprecated ' if r.profile_deprecated
-                                  else '')
-                profile_status += r.profile_status
-                num_profiles = (f' ({r.num_profiles} total)'
-                                if r.num_profiles is not None else '')
-                yield (f'>   {r.attr} {r.keyword} {profile_status} '
-                       f'profile {r.profile}{num_profiles}')
-                for d in sorted(r.deps):
-                    yield f'>     {d}'
-
     def sanity_check(self) -> int:
         repo, git_repo = self.get_git_repository()
 
@@ -590,7 +600,7 @@ class NattkaCommands(object):
                                 comment = ('All sanity-check issues '
                                            'have been resolved')
                         else:
-                            issues = list(self.format_results(issues))
+                            issues = list(format_results(issues))
                             comment = ('Sanity check failed:\n\n'
                                        + '\n'.join(issues))
                             log.info('Sanity check failed')
