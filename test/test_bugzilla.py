@@ -29,29 +29,6 @@ rec = vcr.VCR(
 )
 
 
-def makebug(category: typing.Optional[BugCategory],
-            atoms: str,
-            cc: typing.List[str] = [],
-            depends: typing.List[int] = [],
-            blocks: typing.List[int] = [],
-            sanity_check: typing.Optional[bool] = None,
-            security: bool = False,
-            resolved: bool = False,
-            keywords: typing.List[str] = [],
-            whiteboard: str = ''
-            ) -> BugInfo:
-    return BugInfo(category,
-                   security,
-                   atoms,
-                   cc,
-                   depends,
-                   blocks,
-                   sanity_check,
-                   resolved,
-                   keywords,
-                   whiteboard)
-
-
 class BugzillaTests(unittest.TestCase):
     bz: NattkaBugzilla
     maxDiff = None
@@ -63,8 +40,8 @@ class BugzillaTests(unittest.TestCase):
                  req: typing.Iterable[int]
                  ) -> typing.Dict[int, BugInfo]:
         """Return expected data for specified bugs"""
-        bugs = {1: makebug(None, '\r\n', blocks=[2]),
-                2: makebug(BugCategory.KEYWORDREQ,
+        bugs = {1: BugInfo(None, '\r\n', blocks=[2]),
+                2: BugInfo(BugCategory.KEYWORDREQ,
                            'dev-python/unittest-mixins-1.6\r\n'
                            'dev-python/coverage-4.5.4\r\n',
                            [f'{x}@gentoo.org' for x in ('alpha',
@@ -72,34 +49,34 @@ class BugzillaTests(unittest.TestCase):
                            depends=[1],
                            blocks=[9],
                            sanity_check=True),
-                3: makebug(BugCategory.STABLEREQ,
+                3: BugInfo(BugCategory.STABLEREQ,
                            'dev-python/mako-1.1.0 amd64\r\n',
                            [f'{x}@gentoo.org' for x in ('amd64',)],
                            depends=[7],
                            keywords=['STABLEREQ'],
                            sanity_check=False),
-                4: makebug(BugCategory.KEYWORDREQ,
+                4: BugInfo(BugCategory.KEYWORDREQ,
                            'dev-python/urllib3-1.25.8\r\n'
                            'dev-python/trustme-0.6.0\r\n'
                            'dev-python/brotlipy-0.7.0\r\n',
                            [f'{x}@gentoo.org' for x in ('hppa',)],
                            keywords=['KEYWORDREQ']),
-                5: makebug(BugCategory.STABLEREQ,
+                5: BugInfo(BugCategory.STABLEREQ,
                            'app-arch/arj-3.10.22-r7 amd64 hppa\r\n',
                            ['test@example.com'],
                            whiteboard='test whiteboard',
                            security=True),
-                6: makebug(BugCategory.STABLEREQ,
+                6: BugInfo(BugCategory.STABLEREQ,
                            'sys-kernel/gentoo-sources-4.1.6\r\n',
                            security=True),
-                7: makebug(BugCategory.STABLEREQ,
+                7: BugInfo(BugCategory.STABLEREQ,
                            'dev-python/pytest-5.4.1\r\n',
                            blocks=[3],
                            keywords=['ALLARCHES']),
-                8: makebug(BugCategory.STABLEREQ,
+                8: BugInfo(BugCategory.STABLEREQ,
                            'dev-lang/python-3.7.7\r\n',
                            resolved=True),
-                9: makebug(BugCategory.KEYWORDREQ,
+                9: BugInfo(BugCategory.KEYWORDREQ,
                            'dev-python/frobnicate-11\r\n',
                            depends=[2]),
                 }
@@ -574,76 +551,76 @@ class SplitDependentBugsTests(unittest.TestCase):
     def test_empty(self):
         self.assertEqual(
             split_dependent_bugs(
-                {1: makebug(BugCategory.STABLEREQ, '')
+                {1: BugInfo(BugCategory.STABLEREQ, '')
                  }, 1),
             ([], []))
 
     def test_kwreq(self):
         self.assertEqual(
             split_dependent_bugs(
-                {1: makebug(BugCategory.KEYWORDREQ, '', depends=[2]),
-                 2: makebug(BugCategory.KEYWORDREQ, '', depends=[3],
+                {1: BugInfo(BugCategory.KEYWORDREQ, '', depends=[2]),
+                 2: BugInfo(BugCategory.KEYWORDREQ, '', depends=[3],
                             blocks=[1]),
-                 3: makebug(BugCategory.KEYWORDREQ, '', blocks=[2]),
+                 3: BugInfo(BugCategory.KEYWORDREQ, '', blocks=[2]),
                  }, 1),
             ([2, 3], []))
 
     def test_streq(self):
         self.assertEqual(
             split_dependent_bugs(
-                {1: makebug(BugCategory.STABLEREQ, '', depends=[2]),
-                 2: makebug(BugCategory.STABLEREQ, '', depends=[3],
+                {1: BugInfo(BugCategory.STABLEREQ, '', depends=[2]),
+                 2: BugInfo(BugCategory.STABLEREQ, '', depends=[3],
                             blocks=[1]),
-                 3: makebug(BugCategory.STABLEREQ, '', blocks=[2]),
+                 3: BugInfo(BugCategory.STABLEREQ, '', blocks=[2]),
                  }, 1),
             ([2, 3], []))
 
     def test_kwreq_mixed(self):
         self.assertEqual(
             split_dependent_bugs(
-                {1: makebug(BugCategory.KEYWORDREQ, '', depends=[2]),
-                 2: makebug(BugCategory.STABLEREQ, '', depends=[3],
+                {1: BugInfo(BugCategory.KEYWORDREQ, '', depends=[2]),
+                 2: BugInfo(BugCategory.STABLEREQ, '', depends=[3],
                             blocks=[1]),
-                 3: makebug(BugCategory.KEYWORDREQ, '', blocks=[2]),
+                 3: BugInfo(BugCategory.KEYWORDREQ, '', blocks=[2]),
                  }, 1),
             ([], [2]))
 
     def test_streq_mixed(self):
         self.assertEqual(
             split_dependent_bugs(
-                {1: makebug(BugCategory.STABLEREQ, '', depends=[2]),
-                 2: makebug(BugCategory.KEYWORDREQ, '', depends=[3],
+                {1: BugInfo(BugCategory.STABLEREQ, '', depends=[2]),
+                 2: BugInfo(BugCategory.KEYWORDREQ, '', depends=[3],
                             blocks=[1]),
-                 3: makebug(BugCategory.STABLEREQ, '', blocks=[2]),
+                 3: BugInfo(BugCategory.STABLEREQ, '', blocks=[2]),
                  }, 1),
             ([], [2]))
 
     def test_common_dep(self):
         self.assertEqual(
             split_dependent_bugs(
-                {1: makebug(BugCategory.STABLEREQ, '', depends=[2, 3]),
-                 2: makebug(BugCategory.STABLEREQ, '', depends=[4],
+                {1: BugInfo(BugCategory.STABLEREQ, '', depends=[2, 3]),
+                 2: BugInfo(BugCategory.STABLEREQ, '', depends=[4],
                             blocks=[1]),
-                 3: makebug(BugCategory.STABLEREQ, '', depends=[4],
+                 3: BugInfo(BugCategory.STABLEREQ, '', depends=[4],
                             blocks=[1]),
-                 4: makebug(BugCategory.STABLEREQ, '', blocks=[2, 3]),
+                 4: BugInfo(BugCategory.STABLEREQ, '', blocks=[2, 3]),
                  }, 1),
             ([2, 3, 4], []))
 
     def test_regular(self):
         self.assertEqual(
             split_dependent_bugs(
-                {1: makebug(BugCategory.STABLEREQ, '', depends=[2]),
-                 2: makebug(None, '', blocks=[1]),
+                {1: BugInfo(BugCategory.STABLEREQ, '', depends=[2]),
+                 2: BugInfo(None, '', blocks=[1]),
                  }, 1),
             ([], [2]))
 
     def test_regular_mixed(self):
         self.assertEqual(
             split_dependent_bugs(
-                {1: makebug(BugCategory.STABLEREQ, '', depends=[2, 3]),
-                 2: makebug(None, '', depends=[4], blocks=[1]),
-                 3: makebug(BugCategory.STABLEREQ, '', blocks=[1]),
-                 4: makebug(BugCategory.STABLEREQ, '', blocks=[2]),
+                {1: BugInfo(BugCategory.STABLEREQ, '', depends=[2, 3]),
+                 2: BugInfo(None, '', depends=[4], blocks=[1]),
+                 3: BugInfo(BugCategory.STABLEREQ, '', blocks=[1]),
+                 4: BugInfo(BugCategory.STABLEREQ, '', blocks=[2]),
                  }, 1),
             ([3], [2]))

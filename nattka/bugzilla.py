@@ -72,15 +72,15 @@ class BugCategory(enum.Enum):
 
 class BugInfo(typing.NamedTuple):
     category: typing.Optional[BugCategory]
-    security: bool
     atoms: str
-    cc: typing.List[str]
-    depends: typing.List[int]
-    blocks: typing.List[int]
-    sanity_check: typing.Optional[bool]
-    resolved: bool
-    keywords: typing.List[str]
-    whiteboard: str
+    cc: typing.List[str] = []
+    depends: typing.List[int] = []
+    blocks: typing.List[int] = []
+    sanity_check: typing.Optional[bool] = None
+    security: bool = False
+    resolved: bool = False
+    keywords: typing.List[str] = []
+    whiteboard: str = ''
 
 
 def make_bug_info(bug: typing.Dict[str, typing.Any]
@@ -97,12 +97,12 @@ def make_bug_info(bug: typing.Dict[str, typing.Any]
                 sanity_check = False
 
     return BugInfo(category=bcat,
-                   security=(bug['product'] == 'Gentoo Security'),
                    atoms=atoms,
                    cc=bug['cc'],
                    depends=bug['depends_on'],
                    blocks=bug['blocks'],
                    sanity_check=sanity_check,
+                   security=(bug['product'] == 'Gentoo Security'),
                    resolved=bool(bug['resolution']),
                    keywords=bug['keywords'],
                    whiteboard=bug['whiteboard'])

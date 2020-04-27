@@ -20,10 +20,9 @@ import pkgcore.ebuild.ebuild_src
 from pkgcore.ebuild.repository import UnconfiguredTree
 from pkgcore.util import parserestrict
 
-from nattka.bugzilla import BugCategory
+from nattka.bugzilla import BugCategory, BugInfo
 from nattka.cli import main, have_nattka_depgraph
 
-from test.test_bugzilla import makebug
 from test.test_package import get_test_repo
 
 
@@ -90,7 +89,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
                    ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             '   \r\n'
                             '\r\n',
                             sanity_check=initial_status),
@@ -155,7 +154,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
                               ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/amd64-testing-1 amd64\r\n'
                             'test/alpha-amd64-hppa-testing-2\r\n',
                             sanity_check=True),
@@ -195,7 +194,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
                               ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(None, ''),
+            560322: BugInfo(None, ''),
         }
         bugz_inst.resolve_dependencies.return_value = (
             bugz_inst.find_bugs.return_value)
@@ -230,7 +229,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
     def test_sanity_finished_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ, '''
+            560322: BugInfo(BugCategory.STABLEREQ, '''
                 test/amd64-stable-1 amd64
             ''', sanity_check=True),
         }
@@ -249,7 +248,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
     def test_sanity_finished_package_no_keywords(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ, '''
+            560322: BugInfo(BugCategory.STABLEREQ, '''
                 test/amd64-stable-1
             ''', sanity_check=True),
         }
@@ -274,7 +273,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
                    ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/amd64-testing-1 amd64\r\n'
                             'test/alpha-amd64-hppa-testing-2 amd64 hppa\r\n',
                             sanity_check=initial_status,
@@ -325,7 +324,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_apply_keywordreq(self, bugz, sout):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 alpha ~hppa\r\n',
                             sanity_check=True),
         }
@@ -424,7 +423,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_apply_filter_arch_to_empty(self, bugz, sout):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 hppa\r\n'
                             'test/alpha-amd64-hppa-testing-2 hppa\r\n',
                             ['amd64@gentoo.org', 'hppa@gentoo.org'],
@@ -491,12 +490,12 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """Test that apply skips bug with unresolved dependencies"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             depends=[560311], sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 ~alpha\r\n',
                             blocks=[560322], sanity_check=True),
         }
@@ -523,12 +522,12 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """Test that apply does not block on resolved dependencies"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             depends=[560311], sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 ~alpha\r\n',
                             blocks=[560322], resolved=True),
         }
@@ -559,12 +558,12 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_apply_depend_empty(self, bugz, sout):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha ~hppa\r\n',
                             depends=[560311], sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             '',
                             blocks=[560322]),
         }
@@ -592,12 +591,12 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """Test that apply does not block on deps for other arches"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha ~hppa\r\n',
                             depends=[560311], sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 ~alpha\r\n',
                             blocks=[560322]),
         }
@@ -629,12 +628,12 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """Test that apply --ignore-dependencies works"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             depends=[560311], sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 ~alpha\r\n',
                             blocks=[560322], sanity_check=True),
         }
@@ -668,7 +667,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_apply_dep_sorting(self, bugz, sout):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/amd64-testing-deps-1 amd64\r\n'
                             'test/amd64-testing-1 amd64\r\n',
                             sanity_check=True),
@@ -693,7 +692,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_apply_allarches(self, bugz, sout):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/mixed-keywords-3 amd64 hppa\r\n'
                             'test/mixed-keywords-4 amd64 hppa\r\n',
                             sanity_check=True,
@@ -726,7 +725,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_apply_allarches_ignore(self, bugz, sout):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/mixed-keywords-3 amd64 hppa\r\n'
                             'test/mixed-keywords-4 amd64 hppa\r\n',
                             sanity_check=True,
@@ -860,7 +859,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
         add_keywords.reset_mock()
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 ~alpha\r\n',
                             sanity_check=True),
         }
@@ -879,7 +878,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_cache_keywords_from_cc(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1\r\n',
                             ['alpha@gentoo.org', 'hppa@gentoo.org'],
                             sanity_check=True),
@@ -908,7 +907,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_cache_keywords_from_cc_changed(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1\r\n',
                             ['alpha@gentoo.org'],
                             sanity_check=True),
@@ -925,7 +924,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
         add_keywords.reset_mock()
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1\r\n',
                             ['alpha@gentoo.org', 'hppa@gentoo.org'],
                             sanity_check=True),
@@ -945,13 +944,13 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_cache_depend(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             depends=[560311],
                             sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 ~alpha\r\n',
                             blocks=[560322]),
         }
@@ -980,13 +979,13 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_cache_depend_changed(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             depends=[560311],
                             sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 ~alpha\r\n',
                             blocks=[560322]),
         }
@@ -1003,7 +1002,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
         add_keywords.reset_mock()
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             sanity_check=True),
         }
@@ -1022,13 +1021,13 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_cache_dependent_bug_changed(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             depends=[560311],
                             sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 ~alpha\r\n',
                             blocks=[560322]),
         }
@@ -1045,7 +1044,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
         add_keywords.reset_mock()
         bugz_inst.resolve_dependencies.return_value.update({
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 ~alpha ~hppa\r\n',
                             blocks=[560322]),
         })
@@ -1110,10 +1109,10 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 ~alpha\r\n',
                             blocks=[560322]),
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             depends=[560311]),
         }
@@ -1138,12 +1137,12 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             depends=[560311]),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 ~alpha\r\n',
                             blocks=[560322]),
         }
@@ -1168,12 +1167,12 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/mixed-keywords-4 ~alpha\r\n',
                             depends=[560311]),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             blocks=[560322]),
         }
@@ -1198,7 +1197,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             depends=[560311]),
         }
@@ -1216,7 +1215,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_keywordreq_relaxed_syntax(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing alpha\r\n',
                             sanity_check=None),
         }
@@ -1234,7 +1233,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_keywords_above(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n'
                             'test/amd64-testing-1 ^\r\n',
                             ),
@@ -1255,7 +1254,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         """Test package list where some of the packages do not match CC"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560311: makebug(BugCategory.STABLEREQ,
+            560311: BugInfo(BugCategory.STABLEREQ,
                             'test/amd64-testing-1 amd64 hppa\r\n'
                             'test/amd64-testing-2 amd64\r\n',
                             cc=['hppa@gentoo.org']
@@ -1331,7 +1330,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_cc_prefix(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 amd64 hppa amd64-linux '
                             'x86-macos sparc-freebsd\r\n',
                             keywords=['CC-ARCHES']),
@@ -1352,7 +1351,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_allarches_add(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/amd64-stable-hppa-testing-1 hppa\r\n'),
         }
         bugz_inst.resolve_dependencies.return_value = (
@@ -1371,7 +1370,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_allarches_remove(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/amd64-testing-1 amd64\r\n',
                             keywords=['ALLARCHES']),
         }
@@ -1391,7 +1390,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_allarches_leave_false(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/amd64-stable-hppa-testing-1 hppa\r\n',
                             sanity_check=True),
         }
@@ -1409,7 +1408,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_allarches_leave_true(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/amd64-testing-1 amd64\r\n',
                             keywords=['ALLARCHES'],
                             sanity_check=True),
@@ -1428,7 +1427,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_expand_plist(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/mixed-keywords-3 *\r\n'
                             'test/amd64-testing-2 ^\r\n',
                             ['amd64@gentoo.org', 'hppa@gentoo.org']),
@@ -1450,7 +1449,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_expand_plist_cc_arches(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/mixed-keywords-3 *\r\n'
                             'test/amd64-testing-2 ^\r\n',
                             keywords=['CC-ARCHES']),
@@ -1473,7 +1472,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_expand_plist_after_cc(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/mixed-keywords-3 *\r\n'
                             'test/amd64-testing-2 ^\r\n'),
         }
@@ -1490,7 +1489,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/mixed-keywords-3 *\r\n'
                             'test/amd64-testing-2 ^\r\n',
                             ['amd64@gentoo.org', 'hppa@gentoo.org'],
@@ -1514,7 +1513,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_expand_plist_impossible(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/mixed-keywords-3\r\n'
                             'test/amd64-testing-2 ^ hppa\r\n',
                             ['amd64@gentoo.org', 'hppa@gentoo.org']),
@@ -1578,7 +1577,7 @@ test/amd64-testing/amd64-testing-1.ebuild
 
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/amd64-testing-deps-1 amd64\r\n'
                             'test/amd64-testing-1 amd64\r\n',
                             sanity_check=True),
@@ -1622,7 +1621,7 @@ test/amd64-testing/amd64-testing-1.ebuild
 
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/mixed-keywords-3 amd64 hppa\r\n'
                             'test/mixed-keywords-4 amd64 hppa\r\n',
                             sanity_check=True,
@@ -1667,7 +1666,7 @@ test/mixed-keywords/mixed-keywords-3.ebuild
 
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/mixed-keywords-3 amd64 hppa\r\n'
                             'test/mixed-keywords-4 amd64 hppa\r\n',
                             sanity_check=True,
@@ -1719,7 +1718,7 @@ class IntegrationFailureTests(IntegrationTestCase):
                    ) -> MagicMock:
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             sanity_check=initial_status,
                             **kwargs),
@@ -1838,7 +1837,7 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_sanity_reason_malformed_plist(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             '<>amd64-testing-deps-1 ~alpha\r\n'),
         }
         bugz_inst.resolve_dependencies.return_value = (
@@ -1863,7 +1862,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         """
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             '<>amd64-testing-deps-1 ~alpha\r\n',
                             sanity_check=False),
         }
@@ -1886,7 +1885,7 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_sanity_reason_disallowed_plist(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             '>=test/amd64-testing-deps-1 ~alpha\r\n'),
         }
         bugz_inst.resolve_dependencies.return_value = (
@@ -1906,7 +1905,7 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_sanity_reason_non_matched_plist(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/enoent-7 ~alpha\r\n'),
         }
         bugz_inst.resolve_dependencies.return_value = (
@@ -1926,7 +1925,7 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_sanity_reason_non_matched_keywords(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1 amd64 ~mysuperarch\r\n'),
         }
         bugz_inst.resolve_dependencies.return_value = (
@@ -1945,12 +1944,12 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_sanity_depend_invalid(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             depends=[560311]),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/enoent-7 ~alpha\r\n',
                             blocks=[560322]),
         }
@@ -1974,12 +1973,12 @@ class IntegrationFailureTests(IntegrationTestCase):
         """Verify that issues with current bug take precedence over deps"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/enoent-1 ~alpha\r\n',
                             depends=[560311]),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/enoent-7 ~alpha\r\n',
                             blocks=[560322]),
         }
@@ -2002,12 +2001,12 @@ class IntegrationFailureTests(IntegrationTestCase):
     def test_sanity_depend_missing_keywords(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.KEYWORDREQ,
+            560322: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-deps-1 ~alpha\r\n',
                             depends=[560311]),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: makebug(BugCategory.KEYWORDREQ,
+            560311: BugInfo(BugCategory.KEYWORDREQ,
                             'test/amd64-testing-1',
                             blocks=[560322]),
         }
@@ -2049,7 +2048,7 @@ class IntegrationLimiterTests(IntegrationTestCase):
                    ) -> MagicMock:
         bugs = {}
         for i in range(10):
-            bugs[100000 + i] = makebug(BugCategory.STABLEREQ,
+            bugs[100000 + i] = BugInfo(BugCategory.STABLEREQ,
                                        'test/amd64-testing-1 amd64\r\n')
 
         bugz_inst = bugz.return_value
@@ -2149,7 +2148,7 @@ class ResolveTests(IntegrationTestCase):
         """Test resolve with one of many arches done"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/example-1\r\n',
                             ['amd64@gentoo.org', 'hppa@gentoo.org']),
         }
@@ -2165,7 +2164,7 @@ class ResolveTests(IntegrationTestCase):
         """Test resolve with all of many arches done"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/example-1\r\n',
                             ['amd64@gentoo.org', 'hppa@gentoo.org']),
         }
@@ -2184,7 +2183,7 @@ class ResolveTests(IntegrationTestCase):
         """Test that security bugs are not closed"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/example-1\r\n',
                             ['amd64@gentoo.org', 'hppa@gentoo.org'],
                             security=True),
@@ -2204,7 +2203,7 @@ class ResolveTests(IntegrationTestCase):
         """Test that closed bugs do not get their resolution changed"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/example-1\r\n',
                             ['amd64@gentoo.org', 'hppa@gentoo.org'],
                             resolved=True),
@@ -2224,7 +2223,7 @@ class ResolveTests(IntegrationTestCase):
         """Test that --no-resolve inhibits resolving bugs"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/example-1\r\n',
                             ['amd64@gentoo.org', 'hppa@gentoo.org']),
         }
@@ -2244,7 +2243,7 @@ class ResolveTests(IntegrationTestCase):
         """Test that --pretend inhibits updates"""
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/example-1\r\n',
                             ['amd64@gentoo.org', 'hppa@gentoo.org']),
         }
@@ -2259,7 +2258,7 @@ class ResolveTests(IntegrationTestCase):
     def test_resolve_allarches(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/example-1\r\n',
                             ['amd64@gentoo.org', 'hppa@gentoo.org'],
                             keywords=['ALLARCHES']),
@@ -2276,7 +2275,7 @@ class ResolveTests(IntegrationTestCase):
     def test_resolve_allarches_ignore(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
-            560322: makebug(BugCategory.STABLEREQ,
+            560322: BugInfo(BugCategory.STABLEREQ,
                             'test/example-1\r\n',
                             ['amd64@gentoo.org', 'hppa@gentoo.org'],
                             keywords=['ALLARCHES']),
