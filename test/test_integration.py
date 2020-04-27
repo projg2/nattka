@@ -2287,3 +2287,52 @@ class ResolveTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.resolve_bug.assert_called_with(
             560322, ['hppa@gentoo.org'], 'hppa done', False)
+
+
+class MakePackageListTests(IntegrationTestCase):
+    """Tests for make-package-list command"""
+
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    def test_one_iteration(self, sout):
+        self.assertEqual(
+            main(self.common_args + ['make-package-list',
+                                     'make-pkg-list/a']),
+            0)
+        self.assertEqual(
+            sout.getvalue(),
+            'make-pkg-list/a\n')
+
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    def test_two_iterations(self, sout):
+        self.assertEqual(
+            main(self.common_args + ['make-package-list',
+                                     'make-pkg-list/b']),
+            0)
+        self.assertEqual(
+            sout.getvalue(),
+            'make-pkg-list/b\n'
+            'make-pkg-list/a\n')
+
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    def test_three_iterations(self, sout):
+        self.assertEqual(
+            main(self.common_args + ['make-package-list',
+                                     'make-pkg-list/c']),
+            0)
+        self.assertEqual(
+            sout.getvalue(),
+            'make-pkg-list/c\n'
+            'make-pkg-list/b\n'
+            'make-pkg-list/a\n')
+
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    def test_three_iterations_common_package(self, sout):
+        self.assertEqual(
+            main(self.common_args + ['make-package-list',
+                                     'make-pkg-list/c-common']),
+            0)
+        self.assertEqual(
+            sout.getvalue(),
+            'make-pkg-list/c-common\n'
+            'make-pkg-list/a\n'
+            'make-pkg-list/b\n')

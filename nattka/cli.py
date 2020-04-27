@@ -15,6 +15,7 @@ import typing
 from pathlib import Path
 
 from snakeoil.fileutils import AtomicWriteFile
+from pkgcore.ebuild.atom import atom
 from pkgcore.ebuild.repository import UnconfiguredTree
 
 from nattka import __version__
@@ -362,6 +363,71 @@ class NattkaCommands(object):
                 print(git_commit(git_repo.path, msg, [str(ebuild_path)]))
 
         return ret
+
+    def make_package_list(self) -> int:
+        repo, git_repo = self.get_git_repository()
+
+        with git_repo:
+            packages = self.args.package
+            if self.args.arch is None:
+                initial_arches = '*'
+            else:
+                initial_arches = ' '.join(self.args.arch)
+
+            b = BugInfo(BugCategory.KEYWORDREQ,
+                        f'{packages[0]} {initial_arches}\n')
+            plist = dict(match_package_list(repo, b, only_new=True))
+            assert len(plist) == 1
+            cc_arches = sorted(
+                [f'{x}@gentoo.org' for x
+                 in set(itertools.chain.from_iterable(plist.values()))
+                 if '-' not in x])
+
+            it = 1
+            while True:
+                log.info(f'Iteration {it}: running pkgcheck ...')
+                b = BugInfo(BugCategory.KEYWORDREQ,
+                            '\n'.join(packages),
+                            cc=cc_arches)
+                plist = dict(match_package_list(repo, b, only_new=True))
+                add_keywords(plist.items(),
+                             b.category == BugCategory.STABLEREQ)
+                check_res, issues = check_dependencies(
+                    repo, plist.items())
+
+                # all good? we're done!
+                if check_res:
+                    break
+
+                new_packages = set()
+                for i in issues:
+                    eapi = repo[(i.category, i.package, i.version)].eapi
+                    for d in i.deps:
+                        # TODO: handle USE-deps meaningfully
+                        # TODO: handle <-deps
+                        r = atom(d, eapi=eapi).no_usedeps
+                        for m in repo.itermatch(r):
+                            new_packages.add(m.key)
+                            break
+                        else:
+                            log.error(f'No match for dependency: {d}')
+                            return 1
+
+                assert new_packages
+                log.info(
+                    f'New packages: {" ".join(sorted(new_packages))}')
+
+                it += 1
+                for x in new_packages:
+                    # TODO: handle it gracefully
+                    assert x not in packages
+                    packages.append(x)
+
+        log.info(f'Target CC: {" ".join(cc_arches)}')
+        log.info('Package list follows:')
+        print('\n'.join(packages))
+
+        return 0
 
     def resolve(self) -> int:
         repo = self.get_repository()
@@ -752,6 +818,17 @@ def main(argv: typing.List[str]) -> int:
     comp.add_argument('--ignore-allarches', action='store_true',
                       help='do not perform ALLARCHES stabilization '
                            'even if the bug is keyworded for it')
+
+    mkpp = subp.add_parser('make-package-list',
+                           help='Try to create a complete package list '
+                                'for keywording (with dependencies)')
+    mkpp.add_argument('-a', '--arch', action='append',
+                      help='arch to keyword the first package for '
+                           '(default: "*")')
+    mkpp.add_argument('package', nargs='+',
+                      help='packages to keyword, first being the base '
+                           'package (to which -a applies), '
+                           'the remaining its dependencies (using "^")')
 
     resp = subp.add_parser('resolve',
                            help='unCC arches from specified bugs '
