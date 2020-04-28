@@ -385,14 +385,17 @@ class NattkaCommands(object):
                  if '-' not in x])
 
             it = 1
+            # prepare the initial set
+            b = BugInfo(BugCategory.KEYWORDREQ,
+                        '\n'.join(packages),
+                        cc=cc_arches)
+            new_plist = dict(match_package_list(repo, b, only_new=True))
+            add_keywords(plist.items(),
+                         b.category == BugCategory.STABLEREQ)
+
             while True:
                 log.info(f'Iteration {it}: running pkgcheck ...')
-                b = BugInfo(BugCategory.KEYWORDREQ,
-                            '\n'.join(packages),
-                            cc=cc_arches)
-                plist = dict(match_package_list(repo, b, only_new=True))
-                add_keywords(plist.items(),
-                             b.category == BugCategory.STABLEREQ)
+                plist = new_plist
                 check_res, issues = check_dependencies(
                     repo, plist.items())
 
@@ -418,11 +421,30 @@ class NattkaCommands(object):
                 log.info(
                     f'New packages: {" ".join(sorted(new_packages))}')
 
-                it += 1
                 for x in new_packages:
                     # TODO: handle it gracefully
                     assert x not in packages
                     packages.append(x)
+
+                log.info(f'Iteration {it}: verifying ...')
+                # apply on *new* packages
+                b = BugInfo(BugCategory.KEYWORDREQ,
+                            '\n'.join(new_packages),
+                            cc=cc_arches)
+                new_plist = dict(match_package_list(repo, b, only_new=True))
+                add_keywords(new_plist.items(),
+                             b.category == BugCategory.STABLEREQ)
+
+                # but test on *old*
+                check_res, issues = check_dependencies(
+                    repo, plist.items())
+                if not check_res:
+                    log.error('Attempt to satisfy dependencies failed:')
+                    log.error('\n'.join(format_results(issues)))
+                    log.error('Please correct the package list and retry.')
+                    break
+
+                it += 1
 
         end_time = datetime.datetime.utcnow()
         log.info(f'Time elapsed: {end_time - start_time}')
