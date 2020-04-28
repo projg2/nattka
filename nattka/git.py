@@ -57,7 +57,7 @@ def git_commit(repo_path: Path,
     (short commit summary).
     """
 
-    sp = subprocess.Popen(['git', 'commit', '-m', commit_message]
+    sp = subprocess.Popen(['git', 'commit', '-s', '-m', commit_message]
                           + list(files),
                           cwd=git_get_toplevel(repo_path),
                           stdout=subprocess.PIPE,
