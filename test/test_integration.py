@@ -2336,3 +2336,15 @@ class MakePackageListTests(IntegrationTestCase):
             'make-pkg-list/c-common\n'
             'make-pkg-list/a\n'
             'make-pkg-list/b\n')
+
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    def test_red_herring(self, sout):
+        """Test a red herring due to || deps"""
+        self.assertEqual(
+            main(self.common_args + ['make-package-list',
+                                     'make-pkg-list/red-herring']),
+            0)
+        self.assertEqual(
+            sout.getvalue(),
+            'make-pkg-list/red-herring\n'
+            'make-pkg-list/a\n')

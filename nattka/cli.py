@@ -421,21 +421,21 @@ class NattkaCommands(object):
                 log.info(
                     f'New packages: {" ".join(sorted(new_packages))}')
 
-                for x in sorted(new_packages):
-                    # TODO: handle it gracefully
-                    assert x not in packages
-                    packages.append(x)
-
-                log.info(f'Iteration {it}: verifying ...')
                 # apply on *new* packages
                 b = BugInfo(BugCategory.KEYWORDREQ,
                             '\n'.join(new_packages),
                             cc=cc_arches)
                 new_plist = dict(match_package_list(repo, b, only_new=True))
+                for p in list(new_packages):
+                    if not any(x.key == p for x in new_plist):
+                        log.info(f'Package {p} seems to be a red herring '
+                                 f'(already keyworded everywhere)')
+                        new_packages.remove(p)
                 add_keywords(new_plist.items(),
                              b.category == BugCategory.STABLEREQ)
 
                 # but test on *old*
+                log.info(f'Iteration {it}: verifying ...')
                 check_res, issues = check_dependencies(
                     repo, plist.items())
                 if not check_res:
@@ -443,6 +443,11 @@ class NattkaCommands(object):
                     log.error('\n'.join(format_results(issues)))
                     log.error('Please correct the package list and retry.')
                     break
+
+                for x in sorted(new_packages):
+                    # TODO: handle it gracefully
+                    assert x not in packages
+                    packages.append(x)
 
                 it += 1
 
