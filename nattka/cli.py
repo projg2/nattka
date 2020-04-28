@@ -368,6 +368,7 @@ class NattkaCommands(object):
         repo, git_repo = self.get_git_repository()
 
         with git_repo:
+            start_time = datetime.datetime.utcnow()
             packages = self.args.package
             if self.args.arch is None:
                 initial_arches = '*'
@@ -423,6 +424,8 @@ class NattkaCommands(object):
                     assert x not in packages
                     packages.append(x)
 
+        end_time = datetime.datetime.utcnow()
+        log.info(f'Time elapsed: {end_time - start_time}')
         log.info(f'Target CC: {" ".join(cc_arches)}')
         log.info('Package list follows:')
         print('\n'.join(packages))
