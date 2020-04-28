@@ -421,7 +421,7 @@ class NattkaCommands(object):
                 log.info(
                     f'New packages: {" ".join(sorted(new_packages))}')
 
-                for x in new_packages:
+                for x in sorted(new_packages):
                     # TODO: handle it gracefully
                     assert x not in packages
                     packages.append(x)
