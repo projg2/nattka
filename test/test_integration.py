@@ -1546,7 +1546,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             0)
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
 
-        s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%s',
+        s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%B',
                               '--name-only'],
                              cwd=self.repo.location,
                              stdout=subprocess.PIPE)
@@ -1556,10 +1556,16 @@ class IntegrationSuccessTests(IntegrationTestCase):
 test@example.com
 test/alpha-amd64-hppa-testing: Stabilize 2 amd64 hppa, #560322
 
+Signed-off-by: test <test@example.com>
+
+
 test/alpha-amd64-hppa-testing/alpha-amd64-hppa-testing-2.ebuild
 test
 test@example.com
 test/amd64-testing: Stabilize 1 amd64, #560322
+
+Signed-off-by: test <test@example.com>
+
 
 test/amd64-testing/amd64-testing-1.ebuild
 ''')
@@ -1592,7 +1598,7 @@ test/amd64-testing/amd64-testing-1.ebuild
             0)
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
 
-        s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%s',
+        s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%B',
                               '--name-only'],
                              cwd=self.repo.location,
                              stdout=subprocess.PIPE)
@@ -1602,10 +1608,16 @@ test/amd64-testing/amd64-testing-1.ebuild
 test@example.com
 test/amd64-testing-deps: Stabilize 1 amd64, #560322
 
+Signed-off-by: test <test@example.com>
+
+
 test/amd64-testing-deps/amd64-testing-deps-1.ebuild
 test
 test@example.com
 test/amd64-testing: Stabilize 1 amd64, #560322
+
+Signed-off-by: test <test@example.com>
+
 
 test/amd64-testing/amd64-testing-1.ebuild
 ''')
@@ -1637,7 +1649,7 @@ test/amd64-testing/amd64-testing-1.ebuild
             0)
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
 
-        s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%s',
+        s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%B',
                               '--name-only'],
                              cwd=self.repo.location,
                              stdout=subprocess.PIPE)
@@ -1647,10 +1659,16 @@ test/amd64-testing/amd64-testing-1.ebuild
 test@example.com
 test/mixed-keywords: Stabilize 4 ALLARCHES, #560322
 
+Signed-off-by: test <test@example.com>
+
+
 test/mixed-keywords/mixed-keywords-4.ebuild
 test
 test@example.com
 test/mixed-keywords: Stabilize 3 ALLARCHES, #560322
+
+Signed-off-by: test <test@example.com>
+
 
 test/mixed-keywords/mixed-keywords-3.ebuild
 ''')
@@ -1684,7 +1702,7 @@ test/mixed-keywords/mixed-keywords-3.ebuild
             0)
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
 
-        s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%s',
+        s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%B',
                               '--name-only'],
                              cwd=self.repo.location,
                              stdout=subprocess.PIPE)
@@ -1694,10 +1712,16 @@ test/mixed-keywords/mixed-keywords-3.ebuild
 test@example.com
 test/mixed-keywords: Stabilize 4 amd64, #560322
 
+Signed-off-by: test <test@example.com>
+
+
 test/mixed-keywords/mixed-keywords-4.ebuild
 test
 test@example.com
 test/mixed-keywords: Stabilize 3 amd64, #560322
+
+Signed-off-by: test <test@example.com>
+
 
 test/mixed-keywords/mixed-keywords-3.ebuild
 ''')
