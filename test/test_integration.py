@@ -2324,7 +2324,7 @@ class MakePackageListTests(IntegrationTestCase):
             0)
         self.assertEqual(
             sout.getvalue(),
-            'make-pkg-list/a\n')
+            'make-pkg-list/a *\n\n')
 
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     def test_two_iterations(self, sout):
@@ -2334,8 +2334,8 @@ class MakePackageListTests(IntegrationTestCase):
             0)
         self.assertEqual(
             sout.getvalue(),
-            'make-pkg-list/b\n'
-            'make-pkg-list/a\n')
+            'make-pkg-list/b *\n'
+            'make-pkg-list/a ^\n')
 
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     def test_three_iterations(self, sout):
@@ -2345,9 +2345,9 @@ class MakePackageListTests(IntegrationTestCase):
             0)
         self.assertEqual(
             sout.getvalue(),
-            'make-pkg-list/c\n'
-            'make-pkg-list/b\n'
-            'make-pkg-list/a\n')
+            'make-pkg-list/c *\n'
+            'make-pkg-list/b ^\n'
+            'make-pkg-list/a ^\n')
 
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     def test_three_iterations_common_package(self, sout):
@@ -2357,9 +2357,9 @@ class MakePackageListTests(IntegrationTestCase):
             0)
         self.assertEqual(
             sout.getvalue(),
-            'make-pkg-list/c-common\n'
-            'make-pkg-list/a\n'
-            'make-pkg-list/b\n')
+            'make-pkg-list/c-common *\n'
+            'make-pkg-list/a ^\n'
+            'make-pkg-list/b ^\n')
 
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     def test_red_herring(self, sout):
@@ -2370,5 +2370,5 @@ class MakePackageListTests(IntegrationTestCase):
             0)
         self.assertEqual(
             sout.getvalue(),
-            'make-pkg-list/red-herring\n'
-            'make-pkg-list/a\n')
+            'make-pkg-list/red-herring *\n'
+            'make-pkg-list/a ^\n')

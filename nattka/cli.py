@@ -455,7 +455,8 @@ class NattkaCommands(object):
         log.info(f'Time elapsed: {end_time - start_time}')
         log.info(f'Target CC: {" ".join(cc_arches)}')
         log.info('Package list follows:')
-        print('\n'.join(packages))
+        print(f'{packages[0]} {initial_arches}')
+        print('\n'.join(f'{x} ^' for x in packages[1:]))
 
         return 0
 
