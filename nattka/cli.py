@@ -605,7 +605,8 @@ class NattkaCommands(object):
                     if (('*' in b.atoms or '^' in b.atoms)
                             and (arches_cced or cc_arches)):
                         try:
-                            expanded_plist = expand_package_list(repo, b)
+                            expanded_plist = expand_package_list(
+                                repo, b, cc_arches or b.cc)
                         except ExpandImpossible:
                             pass
 
