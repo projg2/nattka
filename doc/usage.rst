@@ -292,3 +292,23 @@ posting to bugs, append ``-u`` (``--update-bugs``).
 Please note that this requires an API key to be present.  It is strongly
 recommended that this API key belongs to a separate account used only
 by NATTkA.
+
+
+make-package-list command
+=========================
+This is an experimental command to help creating package lists
+for keywording requests.  To get list for rekeywording (i.e. restoring
+lost keywords) on a package, run it inside the repository as::
+
+    nattka make-package-list dev-python/virtualenv
+
+If you'd like to keyword for specific arches, pass them using ``--arch``
+option (note: unlike with other commands, the value of this option
+is used verbatim on the package list)::
+
+    nattka make-package-list -a 'ppc ppc64' dev-python/elementpath
+
+Please note that this function is still experimental.  It may fail
+with non-trivial dependencies, and it may generate excessive dependency
+lists when dealing with ``||`` syntax (read: it will attempt to keyword
+everything, even if it can't satisfy the dependency).
