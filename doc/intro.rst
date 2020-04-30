@@ -84,4 +84,14 @@ The primary advantages of NATTkA over stable-bot are:
   irrelevant, and otherwise explicitly informs the developer that
   a blocking bug is causing an issue.
 
+- *Automatic CC-ing of arch teams*: ever found it cumbersome to have
+  to select all arch teams from the list?  NATTkA can do it for you.
+  Just put the right keywords or ``*`` in package list, then add
+  ``CC-ARCHES`` to the keywords field.
+
+- *Support for ALLARCHES*: if the packages on the list declare support
+  for ALLARCHES stabilization, NATTkA will automatically add the keyword
+  to the bug.  If the keyword is present, ``nattka apply`` will apply
+  all the keywords rather than the one you're testing for.
+
 .. _pkgcheck: https://github.com/pkgcore/pkgcheck/

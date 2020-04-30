@@ -36,6 +36,10 @@ The primary features of NATTkA are:
 - ``resolve`` command that takes care of unCC-ing arches from bugs,
   and closing them if appropriate.
 
+- Automatic CC-ing of the correct arch teams via ``CC-ARCHES`` keyword.
+
+- Support for ALLARCHES stabilizations.
+
 
 Filing keywording/stabilization bugs
 ====================================
