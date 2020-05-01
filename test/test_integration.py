@@ -1985,6 +1985,65 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322, False, 'Unable to check for sanity:\n\n> incorrect '
             'keywords: mysuperarch')
 
+    @unittest.expectedFailure
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_reason_masked_package(self, bugz):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: BugInfo(BugCategory.STABLEREQ,
+                            'test/masked-package-1 amd64\r\n'),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, False, 'Unable to check for sanity:\n\n> package '
+            'masked: test/masked-package-1')
+
+    @unittest.expectedFailure
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_reason_masked_in_all_profiles(self, bugz):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: BugInfo(BugCategory.KEYWORDREQ,
+                            'test/profile-masked-package-1 amd64\r\n'),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, False, 'Unable to check for sanity:\n\n> package '
+            'masked: test/profile-masked-package-1')
+
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_reason_masked_in_one_profile(self, bugz):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: BugInfo(BugCategory.KEYWORDREQ,
+                            'test/partially-masked-package-1 amd64\r\n'),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, False, 'Sanity check failed:\n\n'
+                           '> test/partially-masked-package-1\n'
+                           '>   bdepend ~amd64 stable profile '
+                           'amd64-second (1 total)\n'
+                           '>     test/alpha-testing-deps')
+
     @patch('nattka.cli.NattkaBugzilla')
     def test_sanity_depend_invalid(self, bugz):
         bugz_inst = bugz.return_value

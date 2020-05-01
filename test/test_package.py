@@ -1025,6 +1025,8 @@ def results_to_dict(res):
 
 
 class DependencyCheckerTest(BaseRepoTestCase):
+    maxDiff = None
+
     def test_amd64_good(self):
         self.assertEqual(
             check_dependencies(
@@ -1045,7 +1047,7 @@ class DependencyCheckerTest(BaseRepoTestCase):
                  'category': 'test',
                  'deps': ['test/amd64-testing'],
                  'keyword': 'amd64',
-                 'num_profiles': 1,
+                 'num_profiles': 2,
                  'package': 'amd64-stable-deps',
                  'profile': 'amd64',
                  'profile_deprecated': False,
@@ -1088,7 +1090,7 @@ class DependencyCheckerTest(BaseRepoTestCase):
                  'category': 'test',
                  'deps': ['test/amd64-testing'],
                  'keyword': 'amd64',
-                 'num_profiles': 1,
+                 'num_profiles': 2,
                  'package': 'amd64-stable-deps',
                  'profile': 'amd64',
                  'profile_deprecated': False,
@@ -1099,7 +1101,7 @@ class DependencyCheckerTest(BaseRepoTestCase):
                  'category': 'test',
                  'deps': ['test/alpha-testing-deps'],
                  'keyword': '~amd64',
-                 'num_profiles': 1,
+                 'num_profiles': 2,
                  'package': 'amd64-testing-deps',
                  'profile': 'amd64',
                  'profile_deprecated': False,

@@ -1,0 +1,2 @@
+test/profile-masked-package
+test/partially-masked-package
