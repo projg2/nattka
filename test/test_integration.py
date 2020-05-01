@@ -1528,6 +1528,27 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.update_status.assert_called_with(560322, True, None)
         self.post_verify()
 
+    @unittest.expectedFailure
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_cc_arches_with_empty_keywords(self, bugz):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: BugInfo(BugCategory.STABLEREQ,
+                            'test/mixed-keywords-3\r\n',
+                            keywords=['CC-ARCHES']),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, True, None,
+            cc_add=['amd64@gentoo.org', 'hppa@gentoo.org'])
+        self.post_verify()
+
     @patch('nattka.cli.NattkaBugzilla')
     def test_commit(self, bugz):
         assert subprocess.Popen(
