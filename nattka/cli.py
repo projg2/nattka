@@ -590,8 +590,6 @@ class NattkaCommands(object):
                     arches_cced = bool(
                         arches_from_cc(b.cc, repo.known_arches))
                     if 'CC-ARCHES' in b.keywords and not arches_cced:
-                        # TODO: this technically eliminates *-fbsd
-                        # as well as prefix
                         cc_arches = sorted(
                             [f'{x}@gentoo.org' for x
                              in set(filter_prefix_keywords(
