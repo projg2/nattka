@@ -29,7 +29,7 @@ from nattka.package import (find_repository, match_package_list,
                             KeywordNoneLeft, is_allarches,
                             package_list_to_json, merge_package_list,
                             expand_package_list, ExpandImpossible,
-                            format_results)
+                            format_results, filter_prefix_keywords)
 
 try:
     from nattka.depgraph import (get_ordered_nodes,
@@ -594,9 +594,9 @@ class NattkaCommands(object):
                         # as well as prefix
                         cc_arches = sorted(
                             [f'{x}@gentoo.org' for x
-                             in set(itertools.chain.from_iterable(
-                                 check_packages.values()))
-                             if '-' not in x])
+                             in set(filter_prefix_keywords(
+                                 itertools.chain.from_iterable(
+                                     check_packages.values())))])
                     # check if we have ALLARCHES to toggle
                     allarches = (b.category == BugCategory.STABLEREQ
                                  and all(is_allarches(x) for x in plist))

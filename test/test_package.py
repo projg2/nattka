@@ -28,7 +28,7 @@ from nattka.package import (match_package_list, add_keywords,
                             select_best_version, package_list_to_json,
                             merge_package_list, is_allarches,
                             expand_package_list, ExpandImpossible,
-                            format_results)
+                            format_results, filter_prefix_keywords)
 
 
 def get_test_repo(path: Path = Path(__file__).parent):
@@ -1316,3 +1316,18 @@ class ResultFormatterTests(unittest.TestCase):
             '>     dev-python/wxpython:*[-python_single_target_python3_6(-)'
             ',-python_single_target_python3_7(-),python_targets_python3_6(-)]',
         ])
+
+
+class FilterPrefixKeywordsTest(unittest.TestCase):
+    def test_filter(self):
+        self.assertEqual(
+            filter_prefix_keywords(['amd64', 'amd64-linux', 'x86-freebsd',
+                                    'hppa', 'sparc-linux', 'sparc']),
+            ['amd64', 'hppa', 'sparc'])
+
+    @unittest.expectedFailure
+    def test_fbsd(self):
+        """Test for (historical) *-fbsd keywords that are not prefix"""
+        self.assertEqual(
+            filter_prefix_keywords(['amd64', 'amd64-fbsd']),
+            ['amd64', 'amd64-fbsd'])

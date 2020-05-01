@@ -145,10 +145,17 @@ def select_best_version(matches: typing.Iterable[
         return m
 
 
+def filter_prefix_keywords(kw: typing.Iterable[str]
+                           ) -> typing.List[str]:
+    """Filter prefix keywords out of `kw`, returning a new list"""
+    # TODO: technically this would match *-fbsd if we still had it
+    return [x for x in kw if '-' not in x]
+
+
 def get_suggested_keywords(repo: UnconfiguredTree,
                            pkg: pkgcore.ebuild.ebuild_src.package,
                            streq: bool
-                           ) -> typing.Set[str]:
+                           ) -> typing.FrozenSet[str]:
     """
     Get suggested (`*`) keywords for a given package
 
@@ -176,7 +183,7 @@ def get_suggested_keywords(repo: UnconfiguredTree,
         match_keywords.difference_update(
             x.lstrip('~-') for x in pkg.keywords)
 
-    return match_keywords
+    return frozenset(filter_prefix_keywords(match_keywords))
 
 
 def match_package_list(repo: UnconfiguredTree,
@@ -289,7 +296,7 @@ def match_package_list(repo: UnconfiguredTree,
 
         # we still do filtering with ALLARCHES since the requested
         # arches may be disjoint with ALLARCHES candidates
-        allarches_kw: typing.Set[str] = set()
+        allarches_kw: typing.FrozenSet[str] = frozenset()
         if (permit_allarches and bug.category == BugCategory.STABLEREQ
                 and 'ALLARCHES' in bug.keywords):
             # this is called only in 'apply' command
