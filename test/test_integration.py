@@ -2372,3 +2372,39 @@ class MakePackageListTests(IntegrationTestCase):
             sout.getvalue(),
             'make-pkg-list/red-herring *\n'
             'make-pkg-list/a ^\n')
+
+    @unittest.expectedFailure
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    def test_less_than_dep(self, sout):
+        self.assertEqual(
+            main(self.common_args + ['make-package-list',
+                                     'make-pkg-list/less-than']),
+            0)
+        self.assertEqual(
+            sout.getvalue(),
+            'make-pkg-list/less-than *\n'
+            '<make-pkg-list/less-than-dep-2 ^\n')
+
+    @unittest.expectedFailure
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    def test_usedep(self, sout):
+        self.assertEqual(
+            main(self.common_args + ['make-package-list',
+                                     'make-pkg-list/usedep']),
+            0)
+        self.assertEqual(
+            sout.getvalue(),
+            'make-pkg-list/usedep *\n'
+            '<make-pkg-list/less-than-dep-2 ^\n')
+
+    @unittest.expectedFailure
+    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    def test_profile_masked_usedep(self, sout):
+        self.assertEqual(
+            main(self.common_args + ['make-package-list',
+                                     'make-pkg-list/profile-masked-usedep']),
+            0)
+        self.assertEqual(
+            sout.getvalue(),
+            'make-pkg-list/profile-masked-usedep *\n'
+            'make-pkg-list/a ^\n')
