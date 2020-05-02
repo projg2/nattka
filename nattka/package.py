@@ -563,3 +563,24 @@ def format_results(issues: typing.Iterable[Result]
                    f'profile {r.profile}{num_profiles}')
             for d in sorted(r.deps):
                 yield f'>     {d}'
+
+
+def is_masked(repo: UnconfiguredTree,
+              pkg: pkgcore.ebuild.ebuild_src.package,
+              keywords: typing.Iterable[str]
+              ) -> bool:
+    """
+    Return whether package `pkg` is masked for all `keywords`
+
+    Check whether `pkg` is entirely masked in `repo` for specified
+    `keywords`.  Returns True if it is either listed in main
+    package.mask, or in package.mask for all profiles matching
+    specified `keywords` (i.e. there is not a single profile that
+    keywording could meaningfully take place for).
+    """
+
+    for m in repo.masked:
+        if m.match(pkg):
+            return True
+    # TODO: check profile masks
+    return False

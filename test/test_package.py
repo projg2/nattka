@@ -28,7 +28,8 @@ from nattka.package import (match_package_list, add_keywords,
                             select_best_version, package_list_to_json,
                             merge_package_list, is_allarches,
                             expand_package_list, ExpandImpossible,
-                            format_results, filter_prefix_keywords)
+                            format_results, filter_prefix_keywords,
+                            is_masked)
 
 
 def get_test_repo(path: Path = Path(__file__).parent):
@@ -1333,3 +1334,41 @@ class FilterPrefixKeywordsTest(unittest.TestCase):
         self.assertEqual(
             filter_prefix_keywords(['amd64', 'amd64-fbsd']),
             ['amd64', 'amd64-fbsd'])
+
+
+class IsMaskedTests(BaseRepoTestCase):
+    def test_non_masked(self):
+        self.assertFalse(
+            is_masked(
+                self.repo,
+                self.get_package('=test/amd64-stable-hppa-testing-1'),
+                ['amd64', 'hppa']))
+
+    def test_masked(self):
+        self.assertTrue(
+            is_masked(
+                self.repo,
+                self.get_package('=test/masked-package-1'),
+                ['amd64', 'hppa']))
+
+    @unittest.expectedFailure
+    def test_profile_masked(self):
+        self.assertTrue(
+            is_masked(
+                self.repo,
+                self.get_package('=test/profile-masked-package-1'),
+                ['amd64']))
+
+    def test_profile_masked_other_profile(self):
+        self.assertFalse(
+            is_masked(
+                self.repo,
+                self.get_package('=test/profile-masked-package-1'),
+                ['hppa']))
+
+    def test_profile_masked_partially(self):
+        self.assertFalse(
+            is_masked(
+                self.repo,
+                self.get_package('=test/partially-masked-package-1'),
+                ['amd64']))

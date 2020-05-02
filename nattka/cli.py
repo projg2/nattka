@@ -26,7 +26,7 @@ from nattka.package import (find_repository, match_package_list,
                             add_keywords, check_dependencies,
                             PackageMatchException, KeywordNotSpecified,
                             PackageListEmpty, PackageListDoneAlready,
-                            KeywordNoneLeft, is_allarches,
+                            KeywordNoneLeft, is_allarches, is_masked,
                             package_list_to_json, merge_package_list,
                             expand_package_list, ExpandImpossible,
                             format_results, filter_prefix_keywords,
@@ -44,6 +44,10 @@ log = logging.getLogger('nattka')
 
 
 class DependentBugError(Exception):
+    pass
+
+
+class PackageMasked(PackageMatchException):
     pass
 
 
@@ -575,6 +579,9 @@ class NattkaCommands(object):
                     try:
                         for p, kw in match_package_list(repo, b,
                                                         only_new=True):
+                            if is_masked(repo, p, kw):
+                                raise PackageMasked(
+                                    f'package masked: {p.cpvstr}')
                             plist[p] = kw
                     except KeywordNotSpecified:
                         assert not arches_cced
