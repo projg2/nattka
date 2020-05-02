@@ -29,7 +29,8 @@ from nattka.package import (find_repository, match_package_list,
                             KeywordNoneLeft, is_allarches,
                             package_list_to_json, merge_package_list,
                             expand_package_list, ExpandImpossible,
-                            format_results, filter_prefix_keywords)
+                            format_results, filter_prefix_keywords,
+                            PackageKeywordsDict, get_suggested_keywords)
 
 try:
     from nattka.depgraph import (get_ordered_nodes,
@@ -560,6 +561,7 @@ class NattkaCommands(object):
 
                 log.info(f'Bug {bno} ({b.category.name})')
 
+                plist: PackageKeywordsDict = {}
                 comment: typing.Optional[str] = None
                 check_res: typing.Optional[bool] = None
                 cache_entry: typing.Optional[dict] = None
@@ -568,7 +570,33 @@ class NattkaCommands(object):
                 expanded_plist: typing.Optional[str] = None
 
                 try:
-                    plist = dict(match_package_list(repo, b, only_new=True))
+                    arches_cced = bool(
+                        arches_from_cc(b.cc, repo.known_arches))
+                    try:
+                        for p, kw in match_package_list(repo, b,
+                                                        only_new=True):
+                            plist[p] = kw
+                    except KeywordNotSpecified:
+                        assert not arches_cced
+                        assert plist
+                        # this is raised after iterating all entries,
+                        # so plist is usable already
+                        if 'CC-ARCHES' not in b.keywords:
+                            raise
+                        all_keywords = set()
+                        for p, kw in plist.items():
+                            fkw = frozenset(kw)
+                            if not fkw:
+                                fkw = get_suggested_keywords(
+                                    repo, p,
+                                    b.category == BugCategory.STABLEREQ)
+                            all_keywords.add(fkw)
+                            # we can CC arches iff all packages have
+                            # consistent (potential) keywords
+                            if len(all_keywords) > 1 or not fkw:
+                                raise
+                            plist[p] = list(fkw)
+
                     check_packages = dict(plist)
                     for kw_dep in kw_deps:
                         try:
@@ -587,8 +615,6 @@ class NattkaCommands(object):
                                 f'dependent bug #{kw_dep} has errors')
 
                     # check if we have arches to CC
-                    arches_cced = bool(
-                        arches_from_cc(b.cc, repo.known_arches))
                     if 'CC-ARCHES' in b.keywords and not arches_cced:
                         cc_arches = sorted(
                             [f'{x}@gentoo.org' for x

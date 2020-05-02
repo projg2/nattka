@@ -155,7 +155,7 @@ class IntegrationNoActionTests(IntegrationTestCase):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-testing-1 amd64\r\n'
+                            'test/amd64-testing-1 hppa\r\n'
                             'test/alpha-amd64-hppa-testing-2\r\n',
                             sanity_check=True),
         }
@@ -179,6 +179,29 @@ class IntegrationNoActionTests(IntegrationTestCase):
     @patch('nattka.cli.NattkaBugzilla')
     def test_sanity_empty_keywords(self, bugz, add_keywords):
         bugz_inst = self.empty_keywords_preset(bugz)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        add_keywords.assert_not_called()
+        bugz_inst.update_status.assert_called_with(
+            560322, None, 'Resetting sanity check; keywords are not '
+            'fully specified and arches are not CC-ed.')
+
+    @patch('nattka.cli.add_keywords')
+    @patch('nattka.cli.NattkaBugzilla')
+    def test_sanity_empty_keywords_cc_arches(self, bugz, add_keywords):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: BugInfo(BugCategory.STABLEREQ,
+                            'test/mixed-keywords-3\r\n'
+                            'test/amd64-testing-1 amd64\r\n',
+                            keywords=['CC-ARCHES'],
+                            sanity_check=True),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
@@ -1528,7 +1551,6 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.update_status.assert_called_with(560322, True, None)
         self.post_verify()
 
-    @unittest.expectedFailure
     @patch('nattka.cli.NattkaBugzilla')
     def test_sanity_cc_arches_with_empty_keywords(self, bugz):
         bugz_inst = bugz.return_value

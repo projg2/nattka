@@ -291,6 +291,7 @@ def match_package_list(repo: UnconfiguredTree,
                 no_potential_keywords = True
             else:
                 no_keywords = True
+            yield PackageKeywords(pkg, keywords)
             continue
         prev_keywords = keywords
 
