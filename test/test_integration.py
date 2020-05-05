@@ -2041,7 +2041,8 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_called_with(
             560322, False, 'Unable to check for sanity:\n\n> package '
-            'masked: test/profile-masked-package-1')
+            'masked: test/profile-masked-package-1, in all profiles '
+            'for arch: amd64')
 
     @patch('nattka.cli.NattkaBugzilla')
     def test_sanity_reason_masked_in_one_profile(self, bugz):

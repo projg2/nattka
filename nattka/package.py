@@ -582,23 +582,23 @@ def is_masked(repo: UnconfiguredTree,
               pkg: pkgcore.ebuild.ebuild_src.package,
               keywords: typing.Iterable[str],
               profiles: ProfileDict
-              ) -> bool:
+              ) -> typing.List[str]:
     """
     Return whether package `pkg` is masked for all `keywords`
 
     Check whether `pkg` is entirely masked in `repo` for specified
     `keywords`.  `profiles` is the dict returned by `load_profiles()`.
 
-    Returns True if it is either listed in main package.mask,
-    or in package.mask for all profiles matching specified `keywords`
-    (i.e. there is not a single profile that keywording could
-    meaningfully take place for).
+    Return a list of keywords that the package is masked for, or ['*']
+    if it is masked in top-level ``package.mask``.  Empty list
+    signifies a package that is not masked.
     """
 
     for m in repo.masked:
         if m.match(pkg):
-            return True
+            return ['*']
 
+    masked_kws = []
     for k in keywords:
         k_profs = profiles.get(k, [])
         if not k_profs:
@@ -614,9 +614,9 @@ def is_masked(repo: UnconfiguredTree,
                 break
         else:
             # all profiles masked the package
-            return True
+            masked_kws.append(k)
 
-    return False
+    return sorted(masked_kws)
 
 
 def load_profiles(repo: UnconfiguredTree

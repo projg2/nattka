@@ -1342,53 +1342,58 @@ class IsMaskedTests(BaseRepoTestCase):
         self.profiles = load_profiles(self.repo)
 
     def test_non_masked(self):
-        self.assertFalse(
+        self.assertEqual(
             is_masked(
                 self.repo,
                 self.get_package('=test/amd64-stable-hppa-testing-1'),
                 ['amd64', 'hppa'],
-                self.profiles))
+                self.profiles),
+            [])
 
     def test_masked(self):
-        self.assertTrue(
+        self.assertEqual(
             is_masked(
                 self.repo,
                 self.get_package('=test/masked-package-1'),
                 ['amd64', 'hppa'],
-                self.profiles))
+                self.profiles),
+            ['*'])
 
     def test_profile_masked(self):
-        self.assertTrue(
+        self.assertEqual(
             is_masked(
                 self.repo,
                 self.get_package('=test/profile-masked-package-1'),
                 ['amd64'],
-                self.profiles))
+                self.profiles),
+            ['amd64'])
 
     def test_profile_masked_other_profile(self):
-        self.assertFalse(
+        self.assertEqual(
             is_masked(
                 self.repo,
                 self.get_package('=test/profile-masked-package-1'),
                 ['hppa'],
-                self.profiles))
+                self.profiles),
+            [])
 
     def test_profile_masked_partially(self):
-        self.assertFalse(
+        self.assertEqual(
             is_masked(
                 self.repo,
                 self.get_package('=test/partially-masked-package-1'),
                 ['amd64'],
-                self.profiles))
+                self.profiles),
+            [])
 
     def test_no_profile(self):
-        self.assertFalse(
+        self.assertEqual(
             is_masked(
                 self.repo,
                 self.get_package('=test/amd64-testing-1'),
                 ['amd64-linux'],
-                self.profiles))
-
+                self.profiles),
+            [])
 
     def test_load_profiles(self):
         self.assertEqual(

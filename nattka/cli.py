@@ -581,9 +581,16 @@ class NattkaCommands(object):
                     try:
                         for p, kw in match_package_list(repo, b,
                                                         only_new=True):
-                            if is_masked(repo, p, kw, profiles):
-                                raise PackageMasked(
-                                    f'package masked: {p.cpvstr}')
+                            masked = is_masked(repo, p, kw, profiles)
+                            if masked:
+                                if masked == ['*']:
+                                    raise PackageMasked(
+                                        f'package masked: {p.cpvstr}')
+                                else:
+                                    raise PackageMasked(
+                                        f'package masked: {p.cpvstr}, '
+                                        f'in all profiles for arch: '
+                                        f'{" ".join(masked)}')
                             plist[p] = kw
                     except KeywordNotSpecified:
                         assert not arches_cced
