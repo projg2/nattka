@@ -24,6 +24,8 @@ import pkgcore.ebuild.ebuild_src
 from pkgcore.config import load_config
 from pkgcore.ebuild.atom import atom
 from pkgcore.ebuild.errors import MalformedAtom
+from pkgcore.ebuild.profiles import OnDiskProfile
+from pkgcore.ebuild.repo_objs import _KnownProfile
 from pkgcore.ebuild.repository import UnconfiguredTree
 
 from nattka.bugzilla import BugInfo, BugCategory, arches_from_cc
@@ -46,6 +48,10 @@ PackageKeywordsIterable = (
 
 PackageKeywordsDict = (
     typing.Dict[pkgcore.ebuild.ebuild_src.package, typing.List[str]])
+
+
+ProfileIterable = (
+    typing.Iterable[typing.Tuple[_KnownProfile, OnDiskProfile]])
 
 
 class CheckResult(typing.NamedTuple):
@@ -584,3 +590,10 @@ def is_masked(repo: UnconfiguredTree,
             return True
     # TODO: check profile masks
     return False
+
+
+def load_profiles(repo: UnconfiguredTree
+                  ) -> ProfileIterable:
+    """Load all profiles from the repository"""
+    for p in repo.profiles:
+        yield p, OnDiskProfile(p.base, p.path)

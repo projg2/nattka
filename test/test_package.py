@@ -29,7 +29,7 @@ from nattka.package import (match_package_list, add_keywords,
                             merge_package_list, is_allarches,
                             expand_package_list, ExpandImpossible,
                             format_results, filter_prefix_keywords,
-                            is_masked)
+                            is_masked, load_profiles)
 
 
 def get_test_repo(path: Path = Path(__file__).parent):
@@ -1372,3 +1372,21 @@ class IsMaskedTests(BaseRepoTestCase):
                 self.repo,
                 self.get_package('=test/partially-masked-package-1'),
                 ['amd64']))
+
+    def test_load_profiles(self):
+        self.assertEqual(
+            sorted((pobj.arch,
+                    p.path,
+                    sorted(str(x) for x in pobj.masks),
+                    p.status)
+                   for p, pobj in load_profiles(self.repo)),
+            [('alpha', 'alpha', ['test/masked-package'], 'stable'),
+             ('amd64', 'amd64',
+              ['test/masked-package', 'test/partially-masked-package',
+               'test/profile-masked-package'],
+              'stable'),
+             ('amd64', 'amd64-second',
+              ['test/masked-package', 'test/profile-masked-package'],
+              'stable'),
+             ('hppa', 'hppa', ['test/masked-package'], 'exp'),
+             ])
