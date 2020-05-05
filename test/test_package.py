@@ -1375,11 +1375,12 @@ class IsMaskedTests(BaseRepoTestCase):
 
     def test_load_profiles(self):
         self.assertEqual(
-            sorted((pobj.arch,
-                    p.path,
-                    sorted(str(x) for x in pobj.masks),
-                    p.status)
-                   for p, pobj in load_profiles(self.repo)),
+            sorted((arch,
+                    pt.data.path,
+                    sorted(str(x) for x in pt.obj.masks),
+                    pt.data.status)
+                   for arch, profiles in load_profiles(self.repo).items()
+                   for pt in profiles),
             [('alpha', 'alpha', ['test/masked-package'], 'stable'),
              ('amd64', 'amd64',
               ['test/masked-package', 'test/partially-masked-package',

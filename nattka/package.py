@@ -50,8 +50,15 @@ PackageKeywordsDict = (
     typing.Dict[pkgcore.ebuild.ebuild_src.package, typing.List[str]])
 
 
-ProfileIterable = (
-    typing.Iterable[typing.Tuple[_KnownProfile, OnDiskProfile]])
+class ProfileTuple(typing.NamedTuple):
+    data: _KnownProfile
+    obj: OnDiskProfile
+
+
+ProfileIterable = typing.Iterable[ProfileTuple]
+
+
+ProfileDict = typing.Mapping[str, ProfileIterable]
 
 
 class CheckResult(typing.NamedTuple):
@@ -593,7 +600,22 @@ def is_masked(repo: UnconfiguredTree,
 
 
 def load_profiles(repo: UnconfiguredTree
-                  ) -> ProfileIterable:
-    """Load all profiles from the repository"""
-    for p in repo.profiles:
-        yield p, OnDiskProfile(p.base, p.path)
+                  ) -> ProfileDict:
+    """
+    Load all profiles from the repository
+
+    Return a mapping of a keyword to the list of profile tuples.
+    Each tuple consists of the profile data (from ``profiles.desc``)
+    and an initialized profile object.
+    """
+
+    def key(pt: ProfileTuple) -> str:
+        return pt.obj.arch
+
+    return dict(
+        (arch, sorted(profiles)) for arch, profiles
+        in itertools.groupby(
+            sorted((ProfileTuple(p, OnDiskProfile(p.base, p.path))
+                    for p in repo.profiles),
+                   key=key),
+            key=key))
