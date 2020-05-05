@@ -30,7 +30,8 @@ from nattka.package import (find_repository, match_package_list,
                             package_list_to_json, merge_package_list,
                             expand_package_list, ExpandImpossible,
                             format_results, filter_prefix_keywords,
-                            PackageKeywordsDict, get_suggested_keywords)
+                            PackageKeywordsDict, get_suggested_keywords,
+                            load_profiles)
 
 try:
     from nattka.depgraph import (get_ordered_nodes,
@@ -540,6 +541,7 @@ class NattkaCommands(object):
         bugnos, bugs = self.find_bugs()
         log.info(f'Found {len(bugnos)} bugs')
         bugs_done = 0
+        profiles = load_profiles(repo)
 
         try:
             for bno in bugnos:
@@ -579,7 +581,7 @@ class NattkaCommands(object):
                     try:
                         for p, kw in match_package_list(repo, b,
                                                         only_new=True):
-                            if is_masked(repo, p, kw):
+                            if is_masked(repo, p, kw, profiles):
                                 raise PackageMasked(
                                     f'package masked: {p.cpvstr}')
                             plist[p] = kw

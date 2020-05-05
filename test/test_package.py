@@ -1337,41 +1337,58 @@ class FilterPrefixKeywordsTest(unittest.TestCase):
 
 
 class IsMaskedTests(BaseRepoTestCase):
+    def setUp(self):
+        super().setUp()
+        self.profiles = load_profiles(self.repo)
+
     def test_non_masked(self):
         self.assertFalse(
             is_masked(
                 self.repo,
                 self.get_package('=test/amd64-stable-hppa-testing-1'),
-                ['amd64', 'hppa']))
+                ['amd64', 'hppa'],
+                self.profiles))
 
     def test_masked(self):
         self.assertTrue(
             is_masked(
                 self.repo,
                 self.get_package('=test/masked-package-1'),
-                ['amd64', 'hppa']))
+                ['amd64', 'hppa'],
+                self.profiles))
 
-    @unittest.expectedFailure
     def test_profile_masked(self):
         self.assertTrue(
             is_masked(
                 self.repo,
                 self.get_package('=test/profile-masked-package-1'),
-                ['amd64']))
+                ['amd64'],
+                self.profiles))
 
     def test_profile_masked_other_profile(self):
         self.assertFalse(
             is_masked(
                 self.repo,
                 self.get_package('=test/profile-masked-package-1'),
-                ['hppa']))
+                ['hppa'],
+                self.profiles))
 
     def test_profile_masked_partially(self):
         self.assertFalse(
             is_masked(
                 self.repo,
                 self.get_package('=test/partially-masked-package-1'),
-                ['amd64']))
+                ['amd64'],
+                self.profiles))
+
+    def test_no_profile(self):
+        self.assertFalse(
+            is_masked(
+                self.repo,
+                self.get_package('=test/amd64-testing-1'),
+                ['amd64-linux'],
+                self.profiles))
+
 
     def test_load_profiles(self):
         self.assertEqual(
@@ -1379,7 +1396,7 @@ class IsMaskedTests(BaseRepoTestCase):
                     pt.data.path,
                     sorted(str(x) for x in pt.obj.masks),
                     pt.data.status)
-                   for arch, profiles in load_profiles(self.repo).items()
+                   for arch, profiles in self.profiles.items()
                    for pt in profiles),
             [('alpha', 'alpha', ['test/masked-package'], 'stable'),
              ('amd64', 'amd64',

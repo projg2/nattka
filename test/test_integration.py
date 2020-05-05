@@ -2025,7 +2025,6 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322, False, 'Unable to check for sanity:\n\n> package '
             'masked: test/masked-package-1')
 
-    @unittest.expectedFailure
     @patch('nattka.cli.NattkaBugzilla')
     def test_sanity_reason_masked_in_all_profiles(self, bugz):
         bugz_inst = bugz.return_value
