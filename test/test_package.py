@@ -1413,3 +1413,21 @@ class IsMaskedTests(BaseRepoTestCase):
               'stable'),
              ('hppa', 'hppa', ['test/masked-package'], 'exp'),
              ])
+
+    def test_minus_keyword(self):
+        self.assertEqual(
+            is_masked(
+                self.repo,
+                self.get_package('=test/minus-arch-1'),
+                ['amd64', 'hppa'],
+                self.profiles),
+            (MaskReason.KEYWORD_MASK, ['-hppa']))
+
+    def test_minus_all(self):
+        self.assertEqual(
+            is_masked(
+                self.repo,
+                self.get_package('=test/minus-all-1'),
+                ['alpha', 'amd64', 'hppa'],
+                self.profiles),
+            (MaskReason.KEYWORD_MASK, ['-alpha']))

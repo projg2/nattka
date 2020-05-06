@@ -590,7 +590,11 @@ class NattkaCommands(object):
                                 raise PackageMasked(
                                     f'package masked: {p.cpvstr}, '
                                     f'in all profiles for arch: '
-                                    f'{" ".join(masked)}')
+                                    f'{" ".join(mask_kws)}')
+                            elif masked == MaskReason.KEYWORD_MASK:
+                                raise PackageMasked(
+                                    f'package masked: {p.cpvstr}, '
+                                    f'by keywords: {" ".join(mask_kws)}')
                             plist[p] = kw
                     except KeywordNotSpecified:
                         assert not arches_cced

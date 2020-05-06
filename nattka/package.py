@@ -71,6 +71,7 @@ class MaskReason(enum.Enum):
     NO_MASK = enum.auto()
     REPOSITORY_MASK = enum.auto()
     PROFILE_MASK = enum.auto()
+    KEYWORD_MASK = enum.auto()
 
 
 class PackageMatchException(Exception):
@@ -601,11 +602,23 @@ def is_masked(repo: UnconfiguredTree,
     if the package is not masked.
     """
 
+    masked_kws = set()
+    for k in pkg.keywords:
+        if k == '-*':
+            masked_kws = set(keywords)
+        elif k.startswith('-'):
+            masked_kws.add(k.lstrip('-'))
+        else:
+            # in case we had '-*'
+            masked_kws.discard(k.lstrip('~'))
+    if masked_kws:
+        return (MaskReason.KEYWORD_MASK,
+                sorted(f'-{k}' for k in masked_kws))
+
     for m in repo.masked:
         if m.match(pkg):
             return (MaskReason.REPOSITORY_MASK, [])
 
-    masked_kws = []
     for k in keywords:
         k_profs = profiles.get(k, [])
         if not k_profs:
@@ -621,7 +634,7 @@ def is_masked(repo: UnconfiguredTree,
                 break
         else:
             # all profiles masked the package
-            masked_kws.append(k)
+            masked_kws.add(k)
 
     if masked_kws:
         return (MaskReason.PROFILE_MASK, sorted(masked_kws))
