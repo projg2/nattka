@@ -3,6 +3,7 @@
 
 """ Package processing support. """
 
+import enum
 import io
 import itertools
 import re
@@ -64,6 +65,12 @@ ProfileDict = typing.Mapping[str, ProfileIterable]
 class CheckResult(typing.NamedTuple):
     success: bool
     output: typing.List[Result]
+
+
+class MaskReason(enum.Enum):
+    NO_MASK = enum.auto()
+    REPOSITORY_MASK = enum.auto()
+    PROFILE_MASK = enum.auto()
 
 
 class PackageMatchException(Exception):
@@ -582,21 +589,21 @@ def is_masked(repo: UnconfiguredTree,
               pkg: pkgcore.ebuild.ebuild_src.package,
               keywords: typing.Iterable[str],
               profiles: ProfileDict
-              ) -> typing.List[str]:
+              ) -> typing.Tuple[MaskReason, typing.List[str]]:
     """
     Return whether package `pkg` is masked for all `keywords`
 
     Check whether `pkg` is entirely masked in `repo` for specified
     `keywords`.  `profiles` is the dict returned by `load_profiles()`.
 
-    Return a list of keywords that the package is masked for, or ['*']
-    if it is masked in top-level ``package.mask``.  Empty list
-    signifies a package that is not masked.
+    Return a tuple consisting of the mask reason and a list
+    of applicable keywords (if any).  MaskReason.NO_MASK is returned
+    if the package is not masked.
     """
 
     for m in repo.masked:
         if m.match(pkg):
-            return ['*']
+            return (MaskReason.REPOSITORY_MASK, [])
 
     masked_kws = []
     for k in keywords:
@@ -616,7 +623,9 @@ def is_masked(repo: UnconfiguredTree,
             # all profiles masked the package
             masked_kws.append(k)
 
-    return sorted(masked_kws)
+    if masked_kws:
+        return (MaskReason.PROFILE_MASK, sorted(masked_kws))
+    return (MaskReason.NO_MASK, [])
 
 
 def load_profiles(repo: UnconfiguredTree

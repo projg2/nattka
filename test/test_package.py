@@ -29,7 +29,7 @@ from nattka.package import (match_package_list, add_keywords,
                             merge_package_list, is_allarches,
                             expand_package_list, ExpandImpossible,
                             format_results, filter_prefix_keywords,
-                            is_masked, load_profiles)
+                            is_masked, load_profiles, MaskReason)
 
 
 def get_test_repo(path: Path = Path(__file__).parent):
@@ -1348,7 +1348,7 @@ class IsMaskedTests(BaseRepoTestCase):
                 self.get_package('=test/amd64-stable-hppa-testing-1'),
                 ['amd64', 'hppa'],
                 self.profiles),
-            [])
+            (MaskReason.NO_MASK, []))
 
     def test_masked(self):
         self.assertEqual(
@@ -1357,7 +1357,7 @@ class IsMaskedTests(BaseRepoTestCase):
                 self.get_package('=test/masked-package-1'),
                 ['amd64', 'hppa'],
                 self.profiles),
-            ['*'])
+            (MaskReason.REPOSITORY_MASK, []))
 
     def test_profile_masked(self):
         self.assertEqual(
@@ -1366,7 +1366,7 @@ class IsMaskedTests(BaseRepoTestCase):
                 self.get_package('=test/profile-masked-package-1'),
                 ['amd64'],
                 self.profiles),
-            ['amd64'])
+            (MaskReason.PROFILE_MASK, ['amd64']))
 
     def test_profile_masked_other_profile(self):
         self.assertEqual(
@@ -1375,7 +1375,7 @@ class IsMaskedTests(BaseRepoTestCase):
                 self.get_package('=test/profile-masked-package-1'),
                 ['hppa'],
                 self.profiles),
-            [])
+            (MaskReason.NO_MASK, []))
 
     def test_profile_masked_partially(self):
         self.assertEqual(
@@ -1384,7 +1384,7 @@ class IsMaskedTests(BaseRepoTestCase):
                 self.get_package('=test/partially-masked-package-1'),
                 ['amd64'],
                 self.profiles),
-            [])
+            (MaskReason.NO_MASK, []))
 
     def test_no_profile(self):
         self.assertEqual(
@@ -1393,7 +1393,7 @@ class IsMaskedTests(BaseRepoTestCase):
                 self.get_package('=test/amd64-testing-1'),
                 ['amd64-linux'],
                 self.profiles),
-            [])
+            (MaskReason.NO_MASK, []))
 
     def test_load_profiles(self):
         self.assertEqual(

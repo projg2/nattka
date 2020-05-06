@@ -31,7 +31,7 @@ from nattka.package import (find_repository, match_package_list,
                             expand_package_list, ExpandImpossible,
                             format_results, filter_prefix_keywords,
                             PackageKeywordsDict, get_suggested_keywords,
-                            load_profiles)
+                            load_profiles, MaskReason)
 
 try:
     from nattka.depgraph import (get_ordered_nodes,
@@ -581,16 +581,16 @@ class NattkaCommands(object):
                     try:
                         for p, kw in match_package_list(repo, b,
                                                         only_new=True):
-                            masked = is_masked(repo, p, kw, profiles)
-                            if masked:
-                                if masked == ['*']:
-                                    raise PackageMasked(
-                                        f'package masked: {p.cpvstr}')
-                                else:
-                                    raise PackageMasked(
-                                        f'package masked: {p.cpvstr}, '
-                                        f'in all profiles for arch: '
-                                        f'{" ".join(masked)}')
+                            masked, mask_kws = is_masked(repo, p, kw,
+                                                         profiles)
+                            if masked == MaskReason.REPOSITORY_MASK:
+                                raise PackageMasked(
+                                    f'package masked: {p.cpvstr}')
+                            elif masked == MaskReason.PROFILE_MASK:
+                                raise PackageMasked(
+                                    f'package masked: {p.cpvstr}, '
+                                    f'in all profiles for arch: '
+                                    f'{" ".join(masked)}')
                             plist[p] = kw
                     except KeywordNotSpecified:
                         assert not arches_cced
