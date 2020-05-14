@@ -608,6 +608,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             sout.getvalue().strip(),
             '''# bug 560322 (KEYWORDREQ)
 =test/amd64-testing-deps-1 **  # -> ~hppa''')
+
     @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
     @patch('nattka.cli.NattkaBugzilla')
     def test_apply_depend_irrelevant(self, bugz, sout):

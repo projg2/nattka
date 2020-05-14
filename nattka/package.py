@@ -245,8 +245,8 @@ def match_package_list(repo: UnconfiguredTree,
     no_keywords = False
 
     prev_keywords = None
-    for l in bug.atoms.splitlines():
-        sl = COMMENT_RE.sub('', l).split()
+    for line in bug.atoms.splitlines():
+        sl = COMMENT_RE.sub('', line).split()
         if not sl:
             continue
 
@@ -386,8 +386,8 @@ def expand_package_list(repo: UnconfiguredTree,
     target_cc = frozenset(target_cc)
     ret = ''
     prev_kw = None
-    for l in bug.atoms.splitlines(keepends=True):
-        it = iter(WS_RE.split(l))
+    for line in bug.atoms.splitlines(keepends=True):
+        it = iter(WS_RE.split(line))
         pkg = None
         cur_kw: typing.Optional[typing.List[str]] = None
         had_empty_above = False

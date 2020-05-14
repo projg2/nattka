@@ -946,8 +946,8 @@ class FakeEbuild(object):
     @property
     def keywords(self):
         with open(self.path, 'r') as f:
-            for l in f.readlines():
-                m = KEYWORDS_RE.match(l)
+            for line in f.readlines():
+                m = KEYWORDS_RE.match(line)
                 if m:
                     return tuple(m.group('keywords').split())
 
