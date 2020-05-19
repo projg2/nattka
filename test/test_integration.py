@@ -21,7 +21,7 @@ from pkgcore.ebuild.repository import UnconfiguredTree
 from pkgcore.util import parserestrict
 
 from nattka.bugzilla import BugCategory, BugInfo
-from nattka.cli import main, have_nattka_depgraph
+from nattka.__main__ import main, have_nattka_depgraph
 
 from test.test_package import get_test_repo
 
@@ -98,8 +98,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
             bugz_inst.find_bugs.return_value)
         return bugz_inst
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_empty_package_list(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
@@ -110,8 +110,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
             cc=FULL_CC)
         add_keywords.assert_not_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_empty_package_list(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
@@ -122,8 +122,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_not_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_reset_n(self, bugz, add_keywords):
         """
         Test skipping a bug that needs sanity-check reset, with '-n'.
@@ -136,8 +136,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_not_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_reset(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
@@ -163,8 +163,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
             bugz_inst.find_bugs.return_value)
         return bugz_inst
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_empty_keywords(self, bugz, add_keywords):
         bugz_inst = self.empty_keywords_preset(bugz)
         self.assertEqual(
@@ -175,8 +175,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
             cc=FULL_CC)
         add_keywords.assert_not_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_empty_keywords(self, bugz, add_keywords):
         bugz_inst = self.empty_keywords_preset(bugz)
         self.assertEqual(
@@ -189,8 +189,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
             560322, None, 'Resetting sanity check; keywords are not '
             'fully specified and arches are not CC-ed.')
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_empty_keywords_cc_arches(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -223,8 +223,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
             bugz_inst.find_bugs.return_value)
         return bugz_inst
 
-    @patch('nattka.cli.match_package_list')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.match_package_list')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_wrong_category(self, bugz, match_package_list):
         bugz_inst = self.wrong_category_preset(bugz)
         self.assertEqual(
@@ -235,8 +235,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
             cc=FULL_CC)
         match_package_list.assert_not_called()
 
-    @patch('nattka.cli.match_package_list')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.match_package_list')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_wrong_category(self, bugz, match_package_list):
         bugz_inst = self.wrong_category_preset(bugz)
         self.assertEqual(
@@ -247,8 +247,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
         match_package_list.assert_not_called()
         bugz_inst.update_status.assert_not_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_finished_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -266,8 +266,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_not_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_finished_package_no_keywords(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -318,8 +318,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
             self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
             ('~alpha', '~amd64', '~hppa'))
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_stablereq(self, bugz, sout):
         bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
@@ -342,8 +342,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/amd64-testing-1 ~amd64
 =test/alpha-amd64-hppa-testing-2 ~amd64 ~hppa''')
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_keywordreq(self, bugz, sout):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -369,8 +369,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
             '''# bug 560322 (KEYWORDREQ)
 =test/amd64-testing-1 **  # -> ~alpha ~hppa''')
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_n(self, bugz, sout):
         """Test apply with '-n' option."""
         bugz_inst = self.bug_preset(bugz, True)
@@ -394,8 +394,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/amd64-testing-1 ~amd64
 =test/alpha-amd64-hppa-testing-2 ~amd64 ~hppa''')
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_filter_arch(self, bugz, sout):
         bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
@@ -418,8 +418,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/amd64-testing-1 ~amd64
 =test/alpha-amd64-hppa-testing-2 ~amd64''')
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_filter_host_arch(self, bugz, sout):
         bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
@@ -441,8 +441,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
             '''# bug 560322 (STABLEREQ)
 =test/alpha-amd64-hppa-testing-2 ~hppa''')
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_filter_arch_to_empty(self, bugz, sout):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -464,7 +464,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             sout.getvalue().strip(),
             '''# bug 560322: no packages match requested arch''')
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_skip_sanity_check(self, bugz):
         """Test that apply skips bug with failing sanity check"""
         bugz_inst = self.bug_preset(bugz, False)
@@ -482,8 +482,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
             self.get_package('=test/alpha-amd64-hppa-testing-2').keywords,
             ('~alpha', '~amd64', '~hppa'))
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_ignore_sanity_check(self, bugz, sout):
         """Test that apply --ignore-sanity-check works"""
         bugz_inst = self.bug_preset(bugz, False)
@@ -508,7 +508,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/amd64-testing-1 ~amd64
 =test/alpha-amd64-hppa-testing-2 ~amd64 ~hppa''')
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_depend_unresolved(self, bugz):
         """Test that apply skips bug with unresolved dependencies"""
         bugz_inst = bugz.return_value
@@ -539,8 +539,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
             self.get_package('=test/amd64-testing-1').keywords,
             ('~amd64',))
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_depend_resolved(self, bugz, sout):
         """Test that apply does not block on resolved dependencies"""
         bugz_inst = bugz.return_value
@@ -576,8 +576,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
             '''# bug 560322 (KEYWORDREQ)
 =test/amd64-testing-deps-1 **  # -> ~alpha''')
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_depend_empty(self, bugz, sout):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -609,8 +609,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
             '''# bug 560322 (KEYWORDREQ)
 =test/amd64-testing-deps-1 **  # -> ~hppa''')
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_depend_irrelevant(self, bugz, sout):
         """Test that apply does not block on deps for other arches"""
         bugz_inst = bugz.return_value
@@ -646,8 +646,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
             '''# bug 560322 (KEYWORDREQ)
 =test/amd64-testing-deps-1 **  # -> ~hppa''')
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_depend_ignore(self, bugz, sout):
         """Test that apply --ignore-dependencies works"""
         bugz_inst = bugz.return_value
@@ -686,8 +686,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
 
     @unittest.skipIf(not have_nattka_depgraph,
                      'networkx required for dep sorting')
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_dep_sorting(self, bugz, sout):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -711,8 +711,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/amd64-testing-1 ~amd64
 =test/amd64-testing-deps-1 ~amd64''')
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_allarches(self, bugz, sout):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -744,8 +744,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/mixed-keywords-3 ~amd64 ~hppa
 =test/mixed-keywords-4 ~amd64''')
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_apply_allarches_ignore(self, bugz, sout):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -778,7 +778,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/mixed-keywords-3 ~amd64
 =test/mixed-keywords-4 ~amd64''')
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_n(self, bugz):
         """Test processing with '-n'"""
         bugz_inst = self.bug_preset(bugz, True)
@@ -789,7 +789,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.update_status.assert_not_called()
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_from_none(self, bugz):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
@@ -800,7 +800,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.update_status.assert_called_with(560322, True, None)
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_from_success(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
@@ -811,7 +811,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.update_status.assert_not_called()
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_from_failure(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         self.assertEqual(
@@ -823,8 +823,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
             560322, True, 'All sanity-check issues have been resolved')
         self.post_verify()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cache(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
@@ -846,8 +846,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_not_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cache_expired(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         last_check = datetime.datetime.utcnow() - datetime.timedelta(days=1)
@@ -869,8 +869,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cache_plist_changed(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
@@ -897,8 +897,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cache_keywords_from_cc(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -926,8 +926,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cache_keywords_from_cc_changed(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -963,8 +963,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cache_depend(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -998,8 +998,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cache_depend_changed(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1040,8 +1040,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cache_dependent_bug_changed(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1080,8 +1080,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cache_result_changed(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
@@ -1102,8 +1102,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cache_from_noupdate(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         self.assertEqual(
@@ -1125,7 +1125,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         add_keywords.assert_called()
         bugz_inst.update_status.assert_called()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_depend_specified(self, bugz):
         """
         Test for depending on another bug when both bugs are listed
@@ -1153,7 +1153,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
              unittest.mock.call(560322, True, None)])
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_depend_auto(self, bugz):
         """
         Test for depending on another bug with autofetching
@@ -1183,7 +1183,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.update_status.assert_called_with(560322, True, None)
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_depend_failing(self, bugz):
         """
         Test that dependent sanity-check failure is not reported
@@ -1213,7 +1213,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.update_status.assert_called_with(560322, True, None)
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_depend_no_fetch_deps(self, bugz):
         """
         Test for depending on another bug with --no-fetch-dependencies
@@ -1235,7 +1235,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.update_status.assert_not_called()
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_keywordreq_relaxed_syntax(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1253,7 +1253,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.update_status.assert_called_with(560322, True, None)
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_keywords_above(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1273,7 +1273,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             560311, True, None)
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_keywords_partial_cc_match(self, bugz):
         """Test package list where some of the packages do not match CC"""
         bugz_inst = bugz.return_value
@@ -1295,7 +1295,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             560311, True, None)
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cc_from_none(self, bugz):
         bugz_inst = self.bug_preset(bugz, keywords=['CC-ARCHES'])
         self.assertEqual(
@@ -1308,7 +1308,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             cc_add=['amd64@gentoo.org', 'hppa@gentoo.org'])
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cc_from_success(self, bugz):
         bugz_inst = self.bug_preset(bugz,
                                     keywords=['CC-ARCHES'],
@@ -1323,7 +1323,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             cc_add=['amd64@gentoo.org', 'hppa@gentoo.org'])
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cc_from_success_cache(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=None)
         self.assertEqual(
@@ -1350,7 +1350,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             cc_add=['amd64@gentoo.org', 'hppa@gentoo.org'])
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cc_prefix(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1371,7 +1371,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             cc_add=['hppa@gentoo.org'])
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_allarches_add(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1390,7 +1390,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             keywords_add=['ALLARCHES'])
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_allarches_remove(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1410,7 +1410,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             keywords_remove=['ALLARCHES'])
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_allarches_leave_false(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1428,7 +1428,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.update_status.assert_not_called()
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_allarches_leave_true(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1447,7 +1447,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.update_status.assert_not_called()
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_expand_plist(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1469,7 +1469,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
                               'test/amd64-testing-2 amd64 hppa\r\n'])
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_expand_plist_cc_arches(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1492,7 +1492,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
                               'test/amd64-testing-2 \r\n'])
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_expand_plist_after_cc(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1533,7 +1533,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
                               'test/amd64-testing-2 \r\n'])
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_expand_plist_impossible(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1552,7 +1552,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.update_status.assert_called_with(560322, True, None)
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cc_arches_with_empty_keywords(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1572,7 +1572,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             cc_add=['amd64@gentoo.org', 'hppa@gentoo.org'])
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_commit(self, bugz):
         assert subprocess.Popen(
             ['git', 'config', '--local', 'user.name', 'test'],
@@ -1616,7 +1616,7 @@ test/amd64-testing/amd64-testing-1.ebuild
 
     @unittest.skipIf(not have_nattka_depgraph,
                      'networkx required for dep sorting')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_commit_dep_sorting(self, bugz):
         assert subprocess.Popen(
             ['git', 'config', '--local', 'user.name', 'test'],
@@ -1666,7 +1666,7 @@ Signed-off-by: test <test@example.com>
 test/amd64-testing/amd64-testing-1.ebuild
 ''')
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_commit_allarches(self, bugz):
         assert subprocess.Popen(
             ['git', 'config', '--local', 'user.name', 'test'],
@@ -1717,7 +1717,7 @@ Signed-off-by: test <test@example.com>
 test/mixed-keywords/mixed-keywords-3.ebuild
 ''')
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_commit_allarches_ignore(self, bugz):
         assert subprocess.Popen(
             ['git', 'config', '--local', 'user.name', 'test'],
@@ -1801,7 +1801,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             self.get_package('=test/amd64-testing-deps-1').keywords,
             ('~amd64',))
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_n(self, bugz):
         """Test processing with -n"""
         bugz_inst = self.bug_preset(bugz)
@@ -1812,7 +1812,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst.update_status.assert_not_called()
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_from_none(self, bugz):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
@@ -1824,7 +1824,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322, False, self.fail_msg)
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_from_fail_no_comment(self, bugz):
         bugz_inst = self.bug_preset(bugz)
         bugz_inst.get_latest_comment.return_value = None
@@ -1837,7 +1837,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322, False, self.fail_msg)
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_from_fail_other(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         bugz_inst.get_latest_comment.return_value = (
@@ -1853,7 +1853,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322, False, self.fail_msg)
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_from_fail(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         bugz_inst.get_latest_comment.return_value = self.fail_msg
@@ -1865,7 +1865,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst.update_status.assert_not_called()
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_from_success(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
@@ -1877,7 +1877,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322, False, self.fail_msg)
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cache(self, bugz):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
@@ -1888,7 +1888,7 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_called()
 
-        with patch('nattka.cli.add_keywords') as add_keywords:
+        with patch('nattka.__main__.add_keywords') as add_keywords:
             bugz_inst = self.bug_preset(bugz, initial_status=False)
             bugz_inst.update_status.reset_mock()
             self.assertEqual(
@@ -1900,8 +1900,8 @@ class IntegrationFailureTests(IntegrationTestCase):
             add_keywords.assert_not_called()
             bugz_inst.update_status.assert_not_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_reason_malformed_plist(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1920,8 +1920,8 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322, False, 'Unable to check for sanity:\n\n> invalid '
             'package spec: <>amd64-testing-deps-1')
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_reason_malformed_plist_cache_empty_reported(
             self, bugz, add_keywords):
         """
@@ -1948,8 +1948,8 @@ class IntegrationFailureTests(IntegrationTestCase):
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_not_called()
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_reason_disallowed_plist(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1968,8 +1968,8 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322, False, 'Unable to check for sanity:\n\n> disallowed '
             'package spec (only = allowed): >=test/amd64-testing-deps-1')
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_reason_non_matched_plist(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -1988,8 +1988,8 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322, False, 'Unable to check for sanity:\n\n> no match '
             'for package: test/enoent-7')
 
-    @patch('nattka.cli.add_keywords')
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.add_keywords')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_reason_non_matched_keywords(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -2008,7 +2008,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322, False, 'Unable to check for sanity:\n\n> incorrect '
             'keywords: mysuperarch')
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_reason_masked_package(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -2026,7 +2026,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322, False, 'Unable to check for sanity:\n\n> package '
             'masked: test/masked-package-1')
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_reason_masked_in_all_profiles(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -2045,7 +2045,7 @@ class IntegrationFailureTests(IntegrationTestCase):
             'masked: test/profile-masked-package-1, in all profiles '
             'for arch: amd64')
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_reason_masked_in_one_profile(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -2066,7 +2066,7 @@ class IntegrationFailureTests(IntegrationTestCase):
                            'amd64-second (1 total)\n'
                            '>     test/alpha-testing-deps')
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_depend_invalid(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -2094,7 +2094,7 @@ class IntegrationFailureTests(IntegrationTestCase):
                            '> dependent bug #560311 has errors')
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_depend_and_bug_invalid(self, bugz):
         """Verify that issues with current bug take precedence over deps"""
         bugz_inst = bugz.return_value
@@ -2123,7 +2123,7 @@ class IntegrationFailureTests(IntegrationTestCase):
                            '> no match for package: test/enoent-1')
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_depend_missing_keywords(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -2151,7 +2151,7 @@ class IntegrationFailureTests(IntegrationTestCase):
                            '> dependent bug #560311 is missing keywords')
         self.post_verify()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_sanity_cc(self, bugz):
         bugz_inst = self.bug_preset(bugz, keywords=['CC-ARCHES'])
         self.assertEqual(
@@ -2182,7 +2182,7 @@ class IntegrationLimiterTests(IntegrationTestCase):
         bugz_inst.resolve_dependencies.return_value = bugs
         return bugz_inst
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_bug_limit(self, bugz):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
@@ -2207,7 +2207,7 @@ class SearchFilterTests(IntegrationTestCase):
     Tests for passing search filters over to find_bugs().
     """
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_default(self, bugz):
         """Verify default search filters"""
         bugz_inst = bugz.return_value
@@ -2219,7 +2219,7 @@ class SearchFilterTests(IntegrationTestCase):
             unresolved=True,
             category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ])
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_keywordreq(self, bugz):
         bugz_inst = bugz.return_value
         self.assertEqual(
@@ -2230,7 +2230,7 @@ class SearchFilterTests(IntegrationTestCase):
             unresolved=True,
             category=[BugCategory.KEYWORDREQ])
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_stablereq(self, bugz):
         bugz_inst = bugz.return_value
         self.assertEqual(
@@ -2241,7 +2241,7 @@ class SearchFilterTests(IntegrationTestCase):
             unresolved=True,
             category=[BugCategory.STABLEREQ])
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_keywordreq_and_stablereq(self, bugz):
         bugz_inst = bugz.return_value
         self.assertEqual(
@@ -2253,7 +2253,7 @@ class SearchFilterTests(IntegrationTestCase):
             unresolved=True,
             category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ])
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_security(self, bugz):
         bugz_inst = bugz.return_value
         self.assertEqual(
@@ -2269,7 +2269,7 @@ class SearchFilterTests(IntegrationTestCase):
 class ResolveTests(IntegrationTestCase):
     """Tests for resolve command"""
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_resolve_one_of_many(self, bugz):
         """Test resolve with one of many arches done"""
         bugz_inst = bugz.return_value
@@ -2285,7 +2285,7 @@ class ResolveTests(IntegrationTestCase):
         bugz_inst.resolve_bug.assert_called_with(
             560322, ['hppa@gentoo.org'], 'hppa done', False)
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_resolve_all_of_many(self, bugz):
         """Test resolve with all of many arches done"""
         bugz_inst = bugz.return_value
@@ -2304,7 +2304,7 @@ class ResolveTests(IntegrationTestCase):
             'amd64 hppa done\n\nall arches done',
             True)
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_resolve_security(self, bugz):
         """Test that security bugs are not closed"""
         bugz_inst = bugz.return_value
@@ -2324,7 +2324,7 @@ class ResolveTests(IntegrationTestCase):
             'amd64 hppa done\n\nall arches done',
             False)
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_resolve_closed(self, bugz):
         """Test that closed bugs do not get their resolution changed"""
         bugz_inst = bugz.return_value
@@ -2344,7 +2344,7 @@ class ResolveTests(IntegrationTestCase):
             'amd64 hppa done\n\nall arches done',
             False)
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_resolve_no_resolve(self, bugz):
         """Test that --no-resolve inhibits resolving bugs"""
         bugz_inst = bugz.return_value
@@ -2364,7 +2364,7 @@ class ResolveTests(IntegrationTestCase):
             'amd64 hppa done\n\nall arches done',
             False)
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_resolve_pretend(self, bugz):
         """Test that --pretend inhibits updates"""
         bugz_inst = bugz.return_value
@@ -2380,7 +2380,7 @@ class ResolveTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.resolve_bug.assert_not_called()
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_resolve_allarches(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -2397,7 +2397,7 @@ class ResolveTests(IntegrationTestCase):
             560322, ['amd64@gentoo.org', 'hppa@gentoo.org'],
             'amd64 hppa (ALLARCHES) done\n\nall arches done', True)
 
-    @patch('nattka.cli.NattkaBugzilla')
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_resolve_allarches_ignore(self, bugz):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
@@ -2418,7 +2418,7 @@ class ResolveTests(IntegrationTestCase):
 class MakePackageListTests(IntegrationTestCase):
     """Tests for make-package-list command"""
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
     def test_one_iteration(self, sout):
         self.assertEqual(
             main(self.common_args + ['make-package-list',
@@ -2428,7 +2428,7 @@ class MakePackageListTests(IntegrationTestCase):
             sout.getvalue(),
             'make-pkg-list/a *\n\n')
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
     def test_two_iterations(self, sout):
         self.assertEqual(
             main(self.common_args + ['make-package-list',
@@ -2439,7 +2439,7 @@ class MakePackageListTests(IntegrationTestCase):
             'make-pkg-list/b *\n'
             'make-pkg-list/a ^\n')
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
     def test_three_iterations(self, sout):
         self.assertEqual(
             main(self.common_args + ['make-package-list',
@@ -2451,7 +2451,7 @@ class MakePackageListTests(IntegrationTestCase):
             'make-pkg-list/b ^\n'
             'make-pkg-list/a ^\n')
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
     def test_three_iterations_common_package(self, sout):
         self.assertEqual(
             main(self.common_args + ['make-package-list',
@@ -2463,7 +2463,7 @@ class MakePackageListTests(IntegrationTestCase):
             'make-pkg-list/a ^\n'
             'make-pkg-list/b ^\n')
 
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
     def test_red_herring(self, sout):
         """Test a red herring due to || deps"""
         self.assertEqual(
@@ -2476,7 +2476,7 @@ class MakePackageListTests(IntegrationTestCase):
             'make-pkg-list/a ^\n')
 
     @unittest.expectedFailure
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
     def test_less_than_dep(self, sout):
         self.assertEqual(
             main(self.common_args + ['make-package-list',
@@ -2488,7 +2488,7 @@ class MakePackageListTests(IntegrationTestCase):
             '<make-pkg-list/less-than-dep-2 ^\n')
 
     @unittest.expectedFailure
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
     def test_usedep(self, sout):
         self.assertEqual(
             main(self.common_args + ['make-package-list',
@@ -2500,7 +2500,7 @@ class MakePackageListTests(IntegrationTestCase):
             '<make-pkg-list/less-than-dep-2 ^\n')
 
     @unittest.expectedFailure
-    @patch('nattka.cli.sys.stdout', new_callable=io.StringIO)
+    @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
     def test_profile_masked_usedep(self, sout):
         self.assertEqual(
             main(self.common_args + ['make-package-list',

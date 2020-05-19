@@ -21,7 +21,7 @@ setup(
     packages=['nattka'],
     entry_points={
         'console_scripts': [
-            'nattka=nattka.cli:setuptools_main',
+            'nattka=nattka:setuptools_main',
         ],
     },
 
