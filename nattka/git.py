@@ -61,10 +61,10 @@ def git_commit(repo_path: Path,
                           + list(files),
                           cwd=git_get_toplevel(repo_path),
                           stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE)
-    sout, serr = sp.communicate()
+                          stderr=subprocess.STDOUT)
+    sout, _ = sp.communicate()
     if sp.wait() != 0:
-        raise RuntimeError(f'git commit failed: {serr.decode()}')
+        raise RuntimeError(f'git commit failed: {sout.decode()}')
     return sout.decode()
 
 
@@ -78,10 +78,10 @@ def git_reset_changes(repo_path: Path
     sp = subprocess.Popen(['git', 'checkout', '-q', '.'],
                           cwd=git_get_toplevel(repo_path),
                           stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE)
-    sout, serr = sp.communicate()
+                          stderr=subprocess.STDOUT)
+    sout, _ = sp.communicate()
     if sp.wait() != 0:
-        raise RuntimeError(f'git checkout failed: {serr.decode()}')
+        raise RuntimeError(f'git checkout failed: {sout.decode()}')
 
 
 class GitRepositoryNotFound(Exception):
