@@ -21,7 +21,8 @@ from pkgcore.ebuild.repository import UnconfiguredTree
 from nattka import __version__
 from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
                              arches_from_cc, split_dependent_bugs)
-from nattka.git import GitWorkTree, GitDirtyWorkTree, git_commit
+from nattka.git import (GitCommitNoChanges, GitDirtyWorkTree,
+                        GitWorkTree, git_commit)
 from nattka.package import (find_repository, match_package_list,
                             add_keywords, check_dependencies,
                             PackageMatchException, KeywordNotSpecified,
@@ -366,7 +367,12 @@ class NattkaCommands(object):
                 else:
                     kws = ' '.join(keywords)
                 msg = f'{pfx}: {act} {p.fullver} {kws}, #{bno}'
-                print(git_commit(git_repo.path, msg, [str(ebuild_path)]))
+                try:
+                    print(git_commit(git_repo.path,
+                                     msg,
+                                     [str(ebuild_path)]))
+                except GitCommitNoChanges:
+                    pass
 
         return ret
 

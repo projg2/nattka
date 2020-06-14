@@ -11,6 +11,10 @@ from types import TracebackType
 from pathlib import Path
 
 
+class GitCommitNoChanges(Exception):
+    pass
+
+
 def git_get_toplevel(repo_path: Path
                      ) -> typing.Optional[Path]:
     """
@@ -56,6 +60,14 @@ def git_commit(repo_path: Path,
     all changed files are committed.  Return the 'git commit' output
     (short commit summary).
     """
+
+    sp = subprocess.Popen(['git', 'diff', '--quiet', '--exit-code',
+                           'HEAD', '--']
+                          + list(files),
+                          cwd=git_get_toplevel(repo_path))
+    if sp.wait() == 0:
+        raise GitCommitNoChanges(f'No changes found in files: '
+                                 f'{" ".join(files)}')
 
     sp = subprocess.Popen(['git', 'commit', '-s', '-m', commit_message]
                           + list(files),
