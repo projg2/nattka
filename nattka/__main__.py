@@ -42,6 +42,8 @@ except ImportError:
     have_nattka_depgraph = False
 
 
+BUGZILLA_MAX_COMMENT_LEN = 16384
+
 log = logging.getLogger('nattka')
 
 
@@ -762,6 +764,12 @@ class NattkaCommands(object):
                 # as checked, just skip it;  otherwise, reset the flag
                 if check_res is None and b.sanity_check is None:
                     continue
+
+                # truncate comment if necessary
+                if (comment is not None
+                        and len(comment) >= BUGZILLA_MAX_COMMENT_LEN):
+                    comment = (
+                        comment[:BUGZILLA_MAX_COMMENT_LEN - 4] + '...\n')
 
                 # for negative results, we verify whether the comment
                 # needs to change
