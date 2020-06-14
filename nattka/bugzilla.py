@@ -28,6 +28,10 @@ INCLUDE_BUG_FIELDS = [
 ]
 
 
+class BugzillaError(Exception):
+    pass
+
+
 class BugCategory(enum.Enum):
     KEYWORDREQ = enum.auto()
     STABLEREQ = enum.auto()
@@ -147,7 +151,12 @@ class NattkaBugzilla(object):
                                    params=params,
                                    json=put_data,
                                    timeout=30)
-        ret.raise_for_status()
+        if not ret:
+            raise BugzillaError(
+                f'Bugzilla request failed, '
+                f'URL: {self.api_url + "/" + endpoint}, '
+                f'put_data: {put_data!r}, '
+                f'response: {ret.content!r}')
         return ret
 
     def whoami(self) -> str:
