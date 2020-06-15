@@ -1423,6 +1423,15 @@ class IsMaskedTests(BaseRepoTestCase):
                 self.profiles),
             (MaskReason.KEYWORD_MASK, ['-hppa']))
 
+    def test_minus_other_keyword(self):
+        self.assertEqual(
+            is_masked(
+                self.repo,
+                self.get_package('=test/minus-arch-1'),
+                ['amd64'],
+                self.profiles),
+            (MaskReason.NO_MASK, []))
+
     def test_minus_all(self):
         self.assertEqual(
             is_masked(

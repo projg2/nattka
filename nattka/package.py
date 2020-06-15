@@ -611,6 +611,7 @@ def is_masked(repo: UnconfiguredTree,
         else:
             # in case we had '-*'
             masked_kws.discard(k.lstrip('~'))
+    masked_kws.intersection_update(keywords)
     if masked_kws:
         return (MaskReason.KEYWORD_MASK,
                 sorted(f'-{k}' for k in masked_kws))
