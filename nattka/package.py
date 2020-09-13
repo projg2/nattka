@@ -474,8 +474,12 @@ def check_dependencies(repo: UnconfiguredTree,
 
     for keywords, packages in itertools.groupby(tuples, lambda x: x[1]):
         package_strs = list((str(x[0].versioned_atom) for x in packages))
-        args = ['pkgcheck', 'scan', '-c', 'VisibilityCheck',
-                '-R', 'PickleStream', '-a', ','.join(keywords)] + package_strs
+        args = ['pkgcheck', 'scan',
+                '-c', 'VisibilityCheck',
+                '-p', 'stable,dev',
+                '-R', 'PickleStream',
+                '-a', ','.join(keywords)
+                ] + package_strs
         sp = subprocess.Popen(args,
                               cwd=repo.location,
                               stdout=subprocess.PIPE,
