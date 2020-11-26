@@ -14,8 +14,8 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug?id=9&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"depends_on":[2],"product":"Gentoo Linux","cc_detail":[],"flags":[],"cf_stabilisation_atoms":"dev-python/frobnicate-11","blocks":[],"component":"Keywording","keywords":[],"assigned_to":"test@example.com","cc":[],"resolution":"","id":9,"assigned_to_detail":{"name":"test@example.com","real_name":"Test
-        developer","email":"test@example.com","id":1},"whiteboard":""}]}'
+      string: '{"bugs":[{"depends_on":[2],"blocks":[],"cc_detail":[],"assigned_to_detail":{"name":"test@example.com","id":1,"email":"test@example.com","real_name":"Test
+        developer"},"product":"Gentoo Linux","flags":[],"component":"Keywording","id":9,"whiteboard":"","cc":[],"keywords":[],"assigned_to":"test@example.com","cf_stabilisation_atoms":"dev-python/frobnicate-11","resolution":""}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -28,7 +28,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 10:03:27 GMT
+      - Thu, 26 Nov 2020 12:47:31 GMT
       Etag:
       - o2MuPKJ5a8W7rXkoT5JF8g
       Keep-Alive:
@@ -61,8 +61,8 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug/9/comment
   response:
     body:
-      string: '{"bugs":{"9":{"comments":[{"time":"2020-04-05T14:35:59Z","is_private":false,"attachment_id":null,"bug_id":9,"tags":[],"id":13,"count":0,"creator":"test@example.com","text":"this
-        one depends on a bug that depends on a bug...","creation_time":"2020-04-05T14:35:59Z"}]}},"comments":{}}'
+      string: '{"comments":{},"bugs":{"9":{"comments":[{"id":13,"tags":[],"bug_id":9,"time":"2020-04-05T14:35:59Z","creation_time":"2020-04-05T14:35:59Z","is_private":false,"creator":"test@example.com","text":"this
+        one depends on a bug that depends on a bug...","attachment_id":null,"count":0}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -75,11 +75,104 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 10:03:27 GMT
+      - Thu, 26 Nov 2020 12:47:31 GMT
       Etag:
       - n6Ps7+fs9H1p33tQU+b13Q
       Keep-Alive:
       - timeout=15, max=99
+      Server:
+      - Apache
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
+      - nosniff
+      X-frame-options:
+      - SAMEORIGIN
+      X-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.25.0
+    method: GET
+    uri: http://127.0.0.1:33113/rest/bug/9/comment
+  response:
+    body:
+      string: '{"bugs":{"9":{"comments":[{"count":0,"tags":[],"bug_id":9,"id":13,"creator":"test@example.com","time":"2020-04-05T14:35:59Z","text":"this
+        one depends on a bug that depends on a bug...","creation_time":"2020-04-05T14:35:59Z","attachment_id":null,"is_private":false}]}},"comments":{}}'
+    headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
+      Date:
+      - Thu, 26 Nov 2020 12:47:32 GMT
+      Etag:
+      - n6Ps7+fs9H1p33tQU+b13Q
+      Keep-Alive:
+      - timeout=15, max=98
+      Server:
+      - Apache
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
+      - nosniff
+      X-frame-options:
+      - SAMEORIGIN
+      X-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.25.0
+    method: GET
+    uri: http://127.0.0.1:33113/rest/whoami
+  response:
+    body:
+      string: '{"real_name":"NATTkA","name":"nattka@gentoo.org","id":2}'
+    headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
+      Date:
+      - Thu, 26 Nov 2020 12:47:32 GMT
+      Etag:
+      - mVytJ9+Su1npSL9ztIqPVQ
+      Keep-Alive:
+      - timeout=15, max=97
       Server:
       - Apache
       Transfer-Encoding:
@@ -113,8 +206,8 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug/9
   response:
     body:
-      string: '{"bugs":[{"last_change_time":"2020-11-26T10:03:29Z","changes":{"cf_stabilisation_atoms":{"added":"dev-python/frobnicate-11
-        amd64 x86","removed":"dev-python/frobnicate-11"},"flagtypes.name":{"added":"sanity-check+","removed":""}},"alias":[],"id":9}]}'
+      string: '{"bugs":[{"changes":{"flagtypes.name":{"removed":"","added":"sanity-check+"},"cf_stabilisation_atoms":{"removed":"dev-python/frobnicate-11","added":"dev-python/frobnicate-11
+        amd64 x86"}},"alias":[],"last_change_time":"2020-11-26T12:47:33Z","id":9}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -127,11 +220,11 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 10:03:28 GMT
+      - Thu, 26 Nov 2020 12:47:33 GMT
       Etag:
-      - vkpaqT625AwXepThTwAesw
+      - 77KRbcJ0QLnRczuk95o/ZQ
       Keep-Alive:
-      - timeout=15, max=98
+      - timeout=15, max=96
       Server:
       - Apache
       Transfer-Encoding:
@@ -160,10 +253,10 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug?id=9&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"cc":[],"cc_detail":[],"depends_on":[2],"assigned_to":"test@example.com","whiteboard":"","assigned_to_detail":{"name":"test@example.com","id":1,"real_name":"Test
-        developer","email":"test@example.com"},"id":9,"cf_stabilisation_atoms":"dev-python/frobnicate-11
-        amd64 x86","flags":[{"name":"sanity-check","id":5,"creation_date":"2020-11-26T10:03:29Z","type_id":1,"status":"+","modification_date":"2020-11-26T10:03:29Z","setter":"nattka@gentoo.org"}],"blocks":[],"component":"Keywording","resolution":"","keywords":[],"product":"Gentoo
-        Linux"}]}'
+      string: '{"bugs":[{"blocks":[],"assigned_to":"test@example.com","assigned_to_detail":{"real_name":"Test
+        developer","name":"test@example.com","email":"test@example.com","id":1},"id":9,"resolution":"","product":"Gentoo
+        Linux","depends_on":[2],"cf_stabilisation_atoms":"dev-python/frobnicate-11
+        amd64 x86","keywords":[],"whiteboard":"","cc_detail":[],"cc":[],"flags":[{"status":"+","id":7,"type_id":1,"setter":"nattka@gentoo.org","creation_date":"2020-11-26T12:47:33Z","name":"sanity-check","modification_date":"2020-11-26T12:47:33Z"}],"component":"Keywording"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -176,11 +269,11 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 10:03:29 GMT
+      - Thu, 26 Nov 2020 12:47:34 GMT
       Etag:
-      - v5zzz3OuTwPsfLoLL55ZIg
+      - ZqjGvBKeeLVp6K8Nd82+qA
       Keep-Alive:
-      - timeout=15, max=97
+      - timeout=15, max=95
       Server:
       - Apache
       Transfer-Encoding:
@@ -209,8 +302,8 @@ interactions:
     uri: http://127.0.0.1:33113/rest/bug/9/comment
   response:
     body:
-      string: '{"bugs":{"9":{"comments":[{"is_private":false,"bug_id":9,"time":"2020-04-05T14:35:59Z","text":"this
-        one depends on a bug that depends on a bug...","id":13,"creation_time":"2020-04-05T14:35:59Z","tags":[],"creator":"test@example.com","count":0,"attachment_id":null}]}},"comments":{}}'
+      string: '{"bugs":{"9":{"comments":[{"text":"this one depends on a bug that depends
+        on a bug...","is_private":false,"bug_id":9,"id":13,"tags":[],"creator":"test@example.com","time":"2020-04-05T14:35:59Z","creation_time":"2020-04-05T14:35:59Z","attachment_id":null,"count":0}]}},"comments":{}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -223,11 +316,11 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 10:03:29 GMT
+      - Thu, 26 Nov 2020 12:47:34 GMT
       Etag:
       - n6Ps7+fs9H1p33tQU+b13Q
       Keep-Alive:
-      - timeout=15, max=96
+      - timeout=15, max=94
       Server:
       - Apache
       Transfer-Encoding:

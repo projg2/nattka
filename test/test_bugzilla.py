@@ -324,6 +324,23 @@ class DestructiveBugzillaTests(unittest.TestCase):
             self.bz.get_latest_comment(5, BUGZILLA_USERNAME))
 
     @rec.use_cassette()
+    def test_set_status_and_mark_obsolete(self):
+        """Test setting sanity-check status and marking comments obsolete"""
+        self.assertFalse(
+            self.bz.find_bugs([3])[3].sanity_check,
+            'Bugzilla instance tainted, please reset')
+        self.assertIsNotNone(
+            self.bz.get_latest_comment(3, BUGZILLA_USERNAME),
+            'Bugzilla instance tainted, please reset')
+
+        self.bz.update_status(3, False)
+
+        self.assertFalse(
+            self.bz.find_bugs([3])[3].sanity_check)
+        self.assertIsNotNone(
+            self.bz.get_latest_comment(3, BUGZILLA_USERNAME))
+
+    @rec.use_cassette()
     def test_set_status_and_comment(self):
         """Test setting sanity-check status and commenting"""
         self.assertIsNone(

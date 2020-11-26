@@ -324,7 +324,8 @@ class NattkaBugzilla(object):
         and `keywords_remove` specified KEYWORDS to appropriately add
         or remove.  If `new_package_list` is set to a non-empty list,
         the package list will be updated to combination of its all
-        elements.
+        elements.  All old comments left by the user will be marked
+        obsolete.
         """
 
         if status is True:
@@ -361,6 +362,19 @@ class NattkaBugzilla(object):
             }
         if new_package_list:
             req['cf_stabilisation_atoms'] = ''.join(new_package_list)
+
+        # mark old comments obsolete first
+        resp = self._request(f'bug/{bugno}/comment').json()
+        username = self.username or self.whoami()
+        for c in resp['bugs'][str(bugno)]['comments']:
+            if c['creator'] == username and 'obsolete' not in c['tags']:
+                creq = {
+                    'comment_id': c['id'],
+                    'add': ['obsolete'],
+                }
+                cresp = self._request(f'bug/comment/{c["id"]}/tags',
+                                      put_data=creq).json()
+                assert 'obsolete' in cresp
 
         resp = self._request(f'bug/{bugno}', put_data=req).json()
         assert resp['bugs'][0]['id'] == bugno
