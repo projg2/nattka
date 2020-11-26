@@ -1,0 +1,97 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.25.0
+    method: GET
+    uri: http://127.0.0.1:33113/rest/whoami
+  response:
+    body:
+      string: '{"id":2,"real_name":"NATTkA","name":"nattka@gentoo.org"}'
+    headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
+      Date:
+      - Thu, 26 Nov 2020 12:32:33 GMT
+      Etag:
+      - mVytJ9+Su1npSL9ztIqPVQ
+      Keep-Alive:
+      - timeout=15, max=100
+      Server:
+      - Apache
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
+      - nosniff
+      X-frame-options:
+      - SAMEORIGIN
+      X-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.25.0
+    method: GET
+    uri: http://127.0.0.1:33113/rest/bug/3/comment
+  response:
+    body:
+      string: '{"comments":{},"bugs":{"3":{"comments":[{"bug_id":3,"is_private":false,"count":0,"tags":[],"creation_time":"2020-04-03T13:19:04Z","time":"2020-04-03T13:19:04Z","attachment_id":null,"creator":"test@example.com","id":3,"text":""},{"bug_id":3,"is_private":false,"count":1,"creation_time":"2020-04-03T13:35:02Z","tags":[],"attachment_id":null,"time":"2020-04-03T13:35:02Z","creator":"nattka@gentoo.org","text":"sanity
+        check failed!","id":8},{"text":"sanity check failed!","id":9,"creator":"nattka@gentoo.org","time":"2020-04-03T13:35:33Z","attachment_id":null,"creation_time":"2020-04-03T13:35:33Z","tags":[],"count":2,"is_private":false,"bug_id":3},{"attachment_id":null,"time":"2020-04-03T13:37:04Z","creation_time":"2020-04-03T13:37:04Z","tags":[],"text":"sanity
+        check failed!","id":10,"creator":"nattka@gentoo.org","is_private":false,"bug_id":3,"count":3},{"time":"2020-04-03T13:38:16Z","attachment_id":null,"tags":[],"creation_time":"2020-04-03T13:38:16Z","id":11,"text":"sanity
+        check failed!","creator":"nattka@gentoo.org","is_private":false,"bug_id":3,"count":4}]}}}'
+    headers:
+      Access-control-allow-headers:
+      - origin, content-type, accept, x-requested-with
+      Access-control-allow-origin:
+      - '*'
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-security-policy:
+      - frame-ancestors 'self'
+      Date:
+      - Thu, 26 Nov 2020 12:32:33 GMT
+      Etag:
+      - 6aoKiXCfaqTuevape3TPdg
+      Keep-Alive:
+      - timeout=15, max=99
+      Server:
+      - Apache
+      Transfer-Encoding:
+      - chunked
+      X-content-type-options:
+      - nosniff
+      X-frame-options:
+      - SAMEORIGIN
+      X-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

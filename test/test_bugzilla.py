@@ -291,6 +291,13 @@ class BugzillaTests(unittest.TestCase):
             self.bz.get_latest_comment(3, BUGZILLA_USERNAME),
             'sanity check failed!')
 
+    @rec.use_cassette()
+    def test_get_latest_comment_whoami(self):
+        """ Test getting latest self-comment with whoami(). """
+        self.assertEqual(
+            self.bz.get_latest_comment(3),
+            'sanity check failed!')
+
 
 class DestructiveBugzillaTests(unittest.TestCase):
     bz: NattkaBugzilla

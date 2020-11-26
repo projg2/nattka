@@ -286,12 +286,18 @@ class NattkaBugzilla(object):
 
     def get_latest_comment(self,
                            bugno: int,
-                           username: str
+                           username: typing.Optional[str] = None
                            ) -> typing.Optional[str]:
         """
-        Get the latest comment left by @username on bug @bugno.
-        Returns comment's text or None, if no matching comments found.
+        Get the latest comment left by @username (or the current user,
+        if none passed) on bug @bugno.  Returns comment's text or None,
+        if no matching comments found.
         """
+
+        if username is None:
+            if self.username is None:
+                self.whoami()
+            username = self.username
 
         resp = self._request(f'bug/{bugno}/comment').json()
         for c in reversed(resp['bugs'][str(bugno)]['comments']):
