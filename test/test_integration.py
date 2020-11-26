@@ -1587,6 +1587,19 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.__main__.NattkaBugzilla')
+    def test_sanity_cc_unassigned(self, bugz):
+        bugz_inst = self.bug_preset(bugz, keywords=['CC-ARCHES'],
+                                    assigned_to='bug-wranglers@gentoo.org')
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, True, None)
+        self.post_verify()
+
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_commit(self, bugz):
         assert subprocess.Popen(
             ['git', 'config', '--local', 'user.name', 'test'],

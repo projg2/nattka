@@ -124,7 +124,8 @@ CC-ARCHES keyword
 =================
 If the ``CC-ARCHES`` keyword is added to a bug, NATTkA will determine
 correct arch teams from the package list, and add them to CC on next
-iteration.  This will happen only if sanity-check passes.
+iteration.  This will happen only if sanity-check passes and the bug
+is not assigned to ``bug-wranglers@g.o``.
 
 
 ALLARCHES keyword

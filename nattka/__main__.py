@@ -652,7 +652,8 @@ class NattkaCommands(object):
                                 f'dependent bug #{kw_dep} has errors')
 
                     # check if we have arches to CC
-                    if 'CC-ARCHES' in b.keywords and not arches_cced:
+                    if ('CC-ARCHES' in b.keywords and not arches_cced
+                            and b.assigned_to != 'bug-wranglers@gentoo.org'):
                         cc_arches = sorted(
                             [f'{x}@gentoo.org' for x
                              in set(filter_prefix_keywords(
