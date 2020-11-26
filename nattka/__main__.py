@@ -554,7 +554,6 @@ class NattkaCommands(object):
             log.info(f'... will process until {end_time}')
 
         bz = self.get_bugzilla(require_api_key=self.args.update_bugs)
-        username = bz.whoami()
         bugnos, bugs = self.find_bugs()
         log.info(f'Found {len(bugnos)} bugs')
         bugs_done = 0
@@ -785,7 +784,7 @@ class NattkaCommands(object):
                 # needs to change
                 if check_res is False and b.sanity_check is False:
                     assert comment is not None
-                    old_comment = bz.get_latest_comment(bno, username)
+                    old_comment = bz.get_latest_comment(bno)
                     # do not add a second identical comment
                     if (old_comment is not None
                             and comment.strip() == old_comment.strip()):
