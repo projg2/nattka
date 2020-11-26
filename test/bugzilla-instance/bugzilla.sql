@@ -47,6 +47,7 @@ INSERT INTO profiles VALUES(2,'nattka@gentoo.org','exWOmCFt,R9v10azPGMUR5svpxz+P
 INSERT INTO profiles VALUES(3,'alpha@gentoo.org','LKdqphPk,AvLMtVEe+k1+v+L6l1e7hkAfPt9mhGWTOrjb03IIIME{SHA-256}','ALPHA arch team','',0,1,NULL,1,NULL);
 INSERT INTO profiles VALUES(4,'amd64@gentoo.org','cBneojLv,YOqI18zh5tbvIPF+4HMM1d6r4thzl8tLHrlg8caVkB4{SHA-256}','AMD64 arch team','',0,1,NULL,1,NULL);
 INSERT INTO profiles VALUES(5,'hppa@gentoo.org','n5cNYDsd,j3jmz7bqI42q2HfnjommYGglvYmCdAfqoxqH9JLfb3E{SHA-256}','HPPA arch team','',0,1,NULL,1,NULL);
+INSERT INTO profiles VALUES(6,'bug-wranglers@gentoo.org','11UExTQa,AXhW464TxhzrI2nRP4d5l+TqOupCEFUkuPp44rDJOwU{SHA-256}','Bug wranglers','',0,1,NULL,1,NULL);
 
 INSERT INTO user_api_keys VALUES(1,2,'xH3pICxBPtyhTrFjvuuzIaNYek9uqisCJzR9izAZ','testing',0,NULL);
 INSERT INTO user_api_keys VALUES(2,1,'dhaGUYKZOGGVRmg4k24wEXaWRHntUjIlW6eqePu1','testing',0,NULL);
@@ -64,7 +65,7 @@ CREATE UNIQUE INDEX cf_runtime_testing_required_value_idx ON cf_runtime_testing_
 
 INSERT INTO bugs VALUES(1,1,'','enhancement','CONFIRMED','2020-04-03 13:16:53','2020-04-03 13:22:41','Regular bug','Linux','---',1,'PC',1,'unspecified',1,'','---',NULL,'','2020-04-03 13:22:41',1,1,1,0,0,NULL,0,'','---');
 INSERT INTO bugs VALUES(2,1,'','enhancement','CONFIRMED','2020-04-03 13:18:10','2020-04-03 13:34:59','dev-python/unittest-mixins-1.6 keywordreq','Linux','---',1,'PC',1,'unspecified',2,'','---',NULL,'','2020-04-03 13:34:59',1,1,1,0,0,NULL,0,replace(replace('dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4','\r',char(13)),'\n',char(10)),'---');
-INSERT INTO bugs VALUES(3,1,'','enhancement','CONFIRMED','2020-04-03 13:19:04','2020-04-03 13:38:16','dev-python/mako-1.1.0 streq','Linux','---',1,'PC',1,'unspecified',3,'','---',NULL,'','2020-04-03 13:38:16',1,1,1,0,0,NULL,0,'dev-python/mako-1.1.0 amd64','Yes');
+INSERT INTO bugs VALUES(3,6,'','enhancement','CONFIRMED','2020-04-03 13:19:04','2020-11-26 09:42:55','dev-python/mako-1.1.0 streq','Linux','---',1,'PC',1,'unspecified',3,'','---',NULL,'','2020-11-26 09:42:55',1,1,1,0,0,NULL,0,'dev-python/mako-1.1.0 amd64','Yes');
 INSERT INTO bugs VALUES(4,1,'','enhancement','CONFIRMED','2020-04-03 13:20:11','2020-04-03 13:34:55','dev-python/urllib3-1.25.8 kwreq','Linux','---',1,'PC',1,'unspecified',2,'','---',NULL,'','2020-04-03 13:34:55',1,1,1,0,0,NULL,0,replace(replace('dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0','\r',char(13)),'\n',char(10)),'Yes');
 INSERT INTO bugs VALUES(5,1,'','enhancement','CONFIRMED','2020-04-03 13:26:12','2020-04-10 09:47:22','some old arj vulnerability','Linux','---',2,'PC',1,'unspecified',5,'','---',NULL,'test whiteboard','2020-04-10 09:47:22',1,1,1,0,0,NULL,0,'app-arch/arj-3.10.22-r7 amd64 hppa','Yes');
 INSERT INTO bugs VALUES(6,1,'','enhancement','CONFIRMED','2020-04-03 13:27:05','2020-04-03 13:31:19','kernel can be vulnerable too','Linux','---',2,'PC',1,'unspecified',4,'','---',NULL,'','2020-04-03 13:31:19',1,1,1,0,0,NULL,0,'sys-kernel/gentoo-sources-4.1.6','Yes');

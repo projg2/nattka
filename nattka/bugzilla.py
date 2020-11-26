@@ -25,6 +25,7 @@ INCLUDE_BUG_FIELDS = [
     'resolution',
     'keywords',
     'whiteboard',
+    'assigned_to',
 ]
 
 
@@ -85,6 +86,7 @@ class BugInfo(typing.NamedTuple):
     resolved: bool = False
     keywords: typing.List[str] = []
     whiteboard: str = ''
+    assigned_to: str = ''
 
 
 def make_bug_info(bug: typing.Dict[str, typing.Any]
@@ -109,7 +111,8 @@ def make_bug_info(bug: typing.Dict[str, typing.Any]
                    security=(bug['product'] == 'Gentoo Security'),
                    resolved=bool(bug['resolution']),
                    keywords=bug['keywords'],
-                   whiteboard=bug['whiteboard'])
+                   whiteboard=bug['whiteboard'],
+                   assigned_to=bug['assigned_to'])
 
 
 class NattkaBugzilla(object):

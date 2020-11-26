@@ -9,14 +9,15 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.23.0
+      - python-requests/2.25.0
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=4&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=4&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"whiteboard":"","cc":["hppa@gentoo.org"],"product":"Gentoo
-        Linux","blocks":[],"component":"Keywording","resolution":"","id":4,"flags":[],"keywords":["KEYWORDREQ"],"cc_detail":[{"real_name":"HPPA
-        arch team","email":"hppa@gentoo.org","id":5,"name":"hppa@gentoo.org"}],"depends_on":[],"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0"}]}'
+      string: '{"bugs":[{"component":"Keywording","resolution":"","cc":["hppa@gentoo.org"],"assigned_to":"test@example.com","keywords":["KEYWORDREQ"],"cc_detail":[{"email":"hppa@gentoo.org","name":"hppa@gentoo.org","real_name":"HPPA
+        arch team","id":5}],"blocks":[],"whiteboard":"","depends_on":[],"id":4,"product":"Gentoo
+        Linux","assigned_to_detail":{"name":"test@example.com","email":"test@example.com","real_name":"Test
+        developer","id":1},"flags":[],"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -29,9 +30,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 10 Apr 2020 09:53:48 GMT
+      - Thu, 26 Nov 2020 10:03:33 GMT
       Etag:
-      - PZG0zB+EiOMHrfRx5fvT1Q
+      - YmJox/IeC0Dh/wMlMfhE8g
       Keep-Alive:
       - timeout=15, max=100
       Server:
@@ -57,12 +58,12 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.23.0
+      - python-requests/2.25.0
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/4/comment
   response:
     body:
-      string: '{"bugs":{"4":{"comments":[{"creator":"test@example.com","is_private":false,"bug_id":4,"text":"","id":4,"creation_time":"2020-04-03T13:20:11Z","count":0,"attachment_id":null,"time":"2020-04-03T13:20:11Z","tags":[]}]}},"comments":{}}'
+      string: '{"comments":{},"bugs":{"4":{"comments":[{"is_private":false,"tags":[],"creator":"test@example.com","id":4,"text":"","time":"2020-04-03T13:20:11Z","bug_id":4,"count":0,"attachment_id":null,"creation_time":"2020-04-03T13:20:11Z"}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -75,7 +76,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 10 Apr 2020 09:53:49 GMT
+      - Thu, 26 Nov 2020 10:03:34 GMT
       Etag:
       - 5FjztftQ7g2QUYyXdznOLA
       Keep-Alive:
@@ -109,12 +110,12 @@ interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.23.0
+      - python-requests/2.25.0
     method: PUT
     uri: http://127.0.0.1:33113/rest/bug/4
   response:
     body:
-      string: '{"bugs":[{"id":4,"last_change_time":"2020-04-10T09:53:53Z","changes":{"status":{"added":"RESOLVED","removed":"CONFIRMED"},"cc":{"removed":"hppa@gentoo.org","added":""},"resolution":{"added":"FIXED","removed":""}},"alias":[]}]}'
+      string: '{"bugs":[{"alias":[],"id":4,"last_change_time":"2020-11-26T10:03:35Z","changes":{"status":{"removed":"CONFIRMED","added":"RESOLVED"},"resolution":{"removed":"","added":"FIXED"},"cc":{"added":"","removed":"hppa@gentoo.org"}}}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -127,9 +128,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 10 Apr 2020 09:53:51 GMT
+      - Thu, 26 Nov 2020 10:03:34 GMT
       Etag:
-      - zuDoXFkRjSOoHSJq4ACRZA
+      - 8ojTxHZivkA1ttoYzCrdIQ
       Keep-Alive:
       - timeout=15, max=98
       Server:
@@ -155,13 +156,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.23.0
+      - python-requests/2.25.0
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=4&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=4&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"keywords":["KEYWORDREQ"],"cc":[],"resolution":"FIXED","flags":[],"cc_detail":[],"id":4,"whiteboard":"","blocks":[],"component":"Keywording","depends_on":[],"product":"Gentoo
-        Linux","cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0"}]}'
+      string: '{"bugs":[{"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","assigned_to_detail":{"name":"test@example.com","email":"test@example.com","real_name":"Test
+        developer","id":1},"assigned_to":"test@example.com","product":"Gentoo Linux","component":"Keywording","cc":[],"blocks":[],"keywords":["KEYWORDREQ"],"depends_on":[],"id":4,"whiteboard":"","flags":[],"resolution":"FIXED","cc_detail":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -174,9 +175,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 10 Apr 2020 09:53:53 GMT
+      - Thu, 26 Nov 2020 10:03:35 GMT
       Etag:
-      - 1/qoeFltgZDg974cdOkMMw
+      - dy2Nxrz1ZiOcakKzFSXNaA
       Keep-Alive:
       - timeout=15, max=97
       Server:
@@ -202,13 +203,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.23.0
+      - python-requests/2.25.0
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/4/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"4":{"comments":[{"text":"","id":4,"is_private":false,"creation_time":"2020-04-03T13:20:11Z","time":"2020-04-03T13:20:11Z","bug_id":4,"creator":"test@example.com","tags":[],"attachment_id":null,"count":0},{"creation_time":"2020-04-10T09:53:53Z","is_private":false,"time":"2020-04-10T09:53:53Z","text":"hppa
-        done\n\nall arches done, closing","id":15,"attachment_id":null,"count":1,"bug_id":4,"creator":"test@example.com","tags":[]}]}}}'
+      string: '{"comments":{},"bugs":{"4":{"comments":[{"attachment_id":null,"tags":[],"count":0,"id":4,"time":"2020-04-03T13:20:11Z","creation_time":"2020-04-03T13:20:11Z","bug_id":4,"text":"","is_private":false,"creator":"test@example.com"},{"creation_time":"2020-11-26T10:03:35Z","time":"2020-11-26T10:03:35Z","id":15,"count":1,"tags":[],"attachment_id":null,"creator":"test@example.com","text":"hppa
+        done\n\nall arches done, closing","is_private":false,"bug_id":4}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -221,9 +222,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 10 Apr 2020 09:53:54 GMT
+      - Thu, 26 Nov 2020 10:03:35 GMT
       Etag:
-      - vhFblvpIsk+ej9kuTEwadQ
+      - 3qySfsm31GmuxJbWbqWF/w
       Keep-Alive:
       - timeout=15, max=96
       Server:

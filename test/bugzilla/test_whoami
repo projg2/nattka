@@ -9,12 +9,12 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.23.0
+      - python-requests/2.25.0
     method: GET
     uri: http://127.0.0.1:33113/rest/whoami
   response:
     body:
-      string: '{"name":"nattka@gentoo.org","real_name":"NATTkA","id":2}'
+      string: '{"real_name":"NATTkA","id":2,"name":"nattka@gentoo.org"}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -27,7 +27,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 10 Apr 2020 09:53:17 GMT
+      - Thu, 26 Nov 2020 10:02:20 GMT
       Etag:
       - mVytJ9+Su1npSL9ztIqPVQ
       Keep-Alive:

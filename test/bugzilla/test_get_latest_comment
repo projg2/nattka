@@ -9,16 +9,16 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.23.0
+      - python-requests/2.25.0
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/3/comment
   response:
     body:
-      string: '{"bugs":{"3":{"comments":[{"tags":[],"time":"2020-04-03T13:19:04Z","id":3,"creator":"test@example.com","attachment_id":null,"text":"","is_private":false,"bug_id":3,"count":0,"creation_time":"2020-04-03T13:19:04Z"},{"id":8,"creator":"nattka@gentoo.org","tags":[],"time":"2020-04-03T13:35:02Z","text":"sanity
-        check failed!","attachment_id":null,"is_private":false,"bug_id":3,"count":1,"creation_time":"2020-04-03T13:35:02Z"},{"tags":[],"time":"2020-04-03T13:35:33Z","id":9,"creator":"nattka@gentoo.org","attachment_id":null,"text":"sanity
-        check failed!","bug_id":3,"is_private":false,"count":2,"creation_time":"2020-04-03T13:35:33Z"},{"time":"2020-04-03T13:37:04Z","tags":[],"creator":"nattka@gentoo.org","id":10,"attachment_id":null,"text":"sanity
-        check failed!","is_private":false,"bug_id":3,"creation_time":"2020-04-03T13:37:04Z","count":3},{"bug_id":3,"is_private":false,"count":4,"creation_time":"2020-04-03T13:38:16Z","tags":[],"time":"2020-04-03T13:38:16Z","id":11,"creator":"nattka@gentoo.org","attachment_id":null,"text":"sanity
-        check failed!"}]}},"comments":{}}'
+      string: '{"bugs":{"3":{"comments":[{"time":"2020-04-03T13:19:04Z","bug_id":3,"id":3,"tags":[],"text":"","is_private":false,"creation_time":"2020-04-03T13:19:04Z","attachment_id":null,"count":0,"creator":"test@example.com"},{"attachment_id":null,"creator":"nattka@gentoo.org","count":1,"tags":[],"time":"2020-04-03T13:35:02Z","bug_id":3,"id":8,"creation_time":"2020-04-03T13:35:02Z","is_private":false,"text":"sanity
+        check failed!"},{"is_private":false,"creation_time":"2020-04-03T13:35:33Z","text":"sanity
+        check failed!","bug_id":3,"tags":[],"time":"2020-04-03T13:35:33Z","id":9,"creator":"nattka@gentoo.org","count":2,"attachment_id":null},{"creator":"nattka@gentoo.org","count":3,"attachment_id":null,"is_private":false,"creation_time":"2020-04-03T13:37:04Z","text":"sanity
+        check failed!","time":"2020-04-03T13:37:04Z","tags":[],"id":10,"bug_id":3},{"creation_time":"2020-04-03T13:38:16Z","is_private":false,"text":"sanity
+        check failed!","time":"2020-04-03T13:38:16Z","tags":[],"id":11,"bug_id":3,"count":4,"creator":"nattka@gentoo.org","attachment_id":null}]}},"comments":{}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -31,7 +31,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 10 Apr 2020 09:53:10 GMT
+      - Thu, 26 Nov 2020 10:02:17 GMT
       Etag:
       - 6aoKiXCfaqTuevape3TPdg
       Keep-Alive:
