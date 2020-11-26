@@ -1573,6 +1573,20 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.post_verify()
 
     @patch('nattka.__main__.NattkaBugzilla')
+    def test_sanity_cc_resolved_race(self, bugz):
+        bugz_inst = self.bug_preset(bugz, keywords=['CC-ARCHES'],
+                                    resolved=True)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ],
+            skip_tags=['nattka:skip'],
+            unresolved=True)
+        bugz_inst.update_status.assert_not_called()
+        self.post_verify()
+
+    @patch('nattka.__main__.NattkaBugzilla')
     def test_commit(self, bugz):
         assert subprocess.Popen(
             ['git', 'config', '--local', 'user.name', 'test'],

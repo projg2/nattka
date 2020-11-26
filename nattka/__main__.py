@@ -136,6 +136,15 @@ class NattkaCommands(object):
         if arch:
             kwargs['cc'] = sorted([f'{x}@gentoo.org' for x in arch])
         bugs = bz.find_bugs(**kwargs)
+
+        # hack: Bugzilla seems to suffer from a race condition that can
+        # result in closed bugs being returned when a bug is closed
+        # during the search (as in, actually returned as closed)
+        if not self.args.bug:
+            for bugno, bug in list(bugs.items()):
+                if bug.resolved:
+                    del bugs[bugno]
+
         bugnos = list(bugs)
         # if user did not specify explicit list of bugs, start with
         # newest
