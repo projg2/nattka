@@ -122,6 +122,7 @@ class NattkaBugzilla(object):
         self.api_key = api_key
         self.api_url = api_url or BUGZILLA_API_URL
         self.session = requests.Session()
+        self.username = None
 
     def _request(self,
                  endpoint: str,
@@ -164,9 +165,11 @@ class NattkaBugzilla(object):
 
     def whoami(self) -> str:
         """
-        Return username for the current Bugzilla user.
+        Cache and return username for the current Bugzilla user.
         """
-        return self._request('whoami').json()['name']
+        username = self._request('whoami').json()['name']
+        self.username = username
+        return username
 
     def find_bugs(self,
                   bugs: typing.Iterable[int] = [],

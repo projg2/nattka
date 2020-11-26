@@ -98,6 +98,7 @@ class BugzillaTests(unittest.TestCase):
     def test_whoami(self):
         """ Test whoami(). """
         self.assertEqual(self.bz.whoami(), BUGZILLA_USERNAME)
+        self.assertEqual(self.bz.username, BUGZILLA_USERNAME)
 
     @rec.use_cassette()
     def test_fetch_bugs(self):
