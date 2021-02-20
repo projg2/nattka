@@ -12,10 +12,6 @@ from pathlib import Path
 
 import lxml.etree
 
-# need to preload it to fix pkgcheck.reporters import error
-__import__('pkgcheck.checks')
-from pkgcheck.reporters import PickleStream
-
 from pkgcore.ebuild.atom import atom
 
 from nattka.bugzilla import BugCategory, BugInfo
@@ -1243,82 +1239,30 @@ class IsAllArchesTests(BaseRepoTestCase):
                 self.get_package('=test/wrong-package-restrict-1'))
 
 
-def unpickle_results(func):
-    def wrap(self):
-        assert func.__name__.startswith('test_')
-        pickle_path = (Path(__file__).parent / 'results'
-                       / (func.__name__[5:] + '.pickle'))
-
-        results = []
-        with open(pickle_path, 'rb') as f:
-            for r in PickleStream.from_file(f):
-                if r.name.startswith('NonsolvableDeps'):
-                    results.append(r)
-
-        return func(self, results)
-    return wrap
-
-
-class ResultFormatterTests(unittest.TestCase):
+class ResultFormatterTests(BaseRepoTestCase):
     maxDiff = None
 
-    @unpickle_results
-    def test_mpl(self, results):
-        self.assertEqual(list(format_results(results)), [
-            '> dev-python/matplotlib-3.1.2',
-
-            '>   depend amd64 stable profile default/linux/amd64/17.0 '
-            '(28 total)',
-
-            '>     dev-python/wxpython:*[-python_single_target_python3_6(-)'
-            ',-python_single_target_python3_7(-),python_targets_python3_6(-)'
-            ',python_targets_python3_7(-)]',
-
-            '>   depend amd64 dev profile default/linux/amd64/17.0/no-multilib'
-            '/prefix/kernel-3.2+ (2 total)',
-
-            '>     dev-python/wxpython:*[-python_single_target_python3_6(-)'
-            ',-python_single_target_python3_7(-),python_targets_python3_6(-)'
-            ',python_targets_python3_7(-)]',
-
-            '>   rdepend amd64 stable profile default/linux/amd64/17.0 '
-            '(28 total)',
-
-            '>     dev-python/wxpython:*[-python_single_target_python3_6(-)'
-            ',-python_single_target_python3_7(-),python_targets_python3_6(-)'
-            ',python_targets_python3_7(-)]',
-
-            '>   rdepend amd64 dev profile default/linux/amd64/17.0/'
-            'no-multilib/prefix/kernel-3.2+ (2 total)',
-
-            '>     dev-python/wxpython:*[-python_single_target_python3_6(-)'
-            ',-python_single_target_python3_7(-),python_targets_python3_6(-)'
-            ',python_targets_python3_7(-)]',
-
-            '>   depend ppc64 stable profile default/linux/powerpc/ppc64/17.0'
-            '/64bit-userland (9 total)',
-
-            '>     dev-python/wxpython:*[-python_single_target_python3_6(-)'
-            ',-python_single_target_python3_7(-),python_targets_python3_6(-)]',
-
-            '>   depend ppc64 dev profile default/linux/ppc64le/17.0/desktop/'
-            'plasma (2 total)',
-
-            '>     dev-python/wxpython:*[-python_single_target_python3_6(-)'
-            ',-python_single_target_python3_7(-),python_targets_python3_6(-)]',
-
-            '>   rdepend ppc64 stable profile default/linux/powerpc/ppc64/'
-            '17.0/64bit-userland (9 total)',
-
-            '>     dev-python/wxpython:*[-python_single_target_python3_6(-)'
-            ',-python_single_target_python3_7(-),python_targets_python3_6(-)]',
-
-            '>   rdepend ppc64 dev profile default/linux/ppc64le/17.0/desktop'
-            '/plasma (2 total)',
-
-            '>     dev-python/wxpython:*[-python_single_target_python3_6(-)'
-            ',-python_single_target_python3_7(-),python_targets_python3_6(-)]',
-        ])
+    def test_multiple_results(self):
+        self.assertEqual(
+            list(format_results(sorted(check_dependencies(
+                self.repo,
+                [(self.get_package('=test/amd64-stable-deps-1'),
+                  ['amd64']),
+                 (self.get_package('=test/amd64-testing-deps-2'),
+                  ['amd64']),
+                 (self.get_package('=test/alpha-testing-deps-1'),
+                  ['alpha']),
+                 ]).output))),
+            ['> test/alpha-testing-deps-1',
+             '>   rdepend ~alpha stable profile alpha (1 total)',
+             '>     test/amd64-testing',
+             '> test/amd64-stable-deps-1',
+             '>   rdepend amd64 stable profile amd64 (2 total)',
+             '>     test/amd64-testing',
+             '> test/amd64-testing-deps-2',
+             '>   bdepend ~amd64 stable profile amd64 (2 total)',
+             '>     test/alpha-testing-deps',
+             ])
 
 
 class FilterPrefixKeywordsTest(unittest.TestCase):
