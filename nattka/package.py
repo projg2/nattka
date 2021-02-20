@@ -4,21 +4,20 @@
 """ Package processing support. """
 
 import enum
-import io
 import itertools
 import re
-import subprocess
 import typing
 
 from pathlib import Path
 
 import lxml.etree
 
-# need to preload it to fix pkgcheck.reporters import error
-__import__('pkgcheck.checks')
-from pkgcheck.reporters import PickleStream
+import pkgcheck
 from pkgcheck.results import Result
-from pkgcheck.checks.visibility import _NonsolvableDeps
+try:
+    from pkgcheck.checks.visibility import NonsolvableDeps
+except ImportError:
+    from pkgcheck.checks.visibility import _NonsolvableDeps as NonsolvableDeps
 
 import pkgcore.ebuild.domain
 import pkgcore.ebuild.ebuild_src
@@ -474,19 +473,14 @@ def check_dependencies(repo: UnconfiguredTree,
 
     for keywords, packages in itertools.groupby(tuples, lambda x: x[1]):
         package_strs = list((str(x[0].versioned_atom) for x in packages))
-        args = ['pkgcheck', 'scan',
-                '-c', 'VisibilityCheck',
-                '-p', 'stable,dev',
-                '-R', 'PickleStream',
-                '-a', ','.join(keywords)
-                ] + package_strs
-        sp = subprocess.Popen(args,
-                              cwd=repo.location,
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
-        sout, serr = sp.communicate()
+        results = pkgcheck.scan(['-c', 'VisibilityCheck',
+                                 '-p', 'stable,dev',
+                                 '-a', ','.join(keywords),
+                                 '-r', repo.location,
+                                 ] + package_strs)
 
-        for r in PickleStream.from_file(io.BytesIO(sout)):
+        results = list(results)
+        for r in results:
             if r.name.startswith('NonsolvableDeps'):
                 # workaround a bug (or feature?) in pkgcheck-0.8*
                 # that causes the checks to be done against all versions
@@ -561,12 +555,12 @@ def is_allarches(pkg: pkgcore.ebuild.ebuild_src.package
     return False
 
 
-def result_group_key(r: _NonsolvableDeps) -> tuple:
+def result_group_key(r: NonsolvableDeps) -> tuple:
     """Key used to group pkgcheck results"""
     return (r.category, r.package, r.version)
 
 
-def result_sort_key(r: _NonsolvableDeps) -> tuple:
+def result_sort_key(r: NonsolvableDeps) -> tuple:
     """Key used to sort pkgcheck results"""
     return (r.category, r.package, r.version,
             r.keyword, r.attr, r.profile)
@@ -578,7 +572,7 @@ def format_results(issues: typing.Iterable[Result]
     Format pkgcheck results `issues` and yield list of result lines
     """
     for r in issues:
-        assert isinstance(r, _NonsolvableDeps)
+        assert isinstance(r, NonsolvableDeps)
     for key, values in itertools.groupby(
             issues,
             key=result_group_key):
