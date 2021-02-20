@@ -488,6 +488,11 @@ def check_dependencies(repo: UnconfiguredTree,
 
         for r in PickleStream.from_file(io.BytesIO(sout)):
             if r.name.startswith('NonsolvableDeps'):
+                # workaround a bug (or feature?) in pkgcheck-0.8*
+                # that causes the checks to be done against all versions
+                pkgstr = f'={r.category}/{r.package}-{r.version}'
+                if pkgstr not in package_strs:
+                    continue
                 ret = False
                 errors.append(r)
 
