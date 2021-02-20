@@ -14,8 +14,6 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import freezegun
-
 import pkgcore.ebuild.ebuild_src
 from pkgcore.ebuild.repository import UnconfiguredTree
 from pkgcore.util import parserestrict
@@ -851,7 +849,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
     def test_sanity_cache_expired(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         last_check = datetime.datetime.utcnow() - datetime.timedelta(days=1)
-        with freezegun.freeze_time(last_check):
+        with patch('nattka.__main__.datetime.datetime') as mocked_dt:
+            mocked_dt.utcnow.return_value = last_check
             self.assertEqual(
                 main(self.common_args + ['sanity-check', '--update-bugs',
                                          '560322', '--cache-file',
