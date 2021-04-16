@@ -9,15 +9,15 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=5&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=5&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7 amd64 hppa","cc":["test@example.com"],"assigned_to_detail":{"email":"test@example.com","name":"test@example.com","id":1,"real_name":"Test
-        developer"},"depends_on":[],"flags":[],"cc_detail":[{"real_name":"Test developer","id":1,"name":"test@example.com","email":"test@example.com"}],"assigned_to":"test@example.com","whiteboard":"test
-        whiteboard","component":"Vulnerabilities","resolution":"","keywords":[],"id":5,"product":"Gentoo
-        Security","blocks":[]}]}'
+      string: '{"bugs":[{"resolution":"","flags":[],"whiteboard":"test whiteboard","cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7
+        amd64 hppa","keywords":[],"cc":["test@example.com"],"last_change_time":"2020-04-10T09:47:22Z","product":"Gentoo
+        Security","assigned_to_detail":{"name":"test@example.com","id":1,"email":"test@example.com","real_name":"Test
+        developer"},"depends_on":[],"id":5,"cc_detail":[{"real_name":"Test developer","email":"test@example.com","id":1,"name":"test@example.com"}],"blocks":[],"assigned_to":"test@example.com","component":"Vulnerabilities"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -30,9 +30,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 12:47:11 GMT
+      - Fri, 16 Apr 2021 08:51:18 GMT
       Etag:
-      - O/pk7fMLNKf5/8cqwyyGig
+      - NBLTlqLktCAdJv5v6FsRbg
       Keep-Alive:
       - timeout=15, max=100
       Server:
@@ -58,13 +58,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/5/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"5":{"comments":[{"text":"who uses arj anyway
-        these days?","tags":[],"creation_time":"2020-04-03T13:26:12Z","creator":"test@example.com","time":"2020-04-03T13:26:12Z","count":0,"id":5,"bug_id":5,"is_private":false,"attachment_id":null}]}}}'
+      string: '{"comments":{},"bugs":{"5":{"comments":[{"bug_id":5,"count":0,"creation_time":"2020-04-03T13:26:12Z","attachment_id":null,"id":5,"tags":[],"is_private":false,"creator":"test@example.com","time":"2020-04-03T13:26:12Z","text":"who
+        uses arj anyway these days?"}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -77,7 +77,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 12:47:11 GMT
+      - Fri, 16 Apr 2021 08:51:19 GMT
       Etag:
       - lDf6jrNoZJw0HKJZ0QEhDg
       Keep-Alive:
@@ -105,13 +105,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/5/comment
   response:
     body:
-      string: '{"bugs":{"5":{"comments":[{"creation_time":"2020-04-03T13:26:12Z","attachment_id":null,"is_private":false,"bug_id":5,"text":"who
-        uses arj anyway these days?","time":"2020-04-03T13:26:12Z","id":5,"tags":[],"count":0,"creator":"test@example.com"}]}},"comments":{}}'
+      string: '{"comments":{},"bugs":{"5":{"comments":[{"is_private":false,"id":5,"creation_time":"2020-04-03T13:26:12Z","count":0,"tags":[],"creator":"test@example.com","text":"who
+        uses arj anyway these days?","attachment_id":null,"time":"2020-04-03T13:26:12Z","bug_id":5}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -124,7 +124,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 12:47:12 GMT
+      - Fri, 16 Apr 2021 08:51:19 GMT
       Etag:
       - lDf6jrNoZJw0HKJZ0QEhDg
       Keep-Alive:
@@ -152,7 +152,7 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
     uri: http://127.0.0.1:33113/rest/whoami
   response:
@@ -170,7 +170,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 12:47:13 GMT
+      - Fri, 16 Apr 2021 08:51:20 GMT
       Etag:
       - mVytJ9+Su1npSL9ztIqPVQ
       Keep-Alive:
@@ -202,12 +202,12 @@ interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: PUT
     uri: http://127.0.0.1:33113/rest/bug/5
   response:
     body:
-      string: '{"bugs":[{"alias":[],"changes":{"flagtypes.name":{"added":"sanity-check+","removed":""}},"last_change_time":"2020-11-26T12:47:14Z","id":5}]}'
+      string: '{"bugs":[{"changes":{"flagtypes.name":{"removed":"","added":"sanity-check+"}},"last_change_time":"2021-04-16T08:51:21Z","id":5,"alias":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -220,9 +220,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 12:47:13 GMT
+      - Fri, 16 Apr 2021 08:51:21 GMT
       Etag:
-      - BuTv7Aoz/b9F6Bfi9DEPBA
+      - CmFGETup7P9uC5wYmi11ew
       Keep-Alive:
       - timeout=15, max=96
       Server:
@@ -248,16 +248,16 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=5&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=5&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"component":"Vulnerabilities","cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7
-        amd64 hppa","depends_on":[],"cc_detail":[{"name":"test@example.com","real_name":"Test
-        developer","email":"test@example.com","id":1}],"id":5,"resolution":"","cc":["test@example.com"],"assigned_to_detail":{"id":1,"name":"test@example.com","email":"test@example.com","real_name":"Test
-        developer"},"whiteboard":"test whiteboard","assigned_to":"test@example.com","flags":[{"creation_date":"2020-11-26T12:47:14Z","id":4,"setter":"nattka@gentoo.org","status":"+","modification_date":"2020-11-26T12:47:14Z","type_id":1,"name":"sanity-check"}],"blocks":[],"product":"Gentoo
-        Security","keywords":[]}]}'
+      string: '{"bugs":[{"assigned_to":"test@example.com","cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7
+        amd64 hppa","whiteboard":"test whiteboard","last_change_time":"2021-04-16T08:51:21Z","component":"Vulnerabilities","resolution":"","cc":["test@example.com"],"flags":[{"type_id":1,"status":"+","name":"sanity-check","setter":"nattka@gentoo.org","creation_date":"2021-04-16T08:51:21Z","id":4,"modification_date":"2021-04-16T08:51:21Z"}],"blocks":[],"product":"Gentoo
+        Security","id":5,"keywords":[],"cc_detail":[{"email":"test@example.com","real_name":"Test
+        developer","name":"test@example.com","id":1}],"assigned_to_detail":{"real_name":"Test
+        developer","email":"test@example.com","id":1,"name":"test@example.com"},"depends_on":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -270,9 +270,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 12:47:14 GMT
+      - Fri, 16 Apr 2021 08:51:21 GMT
       Etag:
-      - 4iGycHJqtGK7ZwFGiqIiGw
+      - /vAaiQWNELEgSwNrgZ3x8w
       Keep-Alive:
       - timeout=15, max=95
       Server:
@@ -298,13 +298,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/5/comment
   response:
     body:
-      string: '{"bugs":{"5":{"comments":[{"time":"2020-04-03T13:26:12Z","tags":[],"creator":"test@example.com","creation_time":"2020-04-03T13:26:12Z","bug_id":5,"attachment_id":null,"text":"who
-        uses arj anyway these days?","is_private":false,"count":0,"id":5}]}},"comments":{}}'
+      string: '{"comments":{},"bugs":{"5":{"comments":[{"is_private":false,"count":0,"text":"who
+        uses arj anyway these days?","id":5,"tags":[],"attachment_id":null,"creation_time":"2020-04-03T13:26:12Z","creator":"test@example.com","bug_id":5,"time":"2020-04-03T13:26:12Z"}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -317,7 +317,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 12:47:14 GMT
+      - Fri, 16 Apr 2021 08:51:22 GMT
       Etag:
       - lDf6jrNoZJw0HKJZ0QEhDg
       Keep-Alive:

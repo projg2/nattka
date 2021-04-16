@@ -26,6 +26,7 @@ INCLUDE_BUG_FIELDS = [
     'keywords',
     'whiteboard',
     'assigned_to',
+    'last_change_time',
 ]
 
 

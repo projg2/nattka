@@ -9,17 +9,17 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?cc=hppa%40gentoo.org&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?cc=hppa%40gentoo.org&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"product":"Gentoo Linux","cc_detail":[{"id":3,"real_name":"ALPHA
-        arch team","email":"alpha@gentoo.org","name":"alpha@gentoo.org"},{"id":5,"real_name":"HPPA
-        arch team","email":"hppa@gentoo.org","name":"hppa@gentoo.org"}],"keywords":[],"flags":[{"id":2,"modification_date":"2020-04-03T13:34:59Z","type_id":1,"creation_date":"2020-04-03T13:34:59Z","name":"sanity-check","setter":"nattka@gentoo.org","status":"+"}],"assigned_to":"test@example.com","component":"Keywording","whiteboard":"","depends_on":[1],"assigned_to_detail":{"email":"test@example.com","id":1,"real_name":"Test
-        developer","name":"test@example.com"},"id":2,"cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","cc":["alpha@gentoo.org","hppa@gentoo.org"],"resolution":"","blocks":[9]},{"whiteboard":"","assigned_to_detail":{"id":1,"real_name":"Test
-        developer","email":"test@example.com","name":"test@example.com"},"depends_on":[],"component":"Keywording","flags":[],"assigned_to":"test@example.com","cc_detail":[{"email":"hppa@gentoo.org","real_name":"HPPA
-        arch team","id":5,"name":"hppa@gentoo.org"}],"product":"Gentoo Linux","keywords":["KEYWORDREQ"],"resolution":"","cc":["hppa@gentoo.org"],"blocks":[],"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","id":4}]}'
+      string: '{"bugs":[{"product":"Gentoo Linux","resolution":"","assigned_to":"test@example.com","blocks":[9],"cc":["alpha@gentoo.org","hppa@gentoo.org"],"component":"Keywording","flags":[{"creation_date":"2020-04-03T13:34:59Z","setter":"nattka@gentoo.org","modification_date":"2020-04-03T13:34:59Z","type_id":1,"id":2,"status":"+","name":"sanity-check"}],"cc_detail":[{"id":3,"email":"alpha@gentoo.org","name":"alpha@gentoo.org","real_name":"ALPHA
+        arch team"},{"real_name":"HPPA arch team","name":"hppa@gentoo.org","id":5,"email":"hppa@gentoo.org"}],"assigned_to_detail":{"id":1,"email":"test@example.com","real_name":"Test
+        developer","name":"test@example.com"},"keywords":[],"cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","last_change_time":"2020-04-03T13:34:59Z","whiteboard":"","depends_on":[1],"id":2},{"component":"Keywording","flags":[],"keywords":["KEYWORDREQ"],"cc_detail":[{"name":"hppa@gentoo.org","real_name":"HPPA
+        arch team","id":5,"email":"hppa@gentoo.org"}],"assigned_to_detail":{"name":"test@example.com","real_name":"Test
+        developer","email":"test@example.com","id":1},"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","resolution":"","product":"Gentoo
+        Linux","blocks":[],"cc":["hppa@gentoo.org"],"assigned_to":"test@example.com","id":4,"last_change_time":"2020-04-03T13:34:55Z","whiteboard":"","depends_on":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -32,9 +32,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 10:02:09 GMT
+      - Fri, 16 Apr 2021 08:51:01 GMT
       Etag:
-      - tZUyd7njw8dW8EA+nOvr3g
+      - MgvnshGCbREwnurWh44JXA
       Keep-Alive:
       - timeout=15, max=100
       Server:

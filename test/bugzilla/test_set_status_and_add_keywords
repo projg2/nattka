@@ -9,13 +9,14 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=8&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=8&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"product":"Gentoo Linux","cf_stabilisation_atoms":"dev-lang/python-3.7.7","component":"Stabilization","id":8,"blocks":[],"whiteboard":"","cc_detail":[],"cc":[],"resolution":"FIXED","keywords":[],"assigned_to_detail":{"email":"test@example.com","real_name":"Test
-        developer","name":"test@example.com","id":1},"depends_on":[],"flags":[],"assigned_to":"test@example.com"}]}'
+      string: '{"bugs":[{"component":"Stabilization","cc_detail":[],"product":"Gentoo
+        Linux","keywords":[],"cf_stabilisation_atoms":"dev-lang/python-3.7.7","blocks":[],"cc":[],"flags":[],"id":8,"last_change_time":"2020-04-04T07:07:56Z","resolution":"FIXED","assigned_to":"test@example.com","depends_on":[],"assigned_to_detail":{"email":"test@example.com","real_name":"Test
+        developer","id":1,"name":"test@example.com"},"whiteboard":""}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -28,9 +29,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 12:47:15 GMT
+      - Fri, 16 Apr 2021 08:51:23 GMT
       Etag:
-      - tMQSBwCyuGozSbfRm5zYsA
+      - 2uwIqwHezT0C/XtWzPqzJQ
       Keep-Alive:
       - timeout=15, max=100
       Server:
@@ -56,13 +57,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/8/comment
   response:
     body:
-      string: '{"bugs":{"8":{"comments":[{"count":0,"id":12,"attachment_id":null,"creation_time":"2020-04-04T07:07:40Z","text":"Resolved
-        bugs should appear when requested via id but not in search.","creator":"test@example.com","bug_id":8,"tags":[],"time":"2020-04-04T07:07:40Z","is_private":false}]}},"comments":{}}'
+      string: '{"comments":{},"bugs":{"8":{"comments":[{"time":"2020-04-04T07:07:40Z","id":12,"tags":[],"is_private":false,"attachment_id":null,"creator":"test@example.com","bug_id":8,"creation_time":"2020-04-04T07:07:40Z","count":0,"text":"Resolved
+        bugs should appear when requested via id but not in search."}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -75,7 +76,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 12:47:16 GMT
+      - Fri, 16 Apr 2021 08:51:23 GMT
       Etag:
       - SmkLlM4MqrWeOKN5IJ3Yig
       Keep-Alive:
@@ -103,13 +104,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/8/comment
   response:
     body:
-      string: '{"bugs":{"8":{"comments":[{"id":12,"text":"Resolved bugs should appear
-        when requested via id but not in search.","tags":[],"time":"2020-04-04T07:07:40Z","bug_id":8,"attachment_id":null,"creator":"test@example.com","is_private":false,"count":0,"creation_time":"2020-04-04T07:07:40Z"}]}},"comments":{}}'
+      string: '{"comments":{},"bugs":{"8":{"comments":[{"text":"Resolved bugs should
+        appear when requested via id but not in search.","tags":[],"is_private":false,"bug_id":8,"time":"2020-04-04T07:07:40Z","attachment_id":null,"id":12,"creation_time":"2020-04-04T07:07:40Z","count":0,"creator":"test@example.com"}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -122,7 +123,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 12:47:16 GMT
+      - Fri, 16 Apr 2021 08:51:24 GMT
       Etag:
       - SmkLlM4MqrWeOKN5IJ3Yig
       Keep-Alive:
@@ -150,12 +151,12 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
     uri: http://127.0.0.1:33113/rest/whoami
   response:
     body:
-      string: '{"real_name":"NATTkA","id":2,"name":"nattka@gentoo.org"}'
+      string: '{"name":"nattka@gentoo.org","real_name":"NATTkA","id":2}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -168,7 +169,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 12:47:17 GMT
+      - Fri, 16 Apr 2021 08:51:24 GMT
       Etag:
       - mVytJ9+Su1npSL9ztIqPVQ
       Keep-Alive:
@@ -201,12 +202,12 @@ interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: PUT
     uri: http://127.0.0.1:33113/rest/bug/8
   response:
     body:
-      string: '{"bugs":[{"changes":{"flagtypes.name":{"added":"sanity-check+","removed":""},"keywords":{"removed":"","added":"ALLARCHES"}},"id":8,"last_change_time":"2020-11-26T12:47:18Z","alias":[]}]}'
+      string: '{"bugs":[{"id":8,"changes":{"flagtypes.name":{"added":"sanity-check+","removed":""},"keywords":{"added":"ALLARCHES","removed":""}},"alias":[],"last_change_time":"2021-04-16T08:51:25Z"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -219,9 +220,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 12:47:17 GMT
+      - Fri, 16 Apr 2021 08:51:25 GMT
       Etag:
-      - BCfhr0P/sodWrm+HHCXZVQ
+      - q5c7ufzEPxgc/JYaLtKnng
       Keep-Alive:
       - timeout=15, max=96
       Server:
@@ -247,13 +248,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=8&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=8&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"whiteboard":"","depends_on":[],"blocks":[],"assigned_to_detail":{"id":1,"email":"test@example.com","name":"test@example.com","real_name":"Test
-        developer"},"product":"Gentoo Linux","assigned_to":"test@example.com","cc_detail":[],"id":8,"cc":[],"cf_stabilisation_atoms":"dev-lang/python-3.7.7","flags":[{"name":"sanity-check","setter":"nattka@gentoo.org","status":"+","type_id":1,"id":5,"creation_date":"2020-11-26T12:47:18Z","modification_date":"2020-11-26T12:47:18Z"}],"component":"Stabilization","keywords":["ALLARCHES"],"resolution":"FIXED"}]}'
+      string: '{"bugs":[{"resolution":"FIXED","product":"Gentoo Linux","cc":[],"blocks":[],"flags":[{"creation_date":"2021-04-16T08:51:25Z","id":5,"name":"sanity-check","modification_date":"2021-04-16T08:51:25Z","status":"+","type_id":1,"setter":"nattka@gentoo.org"}],"whiteboard":"","cf_stabilisation_atoms":"dev-lang/python-3.7.7","id":8,"assigned_to_detail":{"real_name":"Test
+        developer","name":"test@example.com","email":"test@example.com","id":1},"component":"Stabilization","cc_detail":[],"assigned_to":"test@example.com","depends_on":[],"last_change_time":"2021-04-16T08:51:25Z","keywords":["ALLARCHES"]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -266,9 +267,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 12:47:18 GMT
+      - Fri, 16 Apr 2021 08:51:26 GMT
       Etag:
-      - 8GVKvYvgrW01KgXwgyHy7Q
+      - vUqkKJM0fl2xB+3ZF/tZqw
       Keep-Alive:
       - timeout=15, max=95
       Server:
@@ -294,13 +295,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/8/comment
   response:
     body:
-      string: '{"bugs":{"8":{"comments":[{"time":"2020-04-04T07:07:40Z","creation_time":"2020-04-04T07:07:40Z","is_private":false,"count":0,"id":12,"text":"Resolved
-        bugs should appear when requested via id but not in search.","attachment_id":null,"tags":[],"creator":"test@example.com","bug_id":8}]}},"comments":{}}'
+      string: '{"comments":{},"bugs":{"8":{"comments":[{"text":"Resolved bugs should
+        appear when requested via id but not in search.","creator":"test@example.com","is_private":false,"attachment_id":null,"count":0,"id":12,"creation_time":"2020-04-04T07:07:40Z","tags":[],"bug_id":8,"time":"2020-04-04T07:07:40Z"}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -313,7 +314,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 12:47:19 GMT
+      - Fri, 16 Apr 2021 08:51:26 GMT
       Etag:
       - SmkLlM4MqrWeOKN5IJ3Yig
       Keep-Alive:

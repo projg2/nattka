@@ -9,14 +9,14 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=3&id=4&id=6&id=8&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard&product=Gentoo+Security
+    uri: http://127.0.0.1:33113/rest/bug?id=3&id=4&id=6&id=8&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard&product=Gentoo+Security
   response:
     body:
-      string: '{"bugs":[{"cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6","assigned_to_detail":{"real_name":"Test
-        developer","email":"test@example.com","name":"test@example.com","id":1},"resolution":"","assigned_to":"test@example.com","blocks":[],"whiteboard":"","depends_on":[],"product":"Gentoo
-        Security","component":"Kernel","keywords":[],"flags":[],"cc_detail":[],"id":6,"cc":[]}]}'
+      string: '{"bugs":[{"assigned_to_detail":{"email":"test@example.com","name":"test@example.com","real_name":"Test
+        developer","id":1},"depends_on":[],"cc_detail":[],"assigned_to":"test@example.com","cc":[],"blocks":[],"product":"Gentoo
+        Security","component":"Kernel","whiteboard":"","resolution":"","last_change_time":"2020-04-03T13:31:19Z","flags":[],"id":6,"keywords":[],"cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -29,9 +29,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 10:02:06 GMT
+      - Fri, 16 Apr 2021 08:50:58 GMT
       Etag:
-      - 2kL5IEroAgDG5IVP49iHWA
+      - C2y0MYvYS4Eh4NMoXarOIg
       Keep-Alive:
       - timeout=15, max=100
       Server:
