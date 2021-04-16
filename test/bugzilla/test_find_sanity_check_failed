@@ -9,16 +9,15 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?f1=flagtypes.name&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard&o1=anywords&v1=sanity-check-
+    uri: http://127.0.0.1:33113/rest/bug?f1=flagtypes.name&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard&o1=anywords&v1=sanity-check-
   response:
     body:
-      string: '{"bugs":[{"assigned_to_detail":{"name":"bug-wranglers@gentoo.org","id":6,"real_name":"Bug
-        wranglers","email":"bug-wranglers@gentoo.org"},"blocks":[],"cc_detail":[{"email":"amd64@gentoo.org","real_name":"AMD64
-        arch team","name":"amd64@gentoo.org","id":4}],"cf_stabilisation_atoms":"dev-python/mako-1.1.0
-        amd64","whiteboard":"","depends_on":[7],"keywords":["STABLEREQ"],"assigned_to":"bug-wranglers@gentoo.org","component":"Stabilization","cc":["amd64@gentoo.org"],"id":3,"product":"Gentoo
-        Linux","resolution":"","flags":[{"id":3,"modification_date":"2020-04-03T13:35:02Z","type_id":1,"creation_date":"2020-04-03T13:35:02Z","name":"sanity-check","status":"-","setter":"nattka@gentoo.org"}]}]}'
+      string: '{"bugs":[{"keywords":["STABLEREQ"],"resolution":"","product":"Gentoo
+        Linux","cf_stabilisation_atoms":"dev-python/mako-1.1.0 amd64","assigned_to":"bug-wranglers@gentoo.org","flags":[{"setter":"nattka@gentoo.org","type_id":1,"creation_date":"2020-04-03T13:35:02Z","id":3,"modification_date":"2020-04-03T13:35:02Z","status":"-","name":"sanity-check"}],"last_change_time":"2020-11-26T09:42:55Z","whiteboard":"","assigned_to_detail":{"name":"bug-wranglers@gentoo.org","email":"bug-wranglers@gentoo.org","id":6,"real_name":"Bug
+        wranglers"},"component":"Stabilization","cc":["amd64@gentoo.org"],"cc_detail":[{"email":"amd64@gentoo.org","id":4,"real_name":"AMD64
+        arch team","name":"amd64@gentoo.org"}],"blocks":[],"depends_on":[7],"id":3}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -31,9 +30,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 10:02:13 GMT
+      - Fri, 16 Apr 2021 08:51:07 GMT
       Etag:
-      - cld9RG7NhViforVWAnAXCw
+      - oDNpxch6IC2RasGM3CVLrQ
       Keep-Alive:
       - timeout=15, max=100
       Server:

@@ -9,19 +9,21 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?component=Keywording&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard&product=Gentoo+Linux
+    uri: http://127.0.0.1:33113/rest/bug?component=Keywording&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard&product=Gentoo+Linux
   response:
     body:
-      string: '{"bugs":[{"product":"Gentoo Linux","whiteboard":"","flags":[{"modification_date":"2020-04-03T13:34:59Z","name":"sanity-check","creation_date":"2020-04-03T13:34:59Z","setter":"nattka@gentoo.org","id":2,"status":"+","type_id":1}],"keywords":[],"depends_on":[1],"resolution":"","assigned_to_detail":{"real_name":"Test
-        developer","email":"test@example.com","name":"test@example.com","id":1},"component":"Keywording","cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","cc":["alpha@gentoo.org","hppa@gentoo.org"],"cc_detail":[{"real_name":"ALPHA
-        arch team","id":3,"email":"alpha@gentoo.org","name":"alpha@gentoo.org"},{"real_name":"HPPA
-        arch team","email":"hppa@gentoo.org","name":"hppa@gentoo.org","id":5}],"blocks":[9],"assigned_to":"test@example.com","id":2},{"id":4,"blocks":[],"assigned_to":"test@example.com","cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","cc":["hppa@gentoo.org"],"cc_detail":[{"real_name":"HPPA
-        arch team","id":5,"email":"hppa@gentoo.org","name":"hppa@gentoo.org"}],"component":"Keywording","assigned_to_detail":{"real_name":"Test
-        developer","email":"test@example.com","name":"test@example.com","id":1},"resolution":"","depends_on":[],"flags":[],"keywords":["KEYWORDREQ"],"whiteboard":"","product":"Gentoo
-        Linux"},{"assigned_to_detail":{"real_name":"Test developer","id":1,"name":"test@example.com","email":"test@example.com"},"depends_on":[2],"resolution":"","whiteboard":"","keywords":[],"flags":[],"product":"Gentoo
-        Linux","assigned_to":"test@example.com","blocks":[],"id":9,"cc_detail":[],"cf_stabilisation_atoms":"dev-python/frobnicate-11","cc":[],"component":"Keywording"}]}'
+      string: '{"bugs":[{"blocks":[9],"assigned_to":"test@example.com","depends_on":[1],"id":2,"assigned_to_detail":{"real_name":"Test
+        developer","email":"test@example.com","id":1,"name":"test@example.com"},"flags":[{"setter":"nattka@gentoo.org","id":2,"modification_date":"2020-04-03T13:34:59Z","status":"+","type_id":1,"creation_date":"2020-04-03T13:34:59Z","name":"sanity-check"}],"keywords":[],"product":"Gentoo
+        Linux","component":"Keywording","resolution":"","whiteboard":"","cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","cc_detail":[{"real_name":"ALPHA
+        arch team","email":"alpha@gentoo.org","name":"alpha@gentoo.org","id":3},{"email":"hppa@gentoo.org","real_name":"HPPA
+        arch team","name":"hppa@gentoo.org","id":5}],"last_change_time":"2020-04-03T13:34:59Z","cc":["alpha@gentoo.org","hppa@gentoo.org"]},{"depends_on":[],"id":4,"assigned_to_detail":{"email":"test@example.com","real_name":"Test
+        developer","name":"test@example.com","id":1},"blocks":[],"assigned_to":"test@example.com","whiteboard":"","cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","cc_detail":[{"real_name":"HPPA
+        arch team","email":"hppa@gentoo.org","name":"hppa@gentoo.org","id":5}],"last_change_time":"2020-04-03T13:34:55Z","cc":["hppa@gentoo.org"],"flags":[],"keywords":["KEYWORDREQ"],"product":"Gentoo
+        Linux","component":"Keywording","resolution":""},{"cf_stabilisation_atoms":"dev-python/frobnicate-11","cc":[],"last_change_time":"2020-04-05T14:35:59Z","cc_detail":[],"whiteboard":"","product":"Gentoo
+        Linux","component":"Keywording","resolution":"","flags":[],"keywords":[],"id":9,"assigned_to_detail":{"id":1,"name":"test@example.com","real_name":"Test
+        developer","email":"test@example.com"},"depends_on":[2],"assigned_to":"test@example.com","blocks":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -34,9 +36,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 10:02:10 GMT
+      - Fri, 16 Apr 2021 08:51:03 GMT
       Etag:
-      - u1+elhCZBmfLkth2ZD43fg
+      - v0kf5rnpLjBHcaE90QKKkQ
       Keep-Alive:
       - timeout=15, max=100
       Server:

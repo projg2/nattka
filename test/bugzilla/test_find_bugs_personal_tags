@@ -9,29 +9,31 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?f2=tag&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=product&include_fields=resolution&include_fields=whiteboard&o2=nowordssubstr&v2=nattka%3Askip
+    uri: http://127.0.0.1:33113/rest/bug?f2=tag&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard&o2=nowordssubstr&v2=nattka%3Askip
   response:
     body:
-      string: '{"bugs":[{"cc_detail":[],"cc":[],"whiteboard":"","assigned_to":"test@example.com","id":1,"assigned_to_detail":{"real_name":"Test
-        developer","email":"test@example.com","name":"test@example.com","id":1},"product":"Gentoo
-        Linux","keywords":[],"depends_on":[],"cf_stabilisation_atoms":"","component":"Random
-        bugs","blocks":[2],"resolution":"","flags":[]},{"cc":["alpha@gentoo.org","hppa@gentoo.org"],"cc_detail":[{"id":3,"real_name":"ALPHA
-        arch team","email":"alpha@gentoo.org","name":"alpha@gentoo.org"},{"id":5,"email":"hppa@gentoo.org","real_name":"HPPA
-        arch team","name":"hppa@gentoo.org"}],"product":"Gentoo Linux","assigned_to_detail":{"name":"test@example.com","real_name":"Test
-        developer","email":"test@example.com","id":1},"id":2,"assigned_to":"test@example.com","whiteboard":"","keywords":[],"depends_on":[1],"component":"Keywording","cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","flags":[{"name":"sanity-check","status":"+","type_id":1,"modification_date":"2020-04-03T13:34:59Z","id":2,"creation_date":"2020-04-03T13:34:59Z","setter":"nattka@gentoo.org"}],"resolution":"","blocks":[9]},{"cc_detail":[{"id":5,"name":"hppa@gentoo.org","email":"hppa@gentoo.org","real_name":"HPPA
-        arch team"}],"cc":["hppa@gentoo.org"],"whiteboard":"","assigned_to":"test@example.com","id":4,"product":"Gentoo
-        Linux","assigned_to_detail":{"name":"test@example.com","email":"test@example.com","real_name":"Test
-        developer","id":1},"depends_on":[],"keywords":["KEYWORDREQ"],"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","component":"Keywording","blocks":[],"flags":[],"resolution":""},{"keywords":[],"depends_on":[],"blocks":[],"flags":[],"resolution":"","component":"Vulnerabilities","cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7
-        amd64 hppa","cc_detail":[{"name":"test@example.com","real_name":"Test developer","email":"test@example.com","id":1}],"cc":["test@example.com"],"id":5,"product":"Gentoo
-        Security","assigned_to_detail":{"id":1,"name":"test@example.com","email":"test@example.com","real_name":"Test
-        developer"},"whiteboard":"test whiteboard","assigned_to":"test@example.com"},{"depends_on":[],"keywords":[],"cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6","component":"Kernel","flags":[],"resolution":"","blocks":[],"cc":[],"cc_detail":[],"assigned_to":"test@example.com","whiteboard":"","product":"Gentoo
-        Security","assigned_to_detail":{"name":"test@example.com","email":"test@example.com","real_name":"Test
-        developer","id":1},"id":6},{"resolution":"","flags":[],"blocks":[3],"component":"Stabilization","cf_stabilisation_atoms":"dev-python/pytest-5.4.1","depends_on":[],"keywords":["ALLARCHES"],"assigned_to_detail":{"id":1,"name":"test@example.com","real_name":"Test
-        developer","email":"test@example.com"},"product":"Gentoo Linux","id":7,"assigned_to":"test@example.com","whiteboard":"","cc":[],"cc_detail":[]},{"id":8,"product":"Gentoo
-        Linux","assigned_to_detail":{"name":"test@example.com","real_name":"Test developer","email":"test@example.com","id":1},"whiteboard":"","assigned_to":"test@example.com","cc_detail":[],"cc":[],"component":"Stabilization","cf_stabilisation_atoms":"dev-lang/python-3.7.7","blocks":[],"resolution":"FIXED","flags":[],"keywords":[],"depends_on":[]},{"component":"Keywording","cf_stabilisation_atoms":"dev-python/frobnicate-11","blocks":[],"flags":[],"resolution":"","keywords":[],"depends_on":[2],"id":9,"product":"Gentoo
-        Linux","assigned_to_detail":{"real_name":"Test developer","email":"test@example.com","name":"test@example.com","id":1},"whiteboard":"","assigned_to":"test@example.com","cc_detail":[],"cc":[]}]}'
+      string: '{"bugs":[{"depends_on":[],"cf_stabilisation_atoms":"","id":1,"assigned_to_detail":{"name":"test@example.com","id":1,"real_name":"Test
+        developer","email":"test@example.com"},"whiteboard":"","component":"Random
+        bugs","resolution":"","product":"Gentoo Linux","last_change_time":"2020-04-03T13:22:41Z","cc":[],"assigned_to":"test@example.com","blocks":[2],"keywords":[],"flags":[],"cc_detail":[]},{"id":2,"depends_on":[1],"cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","product":"Gentoo
+        Linux","last_change_time":"2020-04-03T13:34:59Z","component":"Keywording","resolution":"","assigned_to_detail":{"name":"test@example.com","id":1,"real_name":"Test
+        developer","email":"test@example.com"},"whiteboard":"","keywords":[],"assigned_to":"test@example.com","blocks":[9],"cc":["alpha@gentoo.org","hppa@gentoo.org"],"cc_detail":[{"email":"alpha@gentoo.org","name":"alpha@gentoo.org","id":3,"real_name":"ALPHA
+        arch team"},{"id":5,"real_name":"HPPA arch team","name":"hppa@gentoo.org","email":"hppa@gentoo.org"}],"flags":[{"name":"sanity-check","id":2,"creation_date":"2020-04-03T13:34:59Z","type_id":1,"setter":"nattka@gentoo.org","status":"+","modification_date":"2020-04-03T13:34:59Z"}]},{"whiteboard":"","assigned_to_detail":{"email":"test@example.com","id":1,"real_name":"Test
+        developer","name":"test@example.com"},"product":"Gentoo Linux","last_change_time":"2020-04-03T13:34:55Z","resolution":"","component":"Keywording","id":4,"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","depends_on":[],"flags":[],"cc_detail":[{"name":"hppa@gentoo.org","real_name":"HPPA
+        arch team","id":5,"email":"hppa@gentoo.org"}],"cc":["hppa@gentoo.org"],"keywords":["KEYWORDREQ"],"blocks":[],"assigned_to":"test@example.com"},{"cc_detail":[{"name":"test@example.com","real_name":"Test
+        developer","id":1,"email":"test@example.com"}],"flags":[],"blocks":[],"assigned_to":"test@example.com","keywords":[],"cc":["test@example.com"],"component":"Vulnerabilities","resolution":"","product":"Gentoo
+        Security","last_change_time":"2020-04-10T09:47:22Z","assigned_to_detail":{"email":"test@example.com","real_name":"Test
+        developer","id":1,"name":"test@example.com"},"whiteboard":"test whiteboard","depends_on":[],"cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7
+        amd64 hppa","id":5},{"flags":[],"cc_detail":[],"cc":[],"assigned_to":"test@example.com","blocks":[],"keywords":[],"assigned_to_detail":{"id":1,"real_name":"Test
+        developer","name":"test@example.com","email":"test@example.com"},"whiteboard":"","resolution":"","component":"Kernel","last_change_time":"2020-04-03T13:31:19Z","product":"Gentoo
+        Security","depends_on":[],"cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6","id":6},{"assigned_to":"test@example.com","blocks":[3],"keywords":["ALLARCHES"],"cc":[],"cc_detail":[],"flags":[],"cf_stabilisation_atoms":"dev-python/pytest-5.4.1","depends_on":[],"id":7,"resolution":"","component":"Stabilization","product":"Gentoo
+        Linux","last_change_time":"2020-04-03T13:28:17Z","whiteboard":"","assigned_to_detail":{"name":"test@example.com","id":1,"real_name":"Test
+        developer","email":"test@example.com"}},{"depends_on":[],"cf_stabilisation_atoms":"dev-lang/python-3.7.7","id":8,"resolution":"FIXED","component":"Stabilization","last_change_time":"2020-04-04T07:07:56Z","product":"Gentoo
+        Linux","assigned_to_detail":{"email":"test@example.com","id":1,"real_name":"Test
+        developer","name":"test@example.com"},"whiteboard":"","assigned_to":"test@example.com","blocks":[],"keywords":[],"cc":[],"cc_detail":[],"flags":[]},{"last_change_time":"2020-04-05T14:35:59Z","product":"Gentoo
+        Linux","component":"Keywording","resolution":"","whiteboard":"","assigned_to_detail":{"name":"test@example.com","real_name":"Test
+        developer","id":1,"email":"test@example.com"},"id":9,"cf_stabilisation_atoms":"dev-python/frobnicate-11","depends_on":[2],"cc_detail":[],"flags":[],"keywords":[],"blocks":[],"assigned_to":"test@example.com","cc":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -44,9 +46,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 26 Nov 2020 10:02:09 GMT
+      - Fri, 16 Apr 2021 08:51:02 GMT
       Etag:
-      - K4M9CBljZcFq8yGK2Gm4Gg
+      - +KWAD7VdlQsnNaUlHQlA1Q
       Keep-Alive:
       - timeout=15, max=100
       Server:
