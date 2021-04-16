@@ -1,8 +1,9 @@
-# (c) 2020 Michał Górny
+# (c) 2020-2021 Michał Górny
 # 2-clause BSD license
 
 """ Tests for Bugzilla interaction. """
 
+import datetime
 import typing
 import unittest
 
@@ -41,7 +42,9 @@ class BugzillaTests(unittest.TestCase):
                  ) -> typing.Dict[int, BugInfo]:
         """Return expected data for specified bugs"""
         bugs = {1: BugInfo(None, '\r\n', blocks=[2],
-                           assigned_to='test@example.com'),
+                           assigned_to='test@example.com',
+                           last_change_time=datetime.datetime(
+                               2020, 4, 3, 13, 22, 41)),
                 2: BugInfo(BugCategory.KEYWORDREQ,
                            'dev-python/unittest-mixins-1.6\r\n'
                            'dev-python/coverage-4.5.4\r\n',
@@ -50,44 +53,60 @@ class BugzillaTests(unittest.TestCase):
                            depends=[1],
                            blocks=[9],
                            sanity_check=True,
-                           assigned_to='test@example.com'),
+                           assigned_to='test@example.com',
+                           last_change_time=datetime.datetime(
+                               2020, 4, 3, 13, 34, 59)),
                 3: BugInfo(BugCategory.STABLEREQ,
                            'dev-python/mako-1.1.0 amd64\r\n',
                            [f'{x}@gentoo.org' for x in ('amd64',)],
                            depends=[7],
                            keywords=['STABLEREQ'],
                            sanity_check=False,
-                           assigned_to='bug-wranglers@gentoo.org'),
+                           assigned_to='bug-wranglers@gentoo.org',
+                           last_change_time=datetime.datetime(
+                               2020, 11, 26, 9, 42, 55)),
                 4: BugInfo(BugCategory.KEYWORDREQ,
                            'dev-python/urllib3-1.25.8\r\n'
                            'dev-python/trustme-0.6.0\r\n'
                            'dev-python/brotlipy-0.7.0\r\n',
                            [f'{x}@gentoo.org' for x in ('hppa',)],
                            keywords=['KEYWORDREQ'],
-                           assigned_to='test@example.com'),
+                           assigned_to='test@example.com',
+                           last_change_time=datetime.datetime(
+                               2020, 4, 3, 13, 34, 55)),
                 5: BugInfo(BugCategory.STABLEREQ,
                            'app-arch/arj-3.10.22-r7 amd64 hppa\r\n',
                            ['test@example.com'],
                            whiteboard='test whiteboard',
                            security=True,
-                           assigned_to='test@example.com'),
+                           assigned_to='test@example.com',
+                           last_change_time=datetime.datetime(
+                               2020, 4, 10, 9, 47, 22)),
                 6: BugInfo(BugCategory.STABLEREQ,
                            'sys-kernel/gentoo-sources-4.1.6\r\n',
                            security=True,
-                           assigned_to='test@example.com'),
+                           assigned_to='test@example.com',
+                           last_change_time=datetime.datetime(
+                               2020, 4, 3, 13, 31, 19)),
                 7: BugInfo(BugCategory.STABLEREQ,
                            'dev-python/pytest-5.4.1\r\n',
                            blocks=[3],
                            keywords=['ALLARCHES'],
-                           assigned_to='test@example.com'),
+                           assigned_to='test@example.com',
+                           last_change_time=datetime.datetime(
+                               2020, 4, 3, 13, 28, 17)),
                 8: BugInfo(BugCategory.STABLEREQ,
                            'dev-lang/python-3.7.7\r\n',
                            resolved=True,
-                           assigned_to='test@example.com'),
+                           assigned_to='test@example.com',
+                           last_change_time=datetime.datetime(
+                               2020, 4, 4, 7, 7, 56)),
                 9: BugInfo(BugCategory.KEYWORDREQ,
                            'dev-python/frobnicate-11\r\n',
                            depends=[2],
-                           assigned_to='test@example.com'),
+                           assigned_to='test@example.com',
+                           last_change_time=datetime.datetime(
+                               2020, 4, 5, 14, 35, 59)),
                 }
         for k in list(bugs):
             if k not in req:
