@@ -1,8 +1,9 @@
-# (c) 2020 Michał Górny
+# (c) 2020-2021 Michał Górny
 # 2-clause BSD license
 
 """ Bugzilla support. """
 
+import datetime
 import enum
 import typing
 
@@ -88,6 +89,7 @@ class BugInfo(typing.NamedTuple):
     keywords: typing.List[str] = []
     whiteboard: str = ''
     assigned_to: str = ''
+    last_change_time: datetime.datetime = datetime.datetime.utcnow()
 
 
 def make_bug_info(bug: typing.Dict[str, typing.Any]
@@ -102,6 +104,7 @@ def make_bug_info(bug: typing.Dict[str, typing.Any]
                 sanity_check = True
             elif f['status'] == '-':
                 sanity_check = False
+    assert bug['last_change_time'].endswith('Z')
 
     return BugInfo(category=bcat,
                    atoms=atoms,
@@ -113,7 +116,9 @@ def make_bug_info(bug: typing.Dict[str, typing.Any]
                    resolved=bool(bug['resolution']),
                    keywords=bug['keywords'],
                    whiteboard=bug['whiteboard'],
-                   assigned_to=bug['assigned_to'])
+                   assigned_to=bug['assigned_to'],
+                   last_change_time=datetime.datetime.fromisoformat(
+                       bug['last_change_time'].rstrip('Z')))
 
 
 class NattkaBugzilla(object):
