@@ -184,7 +184,7 @@ class NattkaCommands(object):
 
         repo = self.get_repository()
         git_repo = GitWorkTree(repo.location)
-        if git_repo.path != Path(repo.location):
+        if not git_repo.path.samefile(repo.location):
             log.critical(
                 f'{repo.location} does not seem to be a git repository')
             raise SystemExit(1)
