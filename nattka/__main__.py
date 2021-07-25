@@ -573,7 +573,8 @@ class NattkaCommands(object):
                 # Bugzilla is prone to race conditions between fetching bug
                 # data and updating bugs, so ignore bugs that have been updated
                 # recently.
-                if (start_time - b.last_change_time).total_seconds() < 60:
+                if ((start_time - b.last_change_time).total_seconds() < 60
+                        and self.args.update_bugs):
                     log.info(f'Bug {bno}: skipping due to recent change')
                     continue
                 if b.category is None:
