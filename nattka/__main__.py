@@ -397,9 +397,14 @@ class NattkaCommands(object):
                 initial_arches = '*'
             else:
                 initial_arches = ' '.join(self.args.arch)
+            if self.args.stabilization:
+                bug_cat = BugCategory.STABLEREQ
+                pkg_attr = 'cpvstr'
+            else:
+                bug_cat = BugCategory.KEYWORDREQ
+                pkg_attr = 'key'
 
-            b = BugInfo(BugCategory.KEYWORDREQ,
-                        f'{packages[0]} {initial_arches}\n')
+            b = BugInfo(bug_cat, f'{packages[0]} {initial_arches}\n')
             plist = dict(match_package_list(repo, b, only_new=True))
             assert len(plist) == 1
             cc_arches = sorted(
@@ -409,9 +414,7 @@ class NattkaCommands(object):
 
             it = 1
             # prepare the initial set
-            b = BugInfo(BugCategory.KEYWORDREQ,
-                        '\n'.join(packages),
-                        cc=cc_arches)
+            b = BugInfo(bug_cat, '\n'.join(packages), cc=cc_arches)
             new_plist = dict(match_package_list(repo, b, only_new=True))
             add_keywords(plist.items(),
                          b.category == BugCategory.STABLEREQ)
@@ -433,8 +436,12 @@ class NattkaCommands(object):
                         # TODO: handle USE-deps meaningfully
                         # TODO: handle <-deps
                         r = atom(d, eapi=eapi).no_usedeps
-                        for m in repo.itermatch(r):
-                            new_packages.add(m.key)
+                        for m in reversed(sorted(repo.itermatch(r))):
+                            if b.category == BugCategory.STABLEREQ:
+                                # skip unkeyworded ebuilds
+                                if not m.keywords:
+                                    continue
+                            new_packages.add(getattr(m, pkg_attr))
                             break
                         else:
                             log.error(f'No match for dependency: {d}')
@@ -445,12 +452,10 @@ class NattkaCommands(object):
                     f'New packages: {" ".join(sorted(new_packages))}')
 
                 # apply on *new* packages
-                b = BugInfo(BugCategory.KEYWORDREQ,
-                            '\n'.join(new_packages),
-                            cc=cc_arches)
+                b = BugInfo(bug_cat, '\n'.join(new_packages), cc=cc_arches)
                 new_plist = dict(match_package_list(repo, b, only_new=True))
                 for p in list(new_packages):
-                    if not any(x.key == p for x in new_plist):
+                    if not any(getattr(x, pkg_attr) == p for x in new_plist):
                         log.info(f'Package {p} seems to be a red herring '
                                  f'(already keyworded everywhere)')
                         new_packages.remove(p)
@@ -477,6 +482,11 @@ class NattkaCommands(object):
         end_time = datetime.datetime.utcnow()
         log.info(f'Time elapsed: {end_time - start_time}')
         log.info(f'Target CC: {" ".join(cc_arches)}')
+
+        if self.args.stabilization:
+            log.warning('The package list contains newest versions visible.')
+            log.warning('Please adjust the package list to desired versions.')
+
         log.info('Package list follows:')
         print(f'{packages[0]} {initial_arches}')
         print('\n'.join(f'{x} ^' for x in packages[1:]))
@@ -931,6 +941,8 @@ def main(argv: typing.List[str]) -> int:
     mkpp.add_argument('-a', '--arch', action='append',
                       help='arch to keyword the first package for '
                            '(default: "*")')
+    mkpp.add_argument('-s', '--stabilization', action='store_true',
+                      help='prepare a package list for stabilization')
     mkpp.add_argument('package', nargs='+',
                       help='packages to keyword, first being the base '
                            'package (to which -a applies), '

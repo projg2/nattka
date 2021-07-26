@@ -312,3 +312,8 @@ Please note that this function is still experimental.  It may fail
 with non-trivial dependencies, and it may generate excessive dependency
 lists when dealing with ``||`` syntax (read: it will attempt to keyword
 everything, even if it can't satisfy the dependency).
+
+There is also a ``-s`` option that emits a package list with versions
+for stabilization use.  Note that it will unconditionally try to
+stabilize the newest versions, so use it with care and replace versions
+as you see fit.
