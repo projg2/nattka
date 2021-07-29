@@ -555,6 +555,29 @@ def is_allarches(pkg: pkgcore.ebuild.ebuild_src.package
     return False
 
 
+def can_allarches_for_keywords(repo: UnconfiguredTree,
+                               tuples: PackageKeywordsIterable,
+                               ) -> bool:
+    """
+    Verify whether `pkg` is actually suitable for ALLARCHES.
+
+    Return True if all packages in tuples have at least one stable
+    version on each requested architecture, False otherwise.
+    """
+
+    for req_package, keywords in tuples:
+        keywords_left = set(keywords)
+        for p in repo.itermatch(req_package.unversioned_atom):
+            # NB: we don't need to filter ~arch or -arch keywords, they
+            # just won't match anything
+            keywords_left.difference_update(p.keywords)
+        # if we couldn't match at least one keyword, we can't
+        # do ALLARCHES
+        if keywords_left:
+            return False
+    return True
+
+
 def result_group_key(r: NonsolvableDeps) -> tuple:
     """Key used to group pkgcheck results"""
     return (r.category, r.package, r.version)

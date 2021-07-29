@@ -1430,7 +1430,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst = bugz.return_value
         bugz_inst.find_bugs.return_value = {
             560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-stable-hppa-testing-1 hppa\r\n',
+                            'test/mixed-keywords-5 amd64 hppa\r\n',
                             last_change_time=datetime.datetime(
                                 2020, 1, 1, 12, 0, 0)),
         }
@@ -1444,6 +1444,26 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.update_status.assert_called_with(
             560322, True, None,
             keywords_add=['ALLARCHES'])
+        self.post_verify()
+
+    @patch('nattka.__main__.NattkaBugzilla')
+    def test_sanity_allarches_extra_keywords(self, bugz):
+        bugz_inst = bugz.return_value
+        bugz_inst.find_bugs.return_value = {
+            560322: BugInfo(BugCategory.STABLEREQ,
+                            'test/mixed-keywords-5 amd64 hppa alpha\r\n',
+                            last_change_time=datetime.datetime(
+                                2020, 1, 1, 12, 0, 0)),
+        }
+        bugz_inst.resolve_dependencies.return_value = (
+            bugz_inst.find_bugs.return_value)
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '560322']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.update_status.assert_called_with(
+            560322, True, None)
         self.post_verify()
 
     @patch('nattka.__main__.NattkaBugzilla')

@@ -32,7 +32,8 @@ from nattka.package import (find_repository, match_package_list,
                             expand_package_list, ExpandImpossible,
                             format_results, filter_prefix_keywords,
                             PackageKeywordsDict, get_suggested_keywords,
-                            load_profiles, MaskReason)
+                            load_profiles, MaskReason,
+                            can_allarches_for_keywords)
 
 try:
     from nattka.depgraph import (get_ordered_nodes,
@@ -677,7 +678,9 @@ class NattkaCommands(object):
                                      check_packages.values())))])
                     # check if we have ALLARCHES to toggle
                     allarches = (b.category == BugCategory.STABLEREQ
-                                 and all(is_allarches(x) for x in plist))
+                                 and all(is_allarches(x) for x in plist)
+                                 and can_allarches_for_keywords(
+                                     repo, check_packages.items()))
                     allarches_chg = (allarches != ('ALLARCHES' in b.keywords))
 
                     # check if keywords need expanding

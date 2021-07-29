@@ -25,7 +25,8 @@ from nattka.package import (match_package_list, add_keywords,
                             merge_package_list, is_allarches,
                             expand_package_list, ExpandImpossible,
                             format_results, filter_prefix_keywords,
-                            is_masked, load_profiles, MaskReason)
+                            is_masked, load_profiles, MaskReason,
+                            can_allarches_for_keywords)
 
 
 def get_test_repo(path: Path = Path(__file__).parent):
@@ -1237,6 +1238,36 @@ class IsAllArchesTests(BaseRepoTestCase):
         with self.assertRaises(PackageInvalid):
             is_allarches(
                 self.get_package('=test/wrong-package-restrict-1'))
+
+
+class CanAllArchesForKeywordsTests(BaseRepoTestCase):
+    def test_allarches(self):
+        self.assertTrue(
+            can_allarches_for_keywords(
+                self.repo,
+                [(self.get_package('=test/mixed-keywords-5'),
+                 ['amd64', 'hppa'])]))
+
+    def test_some_nonstable_keywords(self):
+        self.assertFalse(
+            can_allarches_for_keywords(
+                self.repo,
+                [(self.get_package('=test/mixed-keywords-5'),
+                 ['amd64', 'hppa', 'alpha'])]))
+
+    def test_pure_nonstable(self):
+        self.assertFalse(
+            can_allarches_for_keywords(
+                self.repo,
+                [(self.get_package('=test/amd64-testing-2'),
+                 ['amd64'])]))
+
+    def test_nonkeyworded(self):
+        self.assertFalse(
+            can_allarches_for_keywords(
+                self.repo,
+                [(self.get_package('=test/amd64-testing-2'),
+                 ['alpha'])]))
 
 
 class ResultFormatterTests(BaseRepoTestCase):
