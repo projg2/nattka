@@ -90,7 +90,9 @@ class PackageInvalid(PackageMatchException):
 
 
 class KeywordNotSpecified(PackageMatchException):
-    pass
+    def __init__(self, pkgs, *args, **kwargs):
+        self.pkgs = pkgs
+        return super().__init__(*args, **kwargs)
 
 
 class KeywordNoneLeft(KeywordNotSpecified):
@@ -240,8 +242,8 @@ def match_package_list(repo: UnconfiguredTree,
     keyworded_already = False
     filtered = False
     yielded = False
-    no_potential_keywords = False
-    no_keywords = False
+    no_potential_keywords = []
+    no_keywords = []
 
     prev_keywords = None
     for line in bug.atoms.splitlines():
@@ -308,9 +310,9 @@ def match_package_list(repo: UnconfiguredTree,
 
         if not keywords:
             if not get_suggested_keywords(repo, pkg, streq):
-                no_potential_keywords = True
+                no_potential_keywords.append(sdep)
             else:
-                no_keywords = True
+                no_keywords.append(sdep)
             yield PackageKeywords(pkg, keywords)
             continue
         prev_keywords = keywords
@@ -348,7 +350,9 @@ def match_package_list(repo: UnconfiguredTree,
         yielded = True
 
     if no_keywords:
-        raise KeywordNotSpecified('incomplete keywords')
+        raise KeywordNotSpecified(no_keywords,
+                                  f'incomplete keywords for packages: '
+                                  f'{" ".join(no_keywords)})')
     elif no_potential_keywords:
         # report KeywordNoneLeft only if no other entries were reported
         # otherwise, the bug is still considered interesting
@@ -356,7 +360,9 @@ def match_package_list(repo: UnconfiguredTree,
             raise KeywordNoneLeft('package keywords in line with other '
                                   'versions and none specified')
         else:
-            raise KeywordNotSpecified('incomplete keywords')
+            raise KeywordNotSpecified(no_potential_keywords,
+                                      f'incomplete keywords for packages: '
+                                      f'{" ".join(no_potential_keywords)}')
     if not yielded:
         if filtered:
             raise PackageListEmpty('no packages match requested arch')

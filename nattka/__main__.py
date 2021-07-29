@@ -757,10 +757,12 @@ class NattkaCommands(object):
                     # do not update bug status, it's probably done
                     log.info('Skipping, no CC and probably no work to do')
                     continue
-                except KeywordNotSpecified:
+                except KeywordNotSpecified as e:
+                    e_packages = '\n'.join(f'- {x}' for x in e.pkgs)
                     log.info('Skipping because of incomplete keywords')
-                    comment = ('Keywords are not fully specified and '
-                               'arches are not CC-ed.')
+                    comment = (f'Keywords are not fully specified and '
+                               f'arches are not CC-ed for the following '
+                               f'packages:\n\n{e_packages}')
                     assert check_res is None
                 except PackageListDoneAlready:
                     # do not update bug status if done already

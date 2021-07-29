@@ -185,7 +185,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_called_with(
             560322, None, 'Keywords are not fully specified and arches '
-            'are not CC-ed.')
+            'are not CC-ed for the following packages:\n\n'
+            '- =test/alpha-amd64-hppa-testing-2')
 
     @patch('nattka.__main__.add_keywords')
     @patch('nattka.__main__.NattkaBugzilla')
@@ -210,7 +211,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_called_with(
             560322, None, 'Keywords are not fully specified and arches '
-            'are not CC-ed.')
+            'are not CC-ed for the following packages:\n\n'
+            '- =test/mixed-keywords-3')
 
     def wrong_category_preset(self,
                               bugz: MagicMock
