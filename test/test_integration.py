@@ -86,8 +86,8 @@ class IntegrationTestCase(unittest.TestCase):
 class IntegrationNoActionTests(IntegrationTestCase):
     """Test cases for bugs that can not be processed"""
 
-    reset_msg = ('Resetting sanity check; package list is empty '
-                 'or all packages are done.')
+    reset_msg = ('Package list is empty or all packages have requested '
+                 'keywords.')
 
     def bug_preset(self,
                    bugz: MagicMock,
@@ -117,18 +117,6 @@ class IntegrationNoActionTests(IntegrationTestCase):
             bugs=[560322],
             cc=FULL_CC)
         add_keywords.assert_not_called()
-
-    @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
-    def test_sanity_empty_package_list(self, bugz, add_keywords):
-        bugz_inst = self.bug_preset(bugz)
-        self.assertEqual(
-            main(self.common_args + ['sanity-check', '--update-bugs',
-                                     '560322']),
-            0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_not_called()
 
     @patch('nattka.__main__.add_keywords')
     @patch('nattka.__main__.NattkaBugzilla')
@@ -196,8 +184,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_called_with(
-            560322, None, 'Resetting sanity check; keywords are not '
-            'fully specified and arches are not CC-ed.')
+            560322, None, 'Keywords are not fully specified and arches '
+            'are not CC-ed.')
 
     @patch('nattka.__main__.add_keywords')
     @patch('nattka.__main__.NattkaBugzilla')
@@ -221,8 +209,8 @@ class IntegrationNoActionTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         add_keywords.assert_not_called()
         bugz_inst.update_status.assert_called_with(
-            560322, None, 'Resetting sanity check; keywords are not '
-            'fully specified and arches are not CC-ed.')
+            560322, None, 'Keywords are not fully specified and arches '
+            'are not CC-ed.')
 
     def wrong_category_preset(self,
                               bugz: MagicMock

@@ -756,9 +756,8 @@ class NattkaCommands(object):
                     continue
                 except KeywordNotSpecified:
                     log.info('Skipping because of incomplete keywords')
-                    comment = ('Resetting sanity check; keywords are '
-                               'not fully specified and arches are not '
-                               'CC-ed.')
+                    comment = ('Keywords are not fully specified and '
+                               'arches are not CC-ed.')
                     assert check_res is None
                 except PackageListDoneAlready:
                     # do not update bug status if done already
@@ -766,8 +765,8 @@ class NattkaCommands(object):
                     continue
                 except PackageListEmpty:
                     log.info('Skipping because of empty package list')
-                    comment = ('Resetting sanity check; package list '
-                               'is empty or all packages are done.')
+                    comment = ('Package list is empty or all packages '
+                               'have requested keywords.')
                     assert check_res is None
                 except (PackageMatchException, DependentBugError) as e:
                     log.error(e)
@@ -785,11 +784,6 @@ class NattkaCommands(object):
                     log.critical(
                         f'{git_repo.path}: working tree is dirty')
                     raise SystemExit(1)
-
-                # if we can not check it, and it's not been marked
-                # as checked, just skip it;  otherwise, reset the flag
-                if check_res is None and b.sanity_check is None:
-                    continue
 
                 # truncate comment if necessary
                 if (comment is not None
