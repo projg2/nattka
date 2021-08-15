@@ -132,8 +132,6 @@ class NattkaCommands(object):
             })
         if getattr(self.args, 'category', []):
             kwargs['category'] = self.args.category
-        if getattr(self.args, 'security', False):
-            kwargs['security'] = True
         if arch:
             kwargs['cc'] = sorted([f'{x}@gentoo.org' for x in arch])
         bugs = bz.find_bugs(**kwargs)
@@ -144,6 +142,12 @@ class NattkaCommands(object):
         if not self.args.bug:
             for bugno, bug in list(bugs.items()):
                 if bug.resolved:
+                    del bugs[bugno]
+
+        # manually filter security bugs due to complex condition
+        if getattr(self.args, 'security', False):
+            for bugno, bug in list(bugs.items()):
+                if not bug.security and not 'SECURITY' in bug.keywords:
                     del bugs[bugno]
 
         bugnos = list(bugs)

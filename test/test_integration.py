@@ -2346,6 +2346,52 @@ class IntegrationFailureTests(IntegrationTestCase):
             560322, False, self.fail_msg)
         self.post_verify()
 
+    @patch('nattka.__main__.NattkaBugzilla')
+    def test_sanity_security(self, bugz):
+        bugz_inst = bugz.return_value
+        bugs = {
+            # non-security bugs
+            560322: BugInfo(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-1 alpha ~hppa\r\n',
+                            last_change_time=datetime.datetime(
+                                2020, 1, 1, 12, 0, 0)),
+            560324: BugInfo(BugCategory.STABLEREQ,
+                            'test/amd64-testing-1 amd64\r\n',
+                            last_change_time=datetime.datetime(
+                                2020, 1, 1, 12, 0, 0)),
+            # security bugs
+            560332: BugInfo(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-1 alpha ~hppa\r\n',
+                            keywords=['SECURITY'],
+                            last_change_time=datetime.datetime(
+                                2020, 1, 1, 12, 0, 0)),
+            560334: BugInfo(BugCategory.STABLEREQ,
+                            'test/amd64-testing-1 amd64\r\n',
+                            keywords=['SECURITY'],
+                            last_change_time=datetime.datetime(
+                                2020, 1, 1, 12, 0, 0)),
+            560336: BugInfo(BugCategory.STABLEREQ,
+                            'test/alpha-amd64-hppa-testing-2 amd64 hppa\r\n',
+                            security=True,
+                            last_change_time=datetime.datetime(
+                                2020, 1, 1, 12, 0, 0)),
+        }
+        bugz_inst.find_bugs.return_value = bugs
+        bugz_inst.resolve_dependencies.return_value = bugs
+
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs',
+                                     '--security']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+                category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ],
+                skip_tags=['nattka:skip'],
+                unresolved=True)
+        bugz_inst.update_status.assert_any_call(560332, True, None)
+        bugz_inst.update_status.assert_any_call(560334, True, None)
+        bugz_inst.update_status.assert_any_call(560336, True, None)
+        self.post_verify()
+
 
 class IntegrationLimiterTests(IntegrationTestCase):
     """
@@ -2437,18 +2483,6 @@ class SearchFilterTests(IntegrationTestCase):
             skip_tags=['nattka:skip'],
             unresolved=True,
             category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ])
-
-    @patch('nattka.__main__.NattkaBugzilla')
-    def test_security(self, bugz):
-        bugz_inst = bugz.return_value
-        self.assertEqual(
-            main(self.common_args + ['sanity-check', '--security']),
-            0)
-        bugz_inst.find_bugs.assert_called_with(
-            skip_tags=['nattka:skip'],
-            unresolved=True,
-            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ],
-            security=True)
 
 
 class ResolveTests(IntegrationTestCase):
