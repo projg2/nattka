@@ -90,12 +90,14 @@ class PackageInvalid(PackageMatchException):
 
 
 class KeywordNotSpecified(PackageMatchException):
-    def __init__(self, pkgs, *args, **kwargs):
+    def __init__(self,
+                 pkgs: typing.List[str],
+                 message: str):
         self.pkgs = pkgs
-        return super().__init__(*args, **kwargs)
+        return super().__init__(message)
 
 
-class KeywordNoneLeft(KeywordNotSpecified):
+class KeywordNoneLeft(Exception):
     pass
 
 

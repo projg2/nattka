@@ -634,7 +634,7 @@ class NattkaCommands(object):
                                     f'package masked: {p.cpvstr}, '
                                     f'by keywords: {" ".join(mask_kws)}')
                             plist[p] = kw
-                    except KeywordNotSpecified:
+                    except (KeywordNotSpecified, KeywordNoneLeft):
                         assert not arches_cced
                         assert plist
                         # this is raised after iterating all entries,
@@ -662,7 +662,7 @@ class NattkaCommands(object):
                                 plist,
                                 match_package_list(
                                     repo, bugs[kw_dep], only_new=True))
-                        except KeywordNotSpecified:
+                        except (KeywordNotSpecified, KeywordNoneLeft):
                             raise DependentBugError(
                                 f'dependent bug #{kw_dep} is missing keywords')
                         except PackageListEmpty:
