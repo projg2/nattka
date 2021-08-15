@@ -147,7 +147,7 @@ class NattkaCommands(object):
         # manually filter security bugs due to complex condition
         if getattr(self.args, 'security', False):
             for bugno, bug in list(bugs.items()):
-                if not bug.security and not 'SECURITY' in bug.keywords:
+                if not bug.security and 'SECURITY' not in bug.keywords:
                     del bugs[bugno]
 
         bugnos = list(bugs)

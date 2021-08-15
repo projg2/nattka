@@ -2384,9 +2384,9 @@ class IntegrationFailureTests(IntegrationTestCase):
                                      '--security']),
             0)
         bugz_inst.find_bugs.assert_called_with(
-                category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ],
-                skip_tags=['nattka:skip'],
-                unresolved=True)
+            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ],
+            skip_tags=['nattka:skip'],
+            unresolved=True)
         bugz_inst.update_status.assert_any_call(560332, True, None)
         bugz_inst.update_status.assert_any_call(560334, True, None)
         bugz_inst.update_status.assert_any_call(560336, True, None)
