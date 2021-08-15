@@ -181,7 +181,6 @@ class NattkaBugzilla(object):
                   bugs: typing.Iterable[int] = [],
                   category: typing.Iterable[BugCategory] = [],
                   unresolved: bool = False,
-                  security: typing.Optional[bool] = None,
                   cc: typing.Iterable[str] = [],
                   sanity_check: typing.Iterable[bool] = [],
                   skip_tags: typing.Iterable[str] = []
@@ -199,9 +198,6 @@ class NattkaBugzilla(object):
         are specified as well).
 
         If `unresolved` is True, only open bugs are returned.
-
-        If `security` is True, only security bugs are returned.  If it
-        is False, only non-security bugs are returned.
 
         If `sanity-check` is not empty, only bugs matching specified
         sanity-check status will be returned.  The list can contain
@@ -238,11 +234,6 @@ class NattkaBugzilla(object):
 
         if unresolved:
             search_params['resolution'] = ['---']
-
-        if security is not None:
-            # note: this deliberately overrides category
-            search_params['product'] = [
-                'Gentoo Security' if security else 'Gentoo Linux']
 
         if cc:
             search_params['cc'] = list(cc)

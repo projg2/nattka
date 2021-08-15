@@ -152,14 +152,6 @@ class BugzillaTests(unittest.TestCase):
             self.get_bugs([2, 3, 4, 8]))
 
     @rec.use_cassette()
-    def test_fetch_bugs_security(self):
-        """Test getting and filtering to security bugs."""
-        self.assertEqual(
-            self.bz.find_bugs([3, 4, 6, 8],
-                              security=True),
-            self.get_bugs([6]))
-
-    @rec.use_cassette()
     def test_fetch_sanity_check_passed(self):
         """Test filtering bugs by sanity-check+."""
         self.assertEqual(
@@ -204,54 +196,6 @@ class BugzillaTests(unittest.TestCase):
         self.assertEqual(
             self.bz.find_bugs(category=[BugCategory.STABLEREQ]),
             self.get_bugs([3, 5, 6, 7, 8]))
-
-    @rec.use_cassette()
-    def test_find_security(self):
-        """ Test finding security bugs. """
-        self.assertEqual(
-            self.bz.find_bugs(security=True),
-            self.get_bugs([5, 6]))
-
-    @rec.use_cassette()
-    def test_find_security_keywordreq(self):
-        """ Test finding security keywordreq bugs (no such thing). """
-        self.assertEqual(
-            self.bz.find_bugs(category=[BugCategory.KEYWORDREQ],
-                              security=True),
-            {})
-
-    @rec.use_cassette()
-    def test_find_security_stablereq(self):
-        """ Test finding security stablereq bugs (all of them). """
-        self.assertEqual(
-            self.bz.find_bugs(category=[BugCategory.STABLEREQ],
-                              security=True),
-            self.get_bugs([5, 6]))
-
-    @rec.use_cassette()
-    def test_find_security_both(self):
-        """ Test finding security keywordreq and stablereq bugs. """
-        self.assertEqual(
-            self.bz.find_bugs(category=[BugCategory.KEYWORDREQ,
-                                        BugCategory.STABLEREQ],
-                              security=True),
-            self.get_bugs([5, 6]))
-
-    @rec.use_cassette()
-    def test_find_nonsecurity_keywordreqs(self):
-        """ Test finding keywordreqs that are not security bugs. """
-        self.assertEqual(
-            self.bz.find_bugs(category=[BugCategory.KEYWORDREQ],
-                              security=False),
-            self.get_bugs([2, 4, 9]))
-
-    @rec.use_cassette()
-    def test_find_nonsecurity_stablereqs(self):
-        """ Test finding non-security stablereqs. """
-        self.assertEqual(
-            self.bz.find_bugs(category=[BugCategory.STABLEREQ],
-                              security=False),
-            self.get_bugs([3, 7, 8]))
 
     @rec.use_cassette()
     def test_find_bugs_cc(self):
