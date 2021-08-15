@@ -1,4 +1,4 @@
-# (c) 2020 Michał Górny
+# (c) 2020-2021 Michał Górny
 # 2-clause BSD license
 
 """ Integration tests. """
@@ -2390,6 +2390,68 @@ class IntegrationFailureTests(IntegrationTestCase):
         bugz_inst.update_status.assert_any_call(560332, True, None)
         bugz_inst.update_status.assert_any_call(560334, True, None)
         bugz_inst.update_status.assert_any_call(560336, True, None)
+        self.post_verify()
+
+    @patch('nattka.__main__.NattkaBugzilla')
+    def test_sanity_security_add_kw(self, bugz):
+        bugz_inst = bugz.return_value
+        bugs = {
+            # a security bug without package list
+            560324: BugInfo(BugCategory.STABLEREQ,
+                            '',
+                            security=True,
+                            last_change_time=datetime.datetime(
+                                2020, 1, 1, 12, 0, 0)),
+            # respective stablereq
+            560334: BugInfo(BugCategory.STABLEREQ,
+                            'test/amd64-testing-1 amd64\r\n',
+                            blocks=[560324],
+                            last_change_time=datetime.datetime(
+                                2020, 1, 1, 12, 0, 0)),
+        }
+        bugz_inst.find_bugs.return_value = bugs
+        bugz_inst.resolve_dependencies.return_value = bugs
+
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ],
+            skip_tags=['nattka:skip'],
+            unresolved=True)
+        bugz_inst.update_status.assert_called_with(
+            560334, True, None, keywords_add=['SECURITY'])
+        self.post_verify()
+
+    @patch('nattka.__main__.NattkaBugzilla')
+    def test_sanity_security_add_kw_kwreq(self, bugz):
+        bugz_inst = bugz.return_value
+        bugs = {
+            # a security bug without package list
+            560324: BugInfo(BugCategory.STABLEREQ,
+                            '',
+                            security=True,
+                            last_change_time=datetime.datetime(
+                                2020, 1, 1, 12, 0, 0)),
+            # respective stablereq
+            560334: BugInfo(BugCategory.KEYWORDREQ,
+                            'test/amd64-testing-1 alpha ~hppa\r\n',
+                            blocks=[560324],
+                            last_change_time=datetime.datetime(
+                                2020, 1, 1, 12, 0, 0)),
+        }
+        bugz_inst.find_bugs.return_value = bugs
+        bugz_inst.resolve_dependencies.return_value = bugs
+
+        self.assertEqual(
+            main(self.common_args + ['sanity-check', '--update-bugs']),
+            0)
+        bugz_inst.find_bugs.assert_called_with(
+            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ],
+            skip_tags=['nattka:skip'],
+            unresolved=True)
+        bugz_inst.update_status.assert_called_with(
+            560334, True, None, keywords_add=['SECURITY'])
         self.post_verify()
 
 

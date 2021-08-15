@@ -1,4 +1,4 @@
-# (c) 2020 Michał Górny
+# (c) 2020-2021 Michał Górny
 # 2-clause BSD license
 
 """ CLI for nattka. """
@@ -612,6 +612,7 @@ class NattkaCommands(object):
                 cc_arches: typing.List[str] = []
                 allarches_chg = False
                 expanded_plist: typing.Optional[str] = None
+                need_security_kw = False
 
                 try:
                     arches_cced = bool(
@@ -680,12 +681,28 @@ class NattkaCommands(object):
                              in set(filter_prefix_keywords(
                                  itertools.chain.from_iterable(
                                      check_packages.values())))])
+
                     # check if we have ALLARCHES to toggle
                     allarches = (b.category == BugCategory.STABLEREQ
                                  and all(is_allarches(x) for x in plist)
                                  and can_allarches_for_keywords(
                                      repo, check_packages.items()))
                     allarches_chg = (allarches != ('ALLARCHES' in b.keywords))
+
+                    # check if we should add SECURITY keyword
+                    if not b.security and 'SECURITY' not in b.keywords:
+                        # SECURITY keyword doesn't apply to bugs in security
+                        # product
+                        for blocked_no in b.blocks:
+                            try:
+                                blocked_bug = bugs[blocked_no]
+                            except KeyError:
+                                blocked_bug = (
+                                    self.get_bugzilla()
+                                    .find_bugs(bugs=[blocked_no])[blocked_no])
+                            if blocked_bug.security:
+                                need_security_kw = True
+                                break
 
                     # check if keywords need expanding
                     if (('*' in b.atoms or '^' in b.atoms)
@@ -782,12 +799,14 @@ class NattkaCommands(object):
                     check_res = False
                     comment = f'Unable to check for sanity:\n\n> {e}'
                 except NoChanges:
-                    # if it's not positive, don't do extra work
-                    if b.sanity_check is not True:
-                        continue
-                    # check if there's anything related to do
-                    if not cc_arches and expanded_plist is None:
-                        continue
+                    # check if we need to add SECURITY keyword
+                    if not need_security_kw:
+                        # if it's not positive, don't do extra work
+                        if b.sanity_check is not True:
+                            continue
+                        # check if there's anything related to do
+                        if not cc_arches and expanded_plist is None:
+                            continue
                     check_res = True
                 except GitDirtyWorkTree:
                     log.critical(
@@ -833,6 +852,8 @@ class NattkaCommands(object):
                 if allarches_chg:
                     log.info(f'{"Adding" if allarches else "Removing"} '
                              f'ALLARCHES')
+                if need_security_kw:
+                    log.info('Adding SECURITY keyword')
                 if expanded_plist:
                     log.info('Expanding package list')
                     if not self.args.update_bugs:
@@ -841,11 +862,16 @@ class NattkaCommands(object):
                     kwargs = {}
                     if cc_arches:
                         kwargs['cc_add'] = cc_arches
+                    keywords_add = []
                     if allarches_chg:
                         if allarches:
-                            kwargs['keywords_add'] = ['ALLARCHES']
+                            keywords_add.append('ALLARCHES')
                         else:
                             kwargs['keywords_remove'] = ['ALLARCHES']
+                    if need_security_kw:
+                        keywords_add.append('SECURITY')
+                    if keywords_add:
+                        kwargs['keywords_add'] = keywords_add
                     if expanded_plist:
                         kwargs['new_package_list'] = [expanded_plist]
                     bz.update_status(bno, check_res, comment,
