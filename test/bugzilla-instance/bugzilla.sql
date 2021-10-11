@@ -43,11 +43,11 @@ INSERT INTO flaginclusions VALUES(1,2,4);
 INSERT INTO flaginclusions VALUES(1,1,2);
 INSERT INTO flaginclusions VALUES(1,1,3);
 
-INSERT INTO profiles VALUES(2,'nattka@gentoo.org','exWOmCFt,R9v10azPGMUR5svpxz+PTFAKI0pnlYJm/m5J8jHaiJw{SHA-256}','NATTkA','',0,1,NULL,1,NULL);
-INSERT INTO profiles VALUES(3,'alpha@gentoo.org','LKdqphPk,AvLMtVEe+k1+v+L6l1e7hkAfPt9mhGWTOrjb03IIIME{SHA-256}','ALPHA arch team','',0,1,NULL,1,NULL);
-INSERT INTO profiles VALUES(4,'amd64@gentoo.org','cBneojLv,YOqI18zh5tbvIPF+4HMM1d6r4thzl8tLHrlg8caVkB4{SHA-256}','AMD64 arch team','',0,1,NULL,1,NULL);
-INSERT INTO profiles VALUES(5,'hppa@gentoo.org','n5cNYDsd,j3jmz7bqI42q2HfnjommYGglvYmCdAfqoxqH9JLfb3E{SHA-256}','HPPA arch team','',0,1,NULL,1,NULL);
-INSERT INTO profiles VALUES(6,'bug-wranglers@gentoo.org','11UExTQa,AXhW464TxhzrI2nRP4d5l+TqOupCEFUkuPp44rDJOwU{SHA-256}','Bug wranglers','',0,1,NULL,1,NULL);
+INSERT INTO profiles VALUES(2,'nattka@gentoo.org','exWOmCFt,R9v10azPGMUR5svpxz+PTFAKI0pnlYJm/m5J8jHaiJw{SHA-256}','NATTkA','',0,1,NULL,1,NULL,'1900-01-01 00:00:00');
+INSERT INTO profiles VALUES(3,'alpha@gentoo.org','LKdqphPk,AvLMtVEe+k1+v+L6l1e7hkAfPt9mhGWTOrjb03IIIME{SHA-256}','ALPHA arch team','',0,1,NULL,1,NULL,'1900-01-01 00:00:00');
+INSERT INTO profiles VALUES(4,'amd64@gentoo.org','cBneojLv,YOqI18zh5tbvIPF+4HMM1d6r4thzl8tLHrlg8caVkB4{SHA-256}','AMD64 arch team','',0,1,NULL,1,NULL,'1900-01-01 00:00:00');
+INSERT INTO profiles VALUES(5,'hppa@gentoo.org','n5cNYDsd,j3jmz7bqI42q2HfnjommYGglvYmCdAfqoxqH9JLfb3E{SHA-256}','HPPA arch team','',0,1,NULL,1,NULL,'1900-01-01 00:00:00');
+INSERT INTO profiles VALUES(6,'bug-wranglers@gentoo.org','11UExTQa,AXhW464TxhzrI2nRP4d5l+TqOupCEFUkuPp44rDJOwU{SHA-256}','Bug wranglers','',0,1,NULL,1,NULL,'1900-01-01 00:00:00');
 
 INSERT INTO user_api_keys VALUES(1,2,'xH3pICxBPtyhTrFjvuuzIaNYek9uqisCJzR9izAZ','testing',0,NULL);
 INSERT INTO user_api_keys VALUES(2,1,'dhaGUYKZOGGVRmg4k24wEXaWRHntUjIlW6eqePu1','testing',0,NULL);
