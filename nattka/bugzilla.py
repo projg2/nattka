@@ -53,9 +53,6 @@ class BugCategory(enum.Enum):
                 return cls.KEYWORDREQ
             elif component == 'Stabilization':
                 return cls.STABLEREQ
-        elif product == 'Gentoo Security':
-            if component in ('Vulnerabilities', 'Kernel'):
-                return cls.STABLEREQ
         return None
 
     @classmethod
@@ -71,8 +68,7 @@ class BugCategory(enum.Enum):
         if val == cls.KEYWORDREQ:
             return (['Gentoo Linux'], ['Keywording'])
         elif val == cls.STABLEREQ:
-            return (['Gentoo Linux', 'Gentoo Security'],
-                    ['Stabilization', 'Vulnerabilities', 'Kernel'])
+            return (['Gentoo Linux'], ['Stabilization'])
         else:
             assert False, f'Incorrect BugCategory: {val}'
 

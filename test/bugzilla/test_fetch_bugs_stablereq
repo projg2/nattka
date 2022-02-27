@@ -5,22 +5,21 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.27.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?component=Kernel&component=Stabilization&component=Vulnerabilities&id=1&id=2&id=3&id=4&id=8&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard&product=Gentoo+Linux&product=Gentoo+Security
+    uri: http://127.0.0.1:33113/rest/bug?component=Stabilization&id=1&id=2&id=3&id=4&id=8&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard&product=Gentoo+Linux
   response:
     body:
-      string: '{"bugs":[{"keywords":["STABLEREQ"],"cf_stabilisation_atoms":"dev-python/mako-1.1.0
-        amd64","depends_on":[7],"cc":["amd64@gentoo.org"],"last_change_time":"2020-11-26T09:42:55Z","assigned_to":"bug-wranglers@gentoo.org","whiteboard":"","assigned_to_detail":{"id":6,"email":"bug-wranglers@gentoo.org","real_name":"Bug
-        wranglers","name":"bug-wranglers@gentoo.org"},"cc_detail":[{"id":4,"name":"amd64@gentoo.org","email":"amd64@gentoo.org","real_name":"AMD64
-        arch team"}],"component":"Stabilization","blocks":[],"resolution":"","product":"Gentoo
-        Linux","flags":[{"setter":"nattka@gentoo.org","status":"-","modification_date":"2020-04-03T13:35:02Z","creation_date":"2020-04-03T13:35:02Z","id":3,"name":"sanity-check","type_id":1}],"id":3},{"assigned_to":"test@example.com","last_change_time":"2020-04-04T07:07:56Z","cc":[],"depends_on":[],"cf_stabilisation_atoms":"dev-lang/python-3.7.7","keywords":[],"id":8,"flags":[],"resolution":"FIXED","product":"Gentoo
-        Linux","component":"Stabilization","cc_detail":[],"blocks":[],"whiteboard":"","assigned_to_detail":{"id":1,"name":"test@example.com","email":"test@example.com","real_name":"Test
-        developer"}}]}'
+      string: '{"bugs":[{"flags":[{"type_id":1,"id":3,"status":"-","name":"sanity-check","creation_date":"2020-04-03T13:35:02Z","modification_date":"2020-04-03T13:35:02Z","setter":"nattka@gentoo.org"}],"id":3,"cc_detail":[{"id":4,"real_name":"AMD64
+        arch team","email":"amd64@gentoo.org","name":"amd64@gentoo.org"}],"assigned_to_detail":{"name":"bug-wranglers@gentoo.org","id":6,"real_name":"Bug
+        wranglers","email":"bug-wranglers@gentoo.org"},"blocks":[],"last_change_time":"2020-11-26T09:42:55Z","resolution":"","depends_on":[7],"keywords":["STABLEREQ"],"assigned_to":"bug-wranglers@gentoo.org","component":"Stabilization","product":"Gentoo
+        Linux","cf_stabilisation_atoms":"dev-python/mako-1.1.0 amd64","cc":["amd64@gentoo.org"],"whiteboard":""},{"blocks":[],"cc_detail":[],"assigned_to_detail":{"name":"test@example.com","id":1,"email":"test@example.com","real_name":"Test
+        developer"},"id":8,"flags":[],"whiteboard":"","cc":[],"component":"Stabilization","product":"Gentoo
+        Linux","cf_stabilisation_atoms":"dev-lang/python-3.7.7","assigned_to":"test@example.com","depends_on":[],"keywords":[],"resolution":"FIXED","last_change_time":"2020-04-04T07:07:56Z"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -33,7 +32,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:50:59 GMT
+      - Sun, 27 Feb 2022 21:41:48 GMT
       Etag:
       - KVbzP65tau2IExjQuDAF5Q
       Keep-Alive:

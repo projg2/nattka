@@ -1,4 +1,4 @@
-# (c) 2020-2021 Michał Górny
+# (c) 2020-2022 Michał Górny
 # 2-clause BSD license
 
 """ Tests for Bugzilla interaction. """
@@ -74,7 +74,7 @@ class BugzillaTests(unittest.TestCase):
                            assigned_to='test@example.com',
                            last_change_time=datetime.datetime(
                                2020, 4, 3, 13, 34, 55)),
-                5: BugInfo(BugCategory.STABLEREQ,
+                5: BugInfo(None,
                            'app-arch/arj-3.10.22-r7 amd64 hppa\r\n',
                            ['test@example.com'],
                            whiteboard='test whiteboard',
@@ -82,7 +82,7 @@ class BugzillaTests(unittest.TestCase):
                            assigned_to='test@example.com',
                            last_change_time=datetime.datetime(
                                2020, 4, 10, 9, 47, 22)),
-                6: BugInfo(BugCategory.STABLEREQ,
+                6: BugInfo(None,
                            'sys-kernel/gentoo-sources-4.1.6\r\n',
                            security=True,
                            assigned_to='test@example.com',
@@ -195,7 +195,7 @@ class BugzillaTests(unittest.TestCase):
         """ Test finding stablereqs. """
         self.assertEqual(
             self.bz.find_bugs(category=[BugCategory.STABLEREQ]),
-            self.get_bugs([3, 5, 6, 7, 8]))
+            self.get_bugs([3, 7, 8]))
 
     @rec.use_cassette()
     def test_find_bugs_cc(self):

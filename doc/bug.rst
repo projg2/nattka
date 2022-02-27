@@ -14,9 +14,6 @@ the product and component that it is filled in.
 - Bugs filed in *Gentoo Linux* product, *Stabilization* component are
   stabilization requests.
 
-- Bugs filed in *Gentoo Security* product, *Kernel* or *Vulnerabilities*
-  component are stabilization requests.
-
 Bugs filed in any other product or component are skipped.
 
 
