@@ -6,15 +6,15 @@ FROM gentoo/stage3:amd64-nomultilib-openrc
 RUN echo "FEATURES=\"parallel-install -ebuild-locks\"" >> /etc/portage/make.conf \
  && echo "www-servers/apache apache2_modules_version apache2_mpms_prefork -apache2_modules_http2" > /etc/portage/package.use/apache \
  && echo "dev-perl/Type-Tiny-XS minimal" > /etc/portage/package.use/perl \
- && echo "dev-perl/Crypt-SMIME ~amd64" >> /etc/portage/package.accept_keywords \
- && echo "dev-perl/ExtUtils-CChecker ~amd64" >> /etc/portage/package.accept_keywords \
- && echo "dev-perl/GDGraph ~amd64" >> /etc/portage/package.accept_keywords \
- && echo "dev-perl/Chart ~amd64" >> /etc/portage/package.accept_keywords \
- && echo "dev-perl/GD ~amd64" >> /etc/portage/package.accept_keywords \
- && echo "dev-perl/GD-Graph3d ~amd64" >> /etc/portage/package.accept_keywords \
- && echo "dev-perl/XMLRPC-Lite ~amd64" >> /etc/portage/package.accept_keywords \
- && echo "dev-perl/Template-GD ~amd64" >> /etc/portage/package.accept_keywords \
- && echo "dev-perl/GDTextUtil ~amd64" >> /etc/portage/package.accept_keywords
+ && echo "dev-perl/Crypt-SMIME ~amd64" >> /etc/portage/package.accept_keywords/bugzilla.conf \
+ && echo "dev-perl/ExtUtils-CChecker ~amd64" >> /etc/portage/package.accept_keywords/bugzilla.conf \
+ && echo "dev-perl/GDGraph ~amd64" >> /etc/portage/package.accept_keywords/bugzilla.conf \
+ && echo "dev-perl/Chart ~amd64" >> /etc/portage/package.accept_keywords/bugzilla.conf \
+ && echo "dev-perl/GD ~amd64" >> /etc/portage/package.accept_keywords/bugzilla.conf \
+ && echo "dev-perl/GD-Graph3d ~amd64" >> /etc/portage/package.accept_keywords/bugzilla.conf \
+ && echo "dev-perl/XMLRPC-Lite ~amd64" >> /etc/portage/package.accept_keywords/bugzilla.conf \
+ && echo "dev-perl/Template-GD ~amd64" >> /etc/portage/package.accept_keywords/bugzilla.conf \
+ && echo "dev-perl/GDTextUtil ~amd64" >> /etc/portage/package.accept_keywords/bugzilla.conf
 
 RUN wget --progress=dot:mega -O - https://github.com/gentoo-mirror/gentoo/archive/master.tar.gz | tar -xz \
  && mv gentoo-master /var/db/repos/gentoo \
