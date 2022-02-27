@@ -1,4 +1,4 @@
-# (c) 2020-2021 Michał Górny
+# (c) 2020-2022 Michał Górny
 # 2-clause BSD license
 
 """ Bugzilla support. """
@@ -272,11 +272,15 @@ class NattkaBugzilla(object):
             # are all dependencies satisfied?
             if not missing:
                 return bugs
+            # do not try to query >500 bugs to avoid exceeding max
+            # request length
+            if len(missing) > 500:
+                missing = set(list(missing)[:500])
             newbugs = self.find_bugs(missing)
             # verify that all bugs fetch, prevent dead loop
             assert all(x in newbugs for x in missing)
             # copy the dictionary to avoid modifying the original
-            # (technically, this only needs to be done but no harm
+            # (technically, this only needs to be done once but no harm
             #  in repeating)
             bugs = dict(bugs)
             bugs.update(newbugs)
