@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
+requires = ["flit_core >=3.7,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
@@ -26,6 +26,9 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Topic :: Software Development :: Testing",
 ]
+
+[tool.flit.external-data]
+directory = "data"
 
 [project.optional-dependencies]
 depgraph = ["networkx"]

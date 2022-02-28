@@ -1,0 +1,171 @@
+# bash completion for nattka
+
+_nattka() {
+	local i cmd cur prev words cword split
+	_init_completion || return
+
+	local subcommands=(
+		apply
+		commit
+		make-package-list
+		resolve
+		sanity-check
+	)
+
+	local base_options=(
+		-h --help
+		--version
+		-q --quiet
+		--log-file
+		--api-key
+		--bugzilla-endpoint
+		--portage-conf
+		--repo
+	)
+
+	local boolean_options=(
+		true
+		false
+	)
+
+	COMPREPLY=($(compgen -W "${base_options[*]}" -- "${cur}"))
+
+	case ${prev} in
+		--log-file)
+			COMPREPLY=($(compgen -f -- "${cur}"))
+			return
+			;;
+		--api-key | --bugzilla-endpoint)
+			COMPREPLY=()
+			return
+			;;
+		--portage-conf | --repo)
+			COMPREPLY=($(compgen -d -- "${cur}"))
+			return
+			;;
+	esac
+
+	# find the subcommand
+	for ((i = 1; i < ${COMP_CWORD}; i++)); do
+		case "${COMP_WORDS[i]}" in
+			--log-file | --api-key | --bugzilla-endpoint | --portage-conf | --repo)
+				((i++))
+				;;
+			-*) ;;
+			*)
+				cmd=${COMP_WORDS[i]}
+				break
+				;;
+		esac
+	done
+
+	if [[ ${i} == ${COMP_CWORD} ]]; then
+		COMPREPLY+=($(compgen -W "${subcommands[*]}" -- "${cur}"))
+		return
+	fi
+
+	local bug_selection_options=(
+		--keywordreq
+		--stablereq
+		--security
+		--no-fetch-dependencies
+	)
+
+	case ${cmd} in
+		apply)
+			local subcmd_options=(
+				"${bug_selection_options[@]}"
+				-h --help
+				-a --arch
+				--ignore-allarches
+				--ignore-dependencies
+				--ignore-sanity-check
+				-n --no-update
+			)
+
+			case ${prev} in
+				-a | --arch)
+					COMPREPLY=()
+					;;
+				*)
+					COMPREPLY=($(compgen -W "${subcmd_options[*]}" -- "${cur}"))
+					;;
+			esac
+			;;
+		commit)
+			local subcmd_options=(
+				-h --help
+				-a --arch
+				--ignore-allarches
+			)
+
+			case ${prev} in
+				-a | --arch)
+					COMPREPLY=()
+					;;
+				*)
+					COMPREPLY=($(compgen -W "${subcmd_options[*]}" -- "${cur}"))
+					;;
+			esac
+			;;
+		make-package-list)
+			local subcmd_options=(
+				-h --help
+				-a --arch
+				-s --stabilization
+			)
+
+			case ${prev} in
+				-a | --arch)
+					COMPREPLY=()
+					;;
+				*)
+					COMPREPLY=($(compgen -W "${subcmd_options[*]}" -- "${cur}"))
+					;;
+			esac
+			;;
+		resolve)
+			local subcmd_options=(
+				-h --help
+				-a --arch
+				--ignore-allarches
+				--no-resolve
+				-p --pretend
+			)
+
+			case ${prev} in
+				-a | --arch)
+					COMPREPLY=()
+					;;
+				*)
+					COMPREPLY=($(compgen -W "${subcmd_options[*]}" -- "${cur}"))
+					;;
+			esac
+			;;
+		sanity-check)
+			local subcmd_options=(
+				"${bug_selection_options[@]}"
+				-u --update-bugs
+				--bug-limit
+				--time-limit
+				-c --cache-file
+				--cache-max-age
+			)
+
+			case ${prev} in
+				--bug-limit | --time-limit | --cache-max-age)
+					COMPREPLY=()
+					;;
+				-c | --cache-file)
+					COMPREPLY=($(compgen -f -- "${cur}"))
+					;;
+				*)
+					COMPREPLY=($(compgen -W "${subcmd_options[*]}" -- "${cur}"))
+					;;
+			esac
+			;;
+	esac
+}
+complete -F _nattka nattka
+
+# vim: set ft=bash sw=4 et sts=4 :
