@@ -387,7 +387,7 @@ class NattkaBugzilla(object):
 
         Modify the bug `bugno` unCC-ing emails from `uncc` list, leaving
         a comment `comment` and closing the bug as FIXED if `resolve`
-        is True.
+        is True, or marking as IN_PROGRESS if `resolve` is False.
         """
 
         req = {
@@ -403,6 +403,10 @@ class NattkaBugzilla(object):
             req.update({
                 'status': 'RESOLVED',
                 'resolution': 'FIXED',
+            })
+        else:
+            req.update({
+                'status': 'IN_PROGRESS',
             })
 
         resp = self._request(f'bug/{bugno}', put_data=req).json()
