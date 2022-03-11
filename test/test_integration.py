@@ -1587,7 +1587,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_called_with(
             560322, True, None,
-            cc_add=['amd64@gentoo.org', 'hppa@gentoo.org'],
+            cc_add=['amd64@gentoo.org', 'hppa@gentoo.org', 'foo@example.com'],
             new_package_list=['test/mixed-keywords-3 \r\n'
                               'test/amd64-testing-2 \r\n'])
         self.post_verify()
@@ -1677,7 +1677,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         bugz_inst.find_bugs.assert_called_with(bugs=[560322])
         bugz_inst.update_status.assert_called_with(
             560322, True, None,
-            cc_add=['amd64@gentoo.org', 'hppa@gentoo.org'])
+            cc_add=['amd64@gentoo.org', 'hppa@gentoo.org', 'foo@example.com'])
         self.post_verify()
 
     @patch('nattka.__main__.NattkaBugzilla')
