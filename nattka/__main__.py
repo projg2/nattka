@@ -610,6 +610,7 @@ class NattkaCommands(object):
                 check_res: typing.Optional[bool] = None
                 cache_entry: typing.Optional[dict] = None
                 cc_arches: typing.List[str] = []
+                cc_maintainers: typing.List[str] = []
                 allarches_chg = False
                 expanded_plist: typing.Optional[str] = None
                 need_security_kw = False
@@ -674,13 +675,18 @@ class NattkaCommands(object):
                                 f'dependent bug #{kw_dep} has errors')
 
                     # check if we have arches to CC
-                    if ('CC-ARCHES' in b.keywords and not arches_cced
-                            and b.assigned_to != 'bug-wranglers@gentoo.org'):
-                        cc_arches = sorted(
-                            [f'{x}@gentoo.org' for x
-                             in set(filter_prefix_keywords(
-                                 itertools.chain.from_iterable(
-                                     check_packages.values())))])
+                    if 'CC-ARCHES' in b.keywords and not arches_cced:
+                        if b.assigned_to != 'bug-wranglers@gentoo.org':
+                            cc_arches = sorted(
+                                [f'{x}@gentoo.org' for x
+                                 in set(filter_prefix_keywords(
+                                     itertools.chain.from_iterable(
+                                         check_packages.values())))])
+                        cc_maintainers = sorted(
+                            set(m.email for m in itertools.chain.from_iterable(
+                                pkg.maintainers for pkg
+                                in check_packages.keys()))
+                            .difference(b.cc).difference([b.assigned_to]))
 
                     # check if we have ALLARCHES to toggle
                     allarches = (b.category == BugCategory.STABLEREQ
@@ -849,6 +855,8 @@ class NattkaCommands(object):
 
                 if cc_arches:
                     log.info(f'CC arches: {" ".join(cc_arches)}')
+                if cc_maintainers:
+                    log.info(f'CC maintainers: {" ".join(cc_maintainers)}')
                 if allarches_chg:
                     log.info(f'{"Adding" if allarches else "Removing"} '
                              f'ALLARCHES')
@@ -861,7 +869,7 @@ class NattkaCommands(object):
                 if self.args.update_bugs:
                     kwargs = {}
                     if cc_arches:
-                        kwargs['cc_add'] = cc_arches
+                        kwargs['cc_add'] = cc_arches + cc_maintainers
                     keywords_add = []
                     if allarches_chg:
                         if allarches:
