@@ -30,6 +30,17 @@ classifiers = [
 [tool.flit.external-data]
 directory = "data"
 
+[tool.flit.sdist]
+include = [
+    "doc",
+    "test",
+]
+exclude = [
+    "doc/_build",
+    "test/__pycache__",
+    "test/data/metadata/md5-cache",
+]
+
 [project.optional-dependencies]
 depgraph = ["networkx"]
 test = [
