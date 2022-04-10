@@ -34,6 +34,7 @@ directory = "data"
 include = [
     "doc",
     "test",
+    "tox.ini",
 ]
 exclude = [
     "doc/_build",
