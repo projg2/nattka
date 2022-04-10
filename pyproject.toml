@@ -53,3 +53,24 @@ nattka = "nattka.__main__:setuptools_main"
 
 [project.urls]
 Homepage = "https://github.com/mgorny/nattka/"
+
+[tool.mypy]
+disallow_untyped_defs = true
+no_implicit_optional = true
+
+[[tool.mypy.overrides]]
+module = "test.*"
+# requiring explicit types for all test methods would be cumbersome
+disallow_untyped_defs = false
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = [
+    "lxml.*",
+    "networkx.*",
+    "pkgcheck.*",
+    "pkgcore.*",
+    "snakeoil.*",
+    "vcr",
+]
+ignore_missing_imports = true
