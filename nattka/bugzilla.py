@@ -18,6 +18,7 @@ INCLUDE_BUG_FIELDS = [
     'id',
     'product',
     'component',
+    'cf_runtime_testing_required',
     'cf_stabilisation_atoms',
     'cc',
     'depends_on',
@@ -73,6 +74,12 @@ class BugCategory(enum.Enum):
             assert False, f'Incorrect BugCategory: {val}'
 
 
+class BugRuntimeTestingState(enum.Enum):
+    YES = "Yes"
+    NO = "No"
+    MANUAL = "Manual"
+
+
 class BugInfo(typing.NamedTuple):
     category: typing.Optional[BugCategory]
     atoms: str
@@ -86,6 +93,7 @@ class BugInfo(typing.NamedTuple):
     whiteboard: str = ''
     assigned_to: str = ''
     last_change_time: datetime.datetime = datetime.datetime.utcnow()
+    runtime_testing_required: typing.Optional[BugRuntimeTestingState] = None
 
 
 def make_bug_info(bug: typing.Dict[str, typing.Any]
@@ -102,6 +110,12 @@ def make_bug_info(bug: typing.Dict[str, typing.Any]
                 sanity_check = False
     assert bug['last_change_time'].endswith('Z')
 
+    try:
+        runtime_testing_required = BugRuntimeTestingState(
+            bug['cf_runtime_testing_required'].capitalize())
+    except ValueError:
+        runtime_testing_required = None
+
     return BugInfo(category=bcat,
                    atoms=atoms,
                    cc=bug['cc'],
@@ -114,7 +128,8 @@ def make_bug_info(bug: typing.Dict[str, typing.Any]
                    whiteboard=bug['whiteboard'],
                    assigned_to=bug['assigned_to'],
                    last_change_time=datetime.datetime.fromisoformat(
-                       bug['last_change_time'].rstrip('Z')))
+                       bug['last_change_time'].rstrip('Z')),
+                   runtime_testing_required=runtime_testing_required)
 
 
 class NattkaBugzilla(object):

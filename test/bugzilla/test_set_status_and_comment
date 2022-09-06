@@ -9,13 +9,14 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=6&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=6&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_runtime_testing_required&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"id":6,"cc":[],"product":"Gentoo Security","component":"Kernel","assigned_to":"test@example.com","resolution":"","flags":[],"keywords":[],"depends_on":[],"whiteboard":"","cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6","cc_detail":[],"last_change_time":"2020-04-03T13:31:19Z","blocks":[],"assigned_to_detail":{"id":1,"real_name":"Test
-        developer","email":"test@example.com","name":"test@example.com"}}]}'
+      string: '{"bugs":[{"keywords":[],"assigned_to":"test@example.com","depends_on":[],"blocks":[],"cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6","product":"Gentoo
+        Security","id":6,"whiteboard":"","last_change_time":"2020-04-03T13:31:19Z","flags":[],"resolution":"","cf_runtime_testing_required":"Yes","assigned_to_detail":{"name":"test@example.com","real_name":"Test
+        developer","email":"test@example.com","id":1},"cc":[],"component":"Kernel","cc_detail":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -28,9 +29,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:53:00 GMT
+      - Tue, 06 Sep 2022 19:47:54 GMT
       Etag:
-      - C2y0MYvYS4Eh4NMoXarOIg
+      - 9g/49laPPB4nF8CChxeKeA
       Keep-Alive:
       - timeout=15, max=100
       Server:
@@ -56,12 +57,12 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/6/comment
   response:
     body:
-      string: '{"bugs":{"6":{"comments":[{"bug_id":6,"creator":"test@example.com","time":"2020-04-03T13:27:05Z","is_private":false,"text":"","tags":[],"attachment_id":null,"id":6,"count":0,"creation_time":"2020-04-03T13:27:05Z"}]}},"comments":{}}'
+      string: '{"bugs":{"6":{"comments":[{"is_private":false,"creation_time":"2020-04-03T13:27:05Z","count":0,"creator":"test@example.com","id":6,"text":"","bug_id":6,"time":"2020-04-03T13:27:05Z","tags":[],"attachment_id":null}]}},"comments":{}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -74,7 +75,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:53:01 GMT
+      - Tue, 06 Sep 2022 19:47:55 GMT
       Etag:
       - b+gppQt3tHjVWaHZ4U2b3w
       Keep-Alive:
@@ -102,12 +103,12 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/6/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"6":{"comments":[{"time":"2020-04-03T13:27:05Z","creator":"test@example.com","id":6,"creation_time":"2020-04-03T13:27:05Z","tags":[],"is_private":false,"count":0,"attachment_id":null,"text":"","bug_id":6}]}}}'
+      string: '{"comments":{},"bugs":{"6":{"comments":[{"id":6,"tags":[],"attachment_id":null,"count":0,"text":"","creation_time":"2020-04-03T13:27:05Z","is_private":false,"creator":"test@example.com","time":"2020-04-03T13:27:05Z","bug_id":6}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -120,7 +121,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:53:02 GMT
+      - Tue, 06 Sep 2022 19:47:55 GMT
       Etag:
       - b+gppQt3tHjVWaHZ4U2b3w
       Keep-Alive:
@@ -148,12 +149,12 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/whoami
   response:
     body:
-      string: '{"real_name":"NATTkA","id":2,"name":"nattka@gentoo.org"}'
+      string: '{"id":2,"name":"nattka@gentoo.org","real_name":"NATTkA"}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -166,7 +167,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:53:02 GMT
+      - Tue, 06 Sep 2022 19:47:56 GMT
       Etag:
       - mVytJ9+Su1npSL9ztIqPVQ
       Keep-Alive:
@@ -199,12 +200,12 @@ interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: PUT
     uri: http://127.0.0.1:33113/rest/bug/6
   response:
     body:
-      string: '{"bugs":[{"last_change_time":"2021-04-16T08:53:03Z","changes":{"flagtypes.name":{"removed":"","added":"sanity-check-"}},"id":6,"alias":[]}]}'
+      string: '{"bugs":[{"id":6,"last_change_time":"2022-09-06T19:47:57Z","alias":[],"changes":{"flagtypes.name":{"removed":"","added":"sanity-check-"}}}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -217,9 +218,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:53:03 GMT
+      - Tue, 06 Sep 2022 19:47:56 GMT
       Etag:
-      - q4OnjtoSzEVAGzd89PWBLQ
+      - MSh1fGqITzHzTkWDDbdm3A
       Keep-Alive:
       - timeout=15, max=96
       Server:
@@ -245,13 +246,14 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=6&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=6&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_runtime_testing_required&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"whiteboard":"","id":6,"product":"Gentoo Security","assigned_to":"test@example.com","blocks":[],"component":"Kernel","cc_detail":[],"assigned_to_detail":{"real_name":"Test
-        developer","email":"test@example.com","id":1,"name":"test@example.com"},"last_change_time":"2021-04-16T08:53:03Z","cc":[],"resolution":"","cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6","depends_on":[],"flags":[{"name":"sanity-check","id":4,"setter":"nattka@gentoo.org","status":"-","creation_date":"2021-04-16T08:53:03Z","modification_date":"2021-04-16T08:53:03Z","type_id":1}],"keywords":[]}]}'
+      string: '{"bugs":[{"last_change_time":"2022-09-06T19:47:57Z","resolution":"","whiteboard":"","id":6,"cf_stabilisation_atoms":"sys-kernel/gentoo-sources-4.1.6","product":"Gentoo
+        Security","depends_on":[],"keywords":[],"assigned_to":"test@example.com","flags":[{"type_id":1,"setter":"nattka@gentoo.org","name":"sanity-check","status":"-","id":4,"creation_date":"2022-09-06T19:47:57Z","modification_date":"2022-09-06T19:47:57Z"}],"component":"Kernel","assigned_to_detail":{"name":"test@example.com","id":1,"real_name":"Test
+        developer","email":"test@example.com"},"cc_detail":[],"cc":[],"cf_runtime_testing_required":"Yes","blocks":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -264,9 +266,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:53:04 GMT
+      - Tue, 06 Sep 2022 19:47:57 GMT
       Etag:
-      - vmENnhVWXYPBdIDQIBztqw
+      - imPo0Tpl14RQENlFyN1t3Q
       Keep-Alive:
       - timeout=15, max=95
       Server:
@@ -292,13 +294,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/6/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"6":{"comments":[{"creator":"test@example.com","time":"2020-04-03T13:27:05Z","count":0,"tags":[],"is_private":false,"bug_id":6,"text":"","id":6,"creation_time":"2020-04-03T13:27:05Z","attachment_id":null},{"creator":"nattka@gentoo.org","time":"2021-04-16T08:53:03Z","tags":[],"is_private":false,"bug_id":6,"count":1,"text":"sanity
-        check failed!","attachment_id":null,"creation_time":"2021-04-16T08:53:03Z","id":14}]}}}'
+      string: '{"bugs":{"6":{"comments":[{"id":6,"creator":"test@example.com","attachment_id":null,"is_private":false,"count":0,"time":"2020-04-03T13:27:05Z","bug_id":6,"creation_time":"2020-04-03T13:27:05Z","tags":[],"text":""},{"text":"sanity
+        check failed!","tags":[],"count":1,"time":"2022-09-06T19:47:57Z","is_private":false,"bug_id":6,"creation_time":"2022-09-06T19:47:57Z","creator":"nattka@gentoo.org","attachment_id":null,"id":14}]}},"comments":{}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -311,9 +313,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:53:04 GMT
+      - Tue, 06 Sep 2022 19:47:57 GMT
       Etag:
-      - 1/uIE6TlZUDoSUWkpkQsCA
+      - JEgx+gYwFquMGc2BpizJmw
       Keep-Alive:
       - timeout=15, max=94
       Server:

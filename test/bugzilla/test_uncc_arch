@@ -9,15 +9,16 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.27.1
+      - python-requests/2.28.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=2&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=2&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_runtime_testing_required&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"assigned_to":"test@example.com","whiteboard":"","id":2,"cc_detail":[{"id":3,"name":"alpha@gentoo.org","email":"alpha@gentoo.org","real_name":"ALPHA
-        arch team"},{"name":"hppa@gentoo.org","id":5,"real_name":"HPPA arch team","email":"hppa@gentoo.org"}],"last_change_time":"2020-04-03T13:34:59Z","component":"Keywording","flags":[{"type_id":1,"name":"sanity-check","id":2,"modification_date":"2020-04-03T13:34:59Z","creation_date":"2020-04-03T13:34:59Z","status":"+","setter":"nattka@gentoo.org"}],"product":"Gentoo
-        Linux","cc":["alpha@gentoo.org","hppa@gentoo.org"],"depends_on":[1],"blocks":[9],"resolution":"","keywords":[],"cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","assigned_to_detail":{"real_name":"Test
-        developer","email":"test@example.com","name":"test@example.com","id":1}}]}'
+      string: '{"bugs":[{"resolution":"","depends_on":[1],"cc_detail":[{"real_name":"ALPHA
+        arch team","email":"alpha@gentoo.org","id":3,"name":"alpha@gentoo.org"},{"real_name":"HPPA
+        arch team","email":"hppa@gentoo.org","name":"hppa@gentoo.org","id":5}],"id":2,"cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","cc":["alpha@gentoo.org","hppa@gentoo.org"],"keywords":[],"product":"Gentoo
+        Linux","blocks":[9],"component":"Keywording","flags":[],"cf_runtime_testing_required":"---","assigned_to_detail":{"id":1,"name":"test@example.com","real_name":"Test
+        developer","email":"test@example.com"},"assigned_to":"test@example.com","whiteboard":"","last_change_time":"2022-09-06T19:46:14Z"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -30,9 +31,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 17 Mar 2022 20:00:38 GMT
+      - Tue, 06 Sep 2022 19:46:42 GMT
       Etag:
-      - YEIOC0x+8Y4OAEoveOy97A
+      - q7dshjPlGL2PIeOgpvJlZQ
       Keep-Alive:
       - timeout=15, max=100
       Server:
@@ -58,12 +59,12 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.27.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/2/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"2":{"comments":[{"text":"","count":0,"id":2,"creation_time":"2020-04-03T13:18:10Z","creator":"test@example.com","tags":[],"bug_id":2,"attachment_id":null,"is_private":false,"time":"2020-04-03T13:18:10Z"}]}}}'
+      string: '{"comments":{},"bugs":{"2":{"comments":[{"creator":"test@example.com","attachment_id":null,"is_private":false,"text":"","id":2,"count":0,"bug_id":2,"creation_time":"2020-04-03T13:18:10Z","time":"2020-04-03T13:18:10Z","tags":[]}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -76,7 +77,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 17 Mar 2022 20:00:38 GMT
+      - Tue, 06 Sep 2022 19:46:43 GMT
       Etag:
       - Vk3udsmTFrEnHNLfeBB6lg
       Keep-Alive:
@@ -109,12 +110,12 @@ interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.27.1
+      - python-requests/2.28.1
     method: PUT
     uri: http://127.0.0.1:33113/rest/bug/2
   response:
     body:
-      string: '{"bugs":[{"id":2,"alias":[],"changes":{"cc":{"removed":"hppa@gentoo.org","added":""},"status":{"added":"IN_PROGRESS","removed":"CONFIRMED"}},"last_change_time":"2022-03-17T20:00:39Z"}]}'
+      string: '{"bugs":[{"last_change_time":"2022-09-06T19:46:44Z","changes":{"status":{"added":"IN_PROGRESS","removed":"CONFIRMED"},"cc":{"removed":"hppa@gentoo.org","added":""}},"id":2,"alias":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -127,9 +128,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 17 Mar 2022 20:00:39 GMT
+      - Tue, 06 Sep 2022 19:46:43 GMT
       Etag:
-      - DUONQsHlTvwA9/+/F0U1/A
+      - KpbhnpeiStGWDxlZsK/lbA
       Keep-Alive:
       - timeout=15, max=98
       Server:
@@ -155,15 +156,15 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.27.1
+      - python-requests/2.28.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=2&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=2&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_runtime_testing_required&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"flags":[{"status":"+","id":2,"modification_date":"2020-04-03T13:34:59Z","name":"sanity-check","creation_date":"2020-04-03T13:34:59Z","type_id":1,"setter":"nattka@gentoo.org"}],"component":"Keywording","depends_on":[1],"product":"Gentoo
-        Linux","whiteboard":"","cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","keywords":[],"cc":["alpha@gentoo.org"],"assigned_to":"test@example.com","last_change_time":"2022-03-17T20:00:39Z","id":2,"cc_detail":[{"name":"alpha@gentoo.org","real_name":"ALPHA
-        arch team","email":"alpha@gentoo.org","id":3}],"resolution":"","blocks":[9],"assigned_to_detail":{"name":"test@example.com","id":1,"email":"test@example.com","real_name":"Test
-        developer"}}]}'
+      string: '{"bugs":[{"whiteboard":"","assigned_to_detail":{"email":"test@example.com","name":"test@example.com","id":1,"real_name":"Test
+        developer"},"component":"Keywording","resolution":"","last_change_time":"2022-09-06T19:46:44Z","flags":[],"assigned_to":"test@example.com","blocks":[9],"depends_on":[1],"product":"Gentoo
+        Linux","id":2,"cf_runtime_testing_required":"---","keywords":[],"cc_detail":[{"name":"alpha@gentoo.org","email":"alpha@gentoo.org","real_name":"ALPHA
+        arch team","id":3}],"cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","cc":["alpha@gentoo.org"]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -176,9 +177,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 17 Mar 2022 20:00:40 GMT
+      - Tue, 06 Sep 2022 19:46:44 GMT
       Etag:
-      - g0UdI/UzkOk2qClnLs6LWA
+      - 1PT8UEw14SbakyhM0V8lzQ
       Keep-Alive:
       - timeout=15, max=97
       Server:
@@ -204,13 +205,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.27.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/2/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"2":{"comments":[{"id":2,"bug_id":2,"creation_time":"2020-04-03T13:18:10Z","time":"2020-04-03T13:18:10Z","tags":[],"text":"","creator":"test@example.com","count":0,"attachment_id":null,"is_private":false},{"creation_time":"2022-03-17T20:00:39Z","bug_id":2,"id":14,"is_private":false,"attachment_id":null,"count":1,"creator":"test@example.com","text":"hppa
-        done","tags":[],"time":"2022-03-17T20:00:39Z"}]}}}'
+      string: '{"comments":{},"bugs":{"2":{"comments":[{"id":2,"bug_id":2,"text":"","creation_time":"2020-04-03T13:18:10Z","time":"2020-04-03T13:18:10Z","tags":[],"is_private":false,"count":0,"creator":"test@example.com","attachment_id":null},{"is_private":false,"tags":[],"creation_time":"2022-09-06T19:46:44Z","time":"2022-09-06T19:46:44Z","text":"hppa
+        done","bug_id":2,"id":15,"attachment_id":null,"creator":"test@example.com","count":1}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -223,9 +224,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Thu, 17 Mar 2022 20:00:40 GMT
+      - Tue, 06 Sep 2022 19:46:44 GMT
       Etag:
-      - JPa62hdbYz1Hozjs9zGioQ
+      - OUkrnwqpndQMaeklcjoBhw
       Keep-Alive:
       - timeout=15, max=96
       Server:

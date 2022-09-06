@@ -11,8 +11,9 @@ from pathlib import Path
 
 import vcr
 
-from nattka.bugzilla import (NattkaBugzilla, BugCategory, BugInfo,
-                             arches_from_cc, split_dependent_bugs)
+from nattka.bugzilla import (BugRuntimeTestingState, NattkaBugzilla,
+                             BugCategory, BugInfo, arches_from_cc,
+                             split_dependent_bugs)
 
 
 API_ENDPOINT = 'http://127.0.0.1:33113/rest'
@@ -64,7 +65,9 @@ class BugzillaTests(unittest.TestCase):
                            sanity_check=False,
                            assigned_to='bug-wranglers@gentoo.org',
                            last_change_time=datetime.datetime(
-                               2020, 11, 26, 9, 42, 55)),
+                               2020, 11, 26, 9, 42, 55),
+                           runtime_testing_required=(
+                               BugRuntimeTestingState.MANUAL)),
                 4: BugInfo(BugCategory.KEYWORDREQ,
                            'dev-python/urllib3-1.25.8\r\n'
                            'dev-python/trustme-0.6.0\r\n'
@@ -73,7 +76,9 @@ class BugzillaTests(unittest.TestCase):
                            keywords=['KEYWORDREQ'],
                            assigned_to='test@example.com',
                            last_change_time=datetime.datetime(
-                               2020, 4, 3, 13, 34, 55)),
+                               2020, 4, 3, 13, 34, 55),
+                           runtime_testing_required=(
+                               BugRuntimeTestingState.YES)),
                 5: BugInfo(None,
                            'app-arch/arj-3.10.22-r7 amd64 hppa\r\n',
                            ['test@example.com'],
@@ -81,20 +86,26 @@ class BugzillaTests(unittest.TestCase):
                            security=True,
                            assigned_to='test@example.com',
                            last_change_time=datetime.datetime(
-                               2020, 4, 10, 9, 47, 22)),
+                               2020, 4, 10, 9, 47, 22),
+                           runtime_testing_required=(
+                               BugRuntimeTestingState.YES)),
                 6: BugInfo(None,
                            'sys-kernel/gentoo-sources-4.1.6\r\n',
                            security=True,
                            assigned_to='test@example.com',
                            last_change_time=datetime.datetime(
-                               2020, 4, 3, 13, 31, 19)),
+                               2020, 4, 3, 13, 31, 19),
+                           runtime_testing_required=(
+                               BugRuntimeTestingState.YES)),
                 7: BugInfo(BugCategory.STABLEREQ,
                            'dev-python/pytest-5.4.1\r\n',
                            blocks=[3],
                            keywords=['ALLARCHES'],
                            assigned_to='test@example.com',
                            last_change_time=datetime.datetime(
-                               2020, 4, 3, 13, 28, 17)),
+                               2020, 4, 3, 13, 28, 17),
+                           runtime_testing_required=(
+                               BugRuntimeTestingState.YES)),
                 8: BugInfo(BugCategory.STABLEREQ,
                            'dev-lang/python-3.7.7\r\n',
                            resolved=True,

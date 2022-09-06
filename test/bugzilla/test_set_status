@@ -9,15 +9,17 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=5&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=5&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_runtime_testing_required&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"resolution":"","flags":[],"whiteboard":"test whiteboard","cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7
-        amd64 hppa","keywords":[],"cc":["test@example.com"],"last_change_time":"2020-04-10T09:47:22Z","product":"Gentoo
-        Security","assigned_to_detail":{"name":"test@example.com","id":1,"email":"test@example.com","real_name":"Test
-        developer"},"depends_on":[],"id":5,"cc_detail":[{"real_name":"Test developer","email":"test@example.com","id":1,"name":"test@example.com"}],"blocks":[],"assigned_to":"test@example.com","component":"Vulnerabilities"}]}'
+      string: '{"bugs":[{"keywords":[],"assigned_to":"test@example.com","flags":[],"resolution":"","cc":["test@example.com"],"product":"Gentoo
+        Security","cf_runtime_testing_required":"Yes","cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7
+        amd64 hppa","depends_on":[],"blocks":[],"last_change_time":"2020-04-10T09:47:22Z","id":5,"component":"Vulnerabilities","cc_detail":[{"id":1,"real_name":"Test
+        developer","name":"test@example.com","email":"test@example.com"}],"whiteboard":"test
+        whiteboard","assigned_to_detail":{"id":1,"name":"test@example.com","real_name":"Test
+        developer","email":"test@example.com"}}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -30,9 +32,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:18 GMT
+      - Tue, 06 Sep 2022 19:46:15 GMT
       Etag:
-      - NBLTlqLktCAdJv5v6FsRbg
+      - 5o05OZBsubaP84XisHGB3w
       Keep-Alive:
       - timeout=15, max=100
       Server:
@@ -58,13 +60,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/5/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"5":{"comments":[{"bug_id":5,"count":0,"creation_time":"2020-04-03T13:26:12Z","attachment_id":null,"id":5,"tags":[],"is_private":false,"creator":"test@example.com","time":"2020-04-03T13:26:12Z","text":"who
-        uses arj anyway these days?"}]}}}'
+      string: '{"bugs":{"5":{"comments":[{"bug_id":5,"time":"2020-04-03T13:26:12Z","tags":[],"attachment_id":null,"count":0,"is_private":false,"text":"who
+        uses arj anyway these days?","id":5,"creation_time":"2020-04-03T13:26:12Z","creator":"test@example.com"}]}},"comments":{}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -77,7 +79,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:19 GMT
+      - Tue, 06 Sep 2022 19:46:15 GMT
       Etag:
       - lDf6jrNoZJw0HKJZ0QEhDg
       Keep-Alive:
@@ -105,13 +107,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/5/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"5":{"comments":[{"is_private":false,"id":5,"creation_time":"2020-04-03T13:26:12Z","count":0,"tags":[],"creator":"test@example.com","text":"who
-        uses arj anyway these days?","attachment_id":null,"time":"2020-04-03T13:26:12Z","bug_id":5}]}}}'
+      string: '{"comments":{},"bugs":{"5":{"comments":[{"text":"who uses arj anyway
+        these days?","creation_time":"2020-04-03T13:26:12Z","time":"2020-04-03T13:26:12Z","id":5,"tags":[],"creator":"test@example.com","count":0,"is_private":false,"attachment_id":null,"bug_id":5}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -124,7 +126,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:19 GMT
+      - Tue, 06 Sep 2022 19:46:16 GMT
       Etag:
       - lDf6jrNoZJw0HKJZ0QEhDg
       Keep-Alive:
@@ -152,12 +154,12 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/whoami
   response:
     body:
-      string: '{"real_name":"NATTkA","id":2,"name":"nattka@gentoo.org"}'
+      string: '{"id":2,"real_name":"NATTkA","name":"nattka@gentoo.org"}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -170,7 +172,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:20 GMT
+      - Tue, 06 Sep 2022 19:46:16 GMT
       Etag:
       - mVytJ9+Su1npSL9ztIqPVQ
       Keep-Alive:
@@ -202,12 +204,12 @@ interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: PUT
     uri: http://127.0.0.1:33113/rest/bug/5
   response:
     body:
-      string: '{"bugs":[{"changes":{"flagtypes.name":{"removed":"","added":"sanity-check+"}},"last_change_time":"2021-04-16T08:51:21Z","id":5,"alias":[]}]}'
+      string: '{"bugs":[{"id":5,"changes":{"flagtypes.name":{"added":"sanity-check+","removed":""}},"last_change_time":"2022-09-06T19:46:17Z","alias":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -220,9 +222,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:21 GMT
+      - Tue, 06 Sep 2022 19:46:17 GMT
       Etag:
-      - CmFGETup7P9uC5wYmi11ew
+      - kJUX394A5z++phux+RUbVw
       Keep-Alive:
       - timeout=15, max=96
       Server:
@@ -248,16 +250,15 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=5&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=5&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_runtime_testing_required&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"assigned_to":"test@example.com","cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7
-        amd64 hppa","whiteboard":"test whiteboard","last_change_time":"2021-04-16T08:51:21Z","component":"Vulnerabilities","resolution":"","cc":["test@example.com"],"flags":[{"type_id":1,"status":"+","name":"sanity-check","setter":"nattka@gentoo.org","creation_date":"2021-04-16T08:51:21Z","id":4,"modification_date":"2021-04-16T08:51:21Z"}],"blocks":[],"product":"Gentoo
-        Security","id":5,"keywords":[],"cc_detail":[{"email":"test@example.com","real_name":"Test
-        developer","name":"test@example.com","id":1}],"assigned_to_detail":{"real_name":"Test
-        developer","email":"test@example.com","id":1,"name":"test@example.com"},"depends_on":[]}]}'
+      string: '{"bugs":[{"whiteboard":"test whiteboard","product":"Gentoo Security","resolution":"","cc":["test@example.com"],"cf_stabilisation_atoms":"app-arch/arj-3.10.22-r7
+        amd64 hppa","flags":[{"setter":"nattka@gentoo.org","type_id":1,"creation_date":"2022-09-06T19:46:17Z","status":"+","name":"sanity-check","modification_date":"2022-09-06T19:46:17Z","id":4}],"cc_detail":[{"name":"test@example.com","real_name":"Test
+        developer","id":1,"email":"test@example.com"}],"depends_on":[],"assigned_to":"test@example.com","blocks":[],"last_change_time":"2022-09-06T19:46:17Z","component":"Vulnerabilities","keywords":[],"assigned_to_detail":{"real_name":"Test
+        developer","name":"test@example.com","id":1,"email":"test@example.com"},"cf_runtime_testing_required":"Yes","id":5}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -270,9 +271,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:21 GMT
+      - Tue, 06 Sep 2022 19:46:18 GMT
       Etag:
-      - /vAaiQWNELEgSwNrgZ3x8w
+      - Pp8WybTAB8SKYBGFqyz2XA
       Keep-Alive:
       - timeout=15, max=95
       Server:
@@ -298,13 +299,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/5/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"5":{"comments":[{"is_private":false,"count":0,"text":"who
-        uses arj anyway these days?","id":5,"tags":[],"attachment_id":null,"creation_time":"2020-04-03T13:26:12Z","creator":"test@example.com","bug_id":5,"time":"2020-04-03T13:26:12Z"}]}}}'
+      string: '{"comments":{},"bugs":{"5":{"comments":[{"id":5,"text":"who uses arj
+        anyway these days?","creator":"test@example.com","time":"2020-04-03T13:26:12Z","count":0,"attachment_id":null,"bug_id":5,"is_private":false,"tags":[],"creation_time":"2020-04-03T13:26:12Z"}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -317,7 +318,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:22 GMT
+      - Tue, 06 Sep 2022 19:46:18 GMT
       Etag:
       - lDf6jrNoZJw0HKJZ0QEhDg
       Keep-Alive:

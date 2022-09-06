@@ -9,14 +9,14 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=8&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=8&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_runtime_testing_required&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"component":"Stabilization","cc_detail":[],"product":"Gentoo
-        Linux","keywords":[],"cf_stabilisation_atoms":"dev-lang/python-3.7.7","blocks":[],"cc":[],"flags":[],"id":8,"last_change_time":"2020-04-04T07:07:56Z","resolution":"FIXED","assigned_to":"test@example.com","depends_on":[],"assigned_to_detail":{"email":"test@example.com","real_name":"Test
-        developer","id":1,"name":"test@example.com"},"whiteboard":""}]}'
+      string: '{"bugs":[{"last_change_time":"2020-04-04T07:07:56Z","cf_runtime_testing_required":"---","id":8,"cc":[],"assigned_to_detail":{"id":1,"real_name":"Test
+        developer","email":"test@example.com","name":"test@example.com"},"whiteboard":"","keywords":[],"cf_stabilisation_atoms":"dev-lang/python-3.7.7","resolution":"FIXED","flags":[],"cc_detail":[],"component":"Stabilization","depends_on":[],"blocks":[],"product":"Gentoo
+        Linux","assigned_to":"test@example.com"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -29,9 +29,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:23 GMT
+      - Tue, 06 Sep 2022 19:46:19 GMT
       Etag:
-      - 2uwIqwHezT0C/XtWzPqzJQ
+      - 6Ai4YT7a9heCGANbv8iz5w
       Keep-Alive:
       - timeout=15, max=100
       Server:
@@ -57,13 +57,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/8/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"8":{"comments":[{"time":"2020-04-04T07:07:40Z","id":12,"tags":[],"is_private":false,"attachment_id":null,"creator":"test@example.com","bug_id":8,"creation_time":"2020-04-04T07:07:40Z","count":0,"text":"Resolved
-        bugs should appear when requested via id but not in search."}]}}}'
+      string: '{"bugs":{"8":{"comments":[{"text":"Resolved bugs should appear when
+        requested via id but not in search.","creation_time":"2020-04-04T07:07:40Z","is_private":false,"creator":"test@example.com","tags":[],"id":12,"time":"2020-04-04T07:07:40Z","attachment_id":null,"count":0,"bug_id":8}]}},"comments":{}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -76,7 +76,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:23 GMT
+      - Tue, 06 Sep 2022 19:46:19 GMT
       Etag:
       - SmkLlM4MqrWeOKN5IJ3Yig
       Keep-Alive:
@@ -104,13 +104,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/8/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"8":{"comments":[{"text":"Resolved bugs should
-        appear when requested via id but not in search.","tags":[],"is_private":false,"bug_id":8,"time":"2020-04-04T07:07:40Z","attachment_id":null,"id":12,"creation_time":"2020-04-04T07:07:40Z","count":0,"creator":"test@example.com"}]}}}'
+      string: '{"comments":{},"bugs":{"8":{"comments":[{"attachment_id":null,"text":"Resolved
+        bugs should appear when requested via id but not in search.","creator":"test@example.com","id":12,"time":"2020-04-04T07:07:40Z","count":0,"creation_time":"2020-04-04T07:07:40Z","bug_id":8,"tags":[],"is_private":false}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -123,7 +123,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:24 GMT
+      - Tue, 06 Sep 2022 19:46:20 GMT
       Etag:
       - SmkLlM4MqrWeOKN5IJ3Yig
       Keep-Alive:
@@ -151,7 +151,7 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/whoami
   response:
@@ -169,7 +169,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:24 GMT
+      - Tue, 06 Sep 2022 19:46:20 GMT
       Etag:
       - mVytJ9+Su1npSL9ztIqPVQ
       Keep-Alive:
@@ -202,12 +202,12 @@ interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: PUT
     uri: http://127.0.0.1:33113/rest/bug/8
   response:
     body:
-      string: '{"bugs":[{"id":8,"changes":{"flagtypes.name":{"added":"sanity-check+","removed":""},"keywords":{"added":"ALLARCHES","removed":""}},"alias":[],"last_change_time":"2021-04-16T08:51:25Z"}]}'
+      string: '{"bugs":[{"alias":[],"last_change_time":"2022-09-06T19:46:21Z","id":8,"changes":{"flagtypes.name":{"removed":"","added":"sanity-check+"},"keywords":{"removed":"","added":"ALLARCHES"}}}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -220,9 +220,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:25 GMT
+      - Tue, 06 Sep 2022 19:46:21 GMT
       Etag:
-      - q5c7ufzEPxgc/JYaLtKnng
+      - Le8iXNoG+xsoop5CRGho+Q
       Keep-Alive:
       - timeout=15, max=96
       Server:
@@ -248,13 +248,14 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=8&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=8&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_runtime_testing_required&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"resolution":"FIXED","product":"Gentoo Linux","cc":[],"blocks":[],"flags":[{"creation_date":"2021-04-16T08:51:25Z","id":5,"name":"sanity-check","modification_date":"2021-04-16T08:51:25Z","status":"+","type_id":1,"setter":"nattka@gentoo.org"}],"whiteboard":"","cf_stabilisation_atoms":"dev-lang/python-3.7.7","id":8,"assigned_to_detail":{"real_name":"Test
-        developer","name":"test@example.com","email":"test@example.com","id":1},"component":"Stabilization","cc_detail":[],"assigned_to":"test@example.com","depends_on":[],"last_change_time":"2021-04-16T08:51:25Z","keywords":["ALLARCHES"]}]}'
+      string: '{"bugs":[{"keywords":["ALLARCHES"],"component":"Stabilization","blocks":[],"last_change_time":"2022-09-06T19:46:21Z","id":8,"depends_on":[],"cc":[],"whiteboard":"","product":"Gentoo
+        Linux","cf_runtime_testing_required":"---","cf_stabilisation_atoms":"dev-lang/python-3.7.7","assigned_to_detail":{"id":1,"real_name":"Test
+        developer","email":"test@example.com","name":"test@example.com"},"assigned_to":"test@example.com","cc_detail":[],"resolution":"FIXED","flags":[{"name":"sanity-check","setter":"nattka@gentoo.org","id":5,"type_id":1,"modification_date":"2022-09-06T19:46:21Z","status":"+","creation_date":"2022-09-06T19:46:21Z"}]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -267,9 +268,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:26 GMT
+      - Tue, 06 Sep 2022 19:46:21 GMT
       Etag:
-      - vUqkKJM0fl2xB+3ZF/tZqw
+      - TCfuBhR4AwvfyGOZr9EMpw
       Keep-Alive:
       - timeout=15, max=95
       Server:
@@ -295,13 +296,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/8/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"8":{"comments":[{"text":"Resolved bugs should
-        appear when requested via id but not in search.","creator":"test@example.com","is_private":false,"attachment_id":null,"count":0,"id":12,"creation_time":"2020-04-04T07:07:40Z","tags":[],"bug_id":8,"time":"2020-04-04T07:07:40Z"}]}}}'
+      string: '{"bugs":{"8":{"comments":[{"id":12,"is_private":false,"bug_id":8,"attachment_id":null,"time":"2020-04-04T07:07:40Z","count":0,"text":"Resolved
+        bugs should appear when requested via id but not in search.","creation_time":"2020-04-04T07:07:40Z","tags":[],"creator":"test@example.com"}]}},"comments":{}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -314,7 +315,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:26 GMT
+      - Tue, 06 Sep 2022 19:46:22 GMT
       Etag:
       - SmkLlM4MqrWeOKN5IJ3Yig
       Keep-Alive:
