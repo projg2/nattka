@@ -9,14 +9,14 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=9&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=9&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_runtime_testing_required&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"cf_stabilisation_atoms":"dev-python/frobnicate-11","assigned_to":"test@example.com","flags":[],"product":"Gentoo
-        Linux","keywords":[],"depends_on":[2],"id":9,"resolution":"","component":"Keywording","last_change_time":"2020-04-05T14:35:59Z","blocks":[],"whiteboard":"","cc":[],"cc_detail":[],"assigned_to_detail":{"id":1,"real_name":"Test
-        developer","email":"test@example.com","name":"test@example.com"}}]}'
+      string: '{"bugs":[{"id":9,"whiteboard":"","keywords":[],"cf_runtime_testing_required":"---","cc_detail":[],"resolution":"","assigned_to_detail":{"id":1,"email":"test@example.com","real_name":"Test
+        developer","name":"test@example.com"},"depends_on":[2],"blocks":[],"last_change_time":"2020-04-05T14:35:59Z","assigned_to":"test@example.com","flags":[],"component":"Keywording","cc":[],"product":"Gentoo
+        Linux","cf_stabilisation_atoms":"dev-python/frobnicate-11"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -29,9 +29,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:12 GMT
+      - Tue, 06 Sep 2022 19:46:09 GMT
       Etag:
-      - a/r2dKgf1TwPnpEc5S8zzw
+      - /AlgjjQQH+6O1viK4r+xdg
       Keep-Alive:
       - timeout=15, max=100
       Server:
@@ -57,15 +57,15 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=2&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=2&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_runtime_testing_required&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"resolution":"","cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","blocks":[9],"flags":[{"status":"+","name":"sanity-check","modification_date":"2020-04-03T13:34:59Z","creation_date":"2020-04-03T13:34:59Z","type_id":1,"setter":"nattka@gentoo.org","id":2}],"last_change_time":"2020-04-03T13:34:59Z","product":"Gentoo
-        Linux","component":"Keywording","whiteboard":"","assigned_to":"test@example.com","depends_on":[1],"keywords":[],"cc":["alpha@gentoo.org","hppa@gentoo.org"],"id":2,"cc_detail":[{"email":"alpha@gentoo.org","name":"alpha@gentoo.org","real_name":"ALPHA
-        arch team","id":3},{"name":"hppa@gentoo.org","real_name":"HPPA arch team","id":5,"email":"hppa@gentoo.org"}],"assigned_to_detail":{"id":1,"real_name":"Test
-        developer","name":"test@example.com","email":"test@example.com"}}]}'
+      string: '{"bugs":[{"assigned_to_detail":{"name":"test@example.com","email":"test@example.com","id":1,"real_name":"Test
+        developer"},"cc_detail":[{"id":3,"email":"alpha@gentoo.org","name":"alpha@gentoo.org","real_name":"ALPHA
+        arch team"},{"real_name":"HPPA arch team","name":"hppa@gentoo.org","email":"hppa@gentoo.org","id":5}],"product":"Gentoo
+        Linux","resolution":"","cc":["alpha@gentoo.org","hppa@gentoo.org"],"blocks":[9],"assigned_to":"test@example.com","cf_stabilisation_atoms":"dev-python/unittest-mixins-1.6\r\ndev-python/coverage-4.5.4","keywords":[],"component":"Keywording","last_change_time":"2020-04-03T13:34:59Z","whiteboard":"","flags":[{"modification_date":"2020-04-03T13:34:59Z","name":"sanity-check","type_id":1,"id":2,"setter":"nattka@gentoo.org","status":"+","creation_date":"2020-04-03T13:34:59Z"}],"id":2,"depends_on":[1],"cf_runtime_testing_required":"---"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -78,9 +78,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:12 GMT
+      - Tue, 06 Sep 2022 19:46:10 GMT
       Etag:
-      - YEIOC0x+8Y4OAEoveOy97A
+      - /xiJ/QZi2aB5W32uJ7STbg
       Keep-Alive:
       - timeout=15, max=99
       Server:
@@ -106,14 +106,14 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=1&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=1&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_runtime_testing_required&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"keywords":[],"last_change_time":"2020-04-03T13:22:41Z","product":"Gentoo
-        Linux","cc_detail":[],"component":"Random bugs","whiteboard":"","flags":[],"blocks":[2],"cf_stabilisation_atoms":"","id":1,"assigned_to_detail":{"name":"test@example.com","real_name":"Test
-        developer","email":"test@example.com","id":1},"resolution":"","assigned_to":"test@example.com","cc":[],"depends_on":[]}]}'
+      string: '{"bugs":[{"resolution":"","cc":[],"component":"Random bugs","id":1,"blocks":[2],"cc_detail":[],"product":"Gentoo
+        Linux","depends_on":[],"flags":[],"assigned_to_detail":{"name":"test@example.com","real_name":"Test
+        developer","email":"test@example.com","id":1},"whiteboard":"","cf_stabilisation_atoms":"","keywords":[],"cf_runtime_testing_required":"---","assigned_to":"test@example.com","last_change_time":"2020-04-03T13:22:41Z"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -126,9 +126,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:13 GMT
+      - Tue, 06 Sep 2022 19:46:10 GMT
       Etag:
-      - Jbm/QVfkL9nfoQblOeyjEQ
+      - +GeVYOhpaJmiM3pDW5TY0A
       Keep-Alive:
       - timeout=15, max=98
       Server:

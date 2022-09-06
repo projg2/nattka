@@ -9,14 +9,14 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=4&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=4&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_runtime_testing_required&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"resolution":"","product":"Gentoo Linux","assigned_to":"test@example.com","blocks":[],"id":4,"component":"Keywording","last_change_time":"2020-04-03T13:34:55Z","depends_on":[],"cc":["hppa@gentoo.org"],"assigned_to_detail":{"real_name":"Test
-        developer","id":1,"name":"test@example.com","email":"test@example.com"},"cc_detail":[{"email":"hppa@gentoo.org","real_name":"HPPA
-        arch team","name":"hppa@gentoo.org","id":5}],"whiteboard":"","cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","keywords":["KEYWORDREQ"],"flags":[]}]}'
+      string: '{"bugs":[{"resolution":"","cc_detail":[{"id":5,"real_name":"HPPA arch
+        team","email":"hppa@gentoo.org","name":"hppa@gentoo.org"}],"keywords":["KEYWORDREQ"],"depends_on":[],"last_change_time":"2020-04-03T13:34:55Z","flags":[],"id":4,"component":"Keywording","assigned_to":"test@example.com","cc":["hppa@gentoo.org"],"assigned_to_detail":{"id":1,"email":"test@example.com","name":"test@example.com","real_name":"Test
+        developer"},"product":"Gentoo Linux","cf_runtime_testing_required":"Yes","whiteboard":"","blocks":[],"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0"}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -29,9 +29,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:46 GMT
+      - Tue, 06 Sep 2022 19:46:39 GMT
       Etag:
-      - q+pSHpB4ygD4nx7wX6/jRQ
+      - rIFP7aZetSyTaERmK6VX9w
       Keep-Alive:
       - timeout=15, max=100
       Server:
@@ -57,12 +57,12 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/4/comment
   response:
     body:
-      string: '{"comments":{},"bugs":{"4":{"comments":[{"tags":[],"is_private":false,"creation_time":"2020-04-03T13:20:11Z","id":4,"count":0,"attachment_id":null,"time":"2020-04-03T13:20:11Z","text":"","bug_id":4,"creator":"test@example.com"}]}}}'
+      string: '{"bugs":{"4":{"comments":[{"creator":"test@example.com","attachment_id":null,"bug_id":4,"time":"2020-04-03T13:20:11Z","tags":[],"is_private":false,"id":4,"count":0,"text":"","creation_time":"2020-04-03T13:20:11Z"}]}},"comments":{}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -75,7 +75,7 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:47 GMT
+      - Tue, 06 Sep 2022 19:46:40 GMT
       Etag:
       - 5FjztftQ7g2QUYyXdznOLA
       Keep-Alive:
@@ -109,12 +109,12 @@ interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: PUT
     uri: http://127.0.0.1:33113/rest/bug/4
   response:
     body:
-      string: '{"bugs":[{"id":4,"changes":{"resolution":{"removed":"","added":"FIXED"},"status":{"removed":"CONFIRMED","added":"RESOLVED"},"cc":{"removed":"hppa@gentoo.org","added":""}},"last_change_time":"2021-04-16T08:51:48Z","alias":[]}]}'
+      string: '{"bugs":[{"last_change_time":"2022-09-06T19:46:41Z","changes":{"cc":{"added":"","removed":"hppa@gentoo.org"},"status":{"added":"RESOLVED","removed":"CONFIRMED"},"resolution":{"removed":"","added":"FIXED"}},"id":4,"alias":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -127,9 +127,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:48 GMT
+      - Tue, 06 Sep 2022 19:46:40 GMT
       Etag:
-      - nYhuqHClx/FqQvSzd5dNfg
+      - zuE88rthaQHWAMCmSv1OFA
       Keep-Alive:
       - timeout=15, max=98
       Server:
@@ -155,14 +155,14 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
-    uri: http://127.0.0.1:33113/rest/bug?id=4&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
+    uri: http://127.0.0.1:33113/rest/bug?id=4&include_fields=assigned_to&include_fields=blocks&include_fields=cc&include_fields=cf_runtime_testing_required&include_fields=cf_stabilisation_atoms&include_fields=component&include_fields=depends_on&include_fields=flags&include_fields=id&include_fields=keywords&include_fields=last_change_time&include_fields=product&include_fields=resolution&include_fields=whiteboard
   response:
     body:
-      string: '{"bugs":[{"cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","whiteboard":"","assigned_to":"test@example.com","depends_on":[],"id":4,"assigned_to_detail":{"real_name":"Test
-        developer","email":"test@example.com","name":"test@example.com","id":1},"product":"Gentoo
-        Linux","flags":[],"cc":[],"keywords":["KEYWORDREQ"],"component":"Keywording","blocks":[],"cc_detail":[],"resolution":"FIXED","last_change_time":"2021-04-16T08:51:48Z"}]}'
+      string: '{"bugs":[{"whiteboard":"","last_change_time":"2022-09-06T19:46:41Z","id":4,"keywords":["KEYWORDREQ"],"product":"Gentoo
+        Linux","flags":[],"component":"Keywording","cf_stabilisation_atoms":"dev-python/urllib3-1.25.8\r\ndev-python/trustme-0.6.0\r\ndev-python/brotlipy-0.7.0","depends_on":[],"blocks":[],"cc":[],"assigned_to":"test@example.com","assigned_to_detail":{"name":"test@example.com","id":1,"email":"test@example.com","real_name":"Test
+        developer"},"cf_runtime_testing_required":"Yes","resolution":"FIXED","cc_detail":[]}]}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -175,9 +175,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:48 GMT
+      - Tue, 06 Sep 2022 19:46:41 GMT
       Etag:
-      - QozyNNWrdmo2+U+vJAZ21g
+      - 6h78id1t/2QzCRgrMV6x+A
       Keep-Alive:
       - timeout=15, max=97
       Server:
@@ -203,13 +203,13 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.28.1
     method: GET
     uri: http://127.0.0.1:33113/rest/bug/4/comment
   response:
     body:
-      string: '{"bugs":{"4":{"comments":[{"tags":[],"attachment_id":null,"is_private":false,"time":"2020-04-03T13:20:11Z","text":"","creator":"test@example.com","id":4,"count":0,"creation_time":"2020-04-03T13:20:11Z","bug_id":4},{"id":14,"creator":"test@example.com","count":1,"bug_id":4,"creation_time":"2021-04-16T08:51:48Z","attachment_id":null,"is_private":false,"tags":[],"time":"2021-04-16T08:51:48Z","text":"hppa
-        done\n\nall arches done, closing"}]}},"comments":{}}'
+      string: '{"comments":{},"bugs":{"4":{"comments":[{"bug_id":4,"attachment_id":null,"creator":"test@example.com","creation_time":"2020-04-03T13:20:11Z","is_private":false,"id":4,"tags":[],"count":0,"time":"2020-04-03T13:20:11Z","text":""},{"id":14,"time":"2022-09-06T19:46:41Z","tags":[],"count":1,"text":"hppa
+        done\n\nall arches done, closing","creator":"test@example.com","attachment_id":null,"creation_time":"2022-09-06T19:46:41Z","is_private":false,"bug_id":4}]}}}'
     headers:
       Access-control-allow-headers:
       - origin, content-type, accept, x-requested-with
@@ -222,9 +222,9 @@ interactions:
       Content-security-policy:
       - frame-ancestors 'self'
       Date:
-      - Fri, 16 Apr 2021 08:51:49 GMT
+      - Tue, 06 Sep 2022 19:46:42 GMT
       Etag:
-      - LOB17iH5m/FjkLnAD2K+bQ
+      - QV8trQFHsSqBchC/Glk1Yg
       Keep-Alive:
       - timeout=15, max=96
       Server:
