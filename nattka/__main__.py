@@ -428,7 +428,7 @@ class NattkaCommands(object):
                 log.info(f'Iteration {it}: running pkgcheck ...')
                 plist = new_plist
                 check_res, issues = check_dependencies(
-                    repo, plist.items())
+                    repo, plist.items(), profiles=self.args.profiles)
 
                 # all good? we're done!
                 if check_res:
@@ -470,7 +470,7 @@ class NattkaCommands(object):
                 # but test on *old*
                 log.info(f'Iteration {it}: verifying ...')
                 check_res, issues = check_dependencies(
-                    repo, plist.items())
+                    repo, plist.items(), profiles=self.args.profiles)
                 if not check_res:
                     log.error('Attempt to satisfy dependencies failed:')
                     log.error('\n'.join(format_results(issues)))
@@ -983,6 +983,9 @@ def main(argv: typing.List[str]) -> int:
     mkpp.add_argument('-a', '--arch', action='append',
                       help='arch to keyword the first package for '
                            '(default: "*")')
+    mkpp.add_argument("-p", "--profiles", default="stable,dev",
+                      help="profiles to test (passed through to pkgcheck, "
+                           "default: stable,dev)")
     mkpp.add_argument('-s', '--stabilization', action='store_true',
                       help='prepare a package list for stabilization')
     mkpp.add_argument('package', nargs='+',

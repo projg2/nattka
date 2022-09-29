@@ -470,10 +470,14 @@ def add_keywords(tuples: PackageKeywordsIterable,
 
 def check_dependencies(repo: UnconfiguredTree,
                        tuples: PackageKeywordsIterable,
+                       profiles: str = "stable,dev",
                        ) -> CheckResult:
     """
     Check whether dependencies are satisfied for package-arch @tuples,
     in @repo.  Returns a pair of (boolean status, error list).
+
+    @profiles specifies the list of profiles to check, and is passed
+    through to pkgcheck as the `-p` option.
     """
 
     errors = []
@@ -482,7 +486,7 @@ def check_dependencies(repo: UnconfiguredTree,
     for keywords, packages in itertools.groupby(tuples, lambda x: x[1]):
         package_strs = list((str(x[0].versioned_atom) for x in packages))
         results = pkgcheck.scan(['-c', 'VisibilityCheck',
-                                 '-p', 'stable,dev',
+                                 '-p', profiles,
                                  '-a', ','.join(keywords),
                                  '-r', repo.location,
                                  ] + package_strs)
