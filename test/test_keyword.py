@@ -140,7 +140,7 @@ class UpdateKeywordsTests(unittest.TestCase):
 
 
 @patch('nattka.keyword.update_copyright',
-       lambda l: update_copyright(l, 2015))
+       lambda line: update_copyright(line, 2015))
 class UpdateKeywordsInFileTests(unittest.TestCase):
     """ Tests for update_keywords_in_file() function. """
 
