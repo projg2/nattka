@@ -1058,6 +1058,7 @@ def main(argv: typing.List[str]) -> int:
         log.info('Exiting due to ^c')
         return 1
     except SystemExit as e:
+        assert isinstance(e.code, int)
         return e.code
 
 
