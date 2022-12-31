@@ -4,7 +4,7 @@ jobs:
   build:
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.9", "3.10", "3.11"]
         variant: [rel, git, rel-networkx]
       fail-fast: false
     runs-on: ubuntu-latest
