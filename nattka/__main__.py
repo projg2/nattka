@@ -15,7 +15,6 @@ import typing
 from pathlib import Path
 
 from snakeoil.fileutils import AtomicWriteFile
-from pkgcore.ebuild.atom import atom
 from pkgcore.ebuild.repository import UnconfiguredTree
 
 from nattka import __version__
@@ -440,7 +439,7 @@ class NattkaCommands(object):
                     for d in i.deps:
                         # TODO: handle USE-deps meaningfully
                         # TODO: handle <-deps
-                        r = atom(d, eapi=eapi).no_usedeps
+                        r = eapi.atom_kls(d).no_usedeps
                         for m in reversed(sorted(repo.itermatch(r))):
                             if b.category == BugCategory.STABLEREQ:
                                 # skip unkeyworded ebuilds
