@@ -819,8 +819,7 @@ class ExpandPackageListTests(BaseRepoTestCase):
         '''
         self.assertEqual(
             expand_package_list(self.repo,
-                                BugInfo(BugCategory.STABLEREQ, data),
-                                ['amd64@gentoo.org', 'hppa@gentoo.org']),
+                                BugInfo(BugCategory.STABLEREQ, data)),
             data)
 
     def test_asterisk_streq(self):
@@ -836,8 +835,7 @@ class ExpandPackageListTests(BaseRepoTestCase):
         '''
         self.assertEqual(
             expand_package_list(self.repo,
-                                BugInfo(BugCategory.STABLEREQ, data),
-                                ['hppa@gentoo.org']),
+                                BugInfo(BugCategory.STABLEREQ, data)),
             expect)
 
     def test_asterisk_kwreq(self):
@@ -853,25 +851,7 @@ class ExpandPackageListTests(BaseRepoTestCase):
         '''
         self.assertEqual(
             expand_package_list(self.repo,
-                                BugInfo(BugCategory.KEYWORDREQ, data),
-                                ['hppa@gentoo.org']),
-            expect)
-
-    def test_asterisk_to_empty(self):
-        data = '''
-            test/mixed-keywords-3    *
-            test/mixed-keywords-4    ^
-            test/amd64-testing-1     ^
-        '''
-        expect = f'''
-            test/mixed-keywords-3    {""}
-            test/mixed-keywords-4    {""}
-            test/amd64-testing-1     {""}
-        '''
-        self.assertEqual(
-            expand_package_list(self.repo,
-                                BugInfo(BugCategory.STABLEREQ, data),
-                                ['amd64@gentoo.org', 'hppa@gentoo.org']),
+                                BugInfo(BugCategory.KEYWORDREQ, data)),
             expect)
 
     def test_above(self):
@@ -891,8 +871,7 @@ class ExpandPackageListTests(BaseRepoTestCase):
         '''
         self.assertEqual(
             expand_package_list(self.repo,
-                                BugInfo(BugCategory.STABLEREQ, data),
-                                ['hppa@gentoo.org']),
+                                BugInfo(BugCategory.STABLEREQ, data)),
             expect)
 
     def test_above_empty(self):
@@ -906,8 +885,7 @@ class ExpandPackageListTests(BaseRepoTestCase):
         '''
         self.assertEqual(
             expand_package_list(self.repo,
-                                BugInfo(BugCategory.STABLEREQ, data),
-                                ['hppa@gentoo.org']),
+                                BugInfo(BugCategory.STABLEREQ, data)),
             expect)
 
     def test_above_empty_plus_keywords_left(self):
@@ -917,8 +895,7 @@ class ExpandPackageListTests(BaseRepoTestCase):
         '''
         with self.assertRaises(ExpandImpossible):
             expand_package_list(self.repo,
-                                BugInfo(BugCategory.STABLEREQ, data),
-                                ['hppa@gentoo.org'])
+                                BugInfo(BugCategory.STABLEREQ, data))
 
     def test_above_empty_plus_keywords_right(self):
         data = '''
@@ -927,8 +904,7 @@ class ExpandPackageListTests(BaseRepoTestCase):
         '''
         with self.assertRaises(ExpandImpossible):
             expand_package_list(self.repo,
-                                BugInfo(BugCategory.STABLEREQ, data),
-                                ['hppa@gentoo.org'])
+                                BugInfo(BugCategory.STABLEREQ, data))
 
 
 class FakeEbuild(object):

@@ -376,21 +376,18 @@ def match_package_list(repo: UnconfiguredTree,
 
 def expand_package_list(repo: UnconfiguredTree,
                         bug: BugInfo,
-                        target_cc: typing.Iterable[str],
                         ) -> str:
     """
     Expand `*` and `^` entries in package list
 
     `repo` is the repository, `bug` is the original bug to work on.
-    `target_cc` specifies expected CC list (to simplify "*").  Returns
-    new package list contents.
+    Returns new package list contents.
 
     Note that this function assumes that match_package_list() has been
     called already, and did not raise any exceptions, i.e. that the bug
     is known to have a valid package list.
     """
 
-    target_cc = frozenset(target_cc)
     ret = ''
     prev_kw = None
     for line in bug.atoms.splitlines(keepends=True):
@@ -418,13 +415,9 @@ def expand_package_list(repo: UnconfiguredTree,
                 pkg = select_best_version(m)
                 cur_kw = []
             elif w == '*':
-                assert target_cc
                 match_keywords = get_suggested_keywords(
                     repo, pkg, bug.category == BugCategory.STABLEREQ)
-                if target_cc == set(f'{x}@gentoo.org'
-                                    for x in match_keywords):
-                    w = ''
-                elif match_keywords:
+                if match_keywords:
                     w = ' '.join(
                         sorted(match_keywords, key=keyword_sort_key))
                 else:
