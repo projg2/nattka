@@ -2,7 +2,7 @@
 NATTkA -- A New Arch Tester Toolkit
 ===================================
 :Author: Michał Górny
-:License: 2-clause BSD license
+:License: GPL-2.0-or-later
 :Homepage: https://github.com/mgorny/nattka/
 :Documentation: https://dev.gentoo.org/~mgorny/doc/nattka/
 

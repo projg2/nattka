@@ -1,5 +1,5 @@
-# (c) 2020-2021 Michał Górny
-# 2-clause BSD license
+# (c) 2020-2024 Michał Górny
+# SPDX-License-Identifier: GPL-2.0-or-later
 
 """ CLI for nattka. """
 
