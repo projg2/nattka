@@ -322,8 +322,8 @@ class NattkaCommands(object):
                     print(f'={p.cpvstr} **  # -> {kws}')
             print()
             if not self.args.no_update:
-                add_keywords(plist.items(), b.category
-                                            == BugCategory.STABLEREQ)
+                add_keywords(plist.items(),
+                             b.category == BugCategory.STABLEREQ)
 
         return ret
 
