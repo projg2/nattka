@@ -381,7 +381,7 @@ class NattkaCommands(object):
                     kws = 'ALLARCHES'
                 else:
                     kws = ' '.join(keywords)
-                msg = f'{pfx}: {act} {p.fullver} {kws}, #{bno}'
+                msg = f'{pfx}: {act} {p.fullver} {kws}, #{bno}\n\nCloses: https://bugs.gentoo.org/{bno}'
                 try:
                     print(git_commit(git_repo.path,
                                      msg,

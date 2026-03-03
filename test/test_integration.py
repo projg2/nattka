@@ -1753,6 +1753,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
 test@example.com
 test/alpha-amd64-hppa-testing: Stabilize 2 amd64 hppa, #560322
 
+Closes: https://bugs.gentoo.org/560322
 Signed-off-by: test <test@example.com>
 
 
@@ -1761,6 +1762,7 @@ test
 test@example.com
 test/amd64-testing: Stabilize 1 amd64, #560322
 
+Closes: https://bugs.gentoo.org/560322
 Signed-off-by: test <test@example.com>
 
 
@@ -1805,6 +1807,7 @@ test/amd64-testing/amd64-testing-1.ebuild
 test@example.com
 test/amd64-testing-deps: Stabilize 1 amd64, #560322
 
+Closes: https://bugs.gentoo.org/560322
 Signed-off-by: test <test@example.com>
 
 
@@ -1813,6 +1816,7 @@ test
 test@example.com
 test/amd64-testing: Stabilize 1 amd64, #560322
 
+Closes: https://bugs.gentoo.org/560322
 Signed-off-by: test <test@example.com>
 
 
@@ -1856,6 +1860,7 @@ test/amd64-testing/amd64-testing-1.ebuild
 test@example.com
 test/mixed-keywords: Stabilize 4 ALLARCHES, #560322
 
+Closes: https://bugs.gentoo.org/560322
 Signed-off-by: test <test@example.com>
 
 
@@ -1864,6 +1869,7 @@ test
 test@example.com
 test/mixed-keywords: Stabilize 3 ALLARCHES, #560322
 
+Closes: https://bugs.gentoo.org/560322
 Signed-off-by: test <test@example.com>
 
 
@@ -1909,6 +1915,7 @@ test/mixed-keywords/mixed-keywords-3.ebuild
 test@example.com
 test/mixed-keywords: Stabilize 4 amd64, #560322
 
+Closes: https://bugs.gentoo.org/560322
 Signed-off-by: test <test@example.com>
 
 
@@ -1917,6 +1924,7 @@ test
 test@example.com
 test/mixed-keywords: Stabilize 3 amd64, #560322
 
+Closes: https://bugs.gentoo.org/560322
 Signed-off-by: test <test@example.com>
 
 
