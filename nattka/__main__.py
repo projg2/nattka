@@ -15,24 +15,29 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from snakeoil.fileutils import AtomicWriteFile
+from pkgcore.bugzilla import (Bug, BugCategory, BugQuery, BugUpdate,
+                              Bugzilla, ListChange, NewComment, PackageList,
+                              PackageListError, Resolution, Status)
+from pkgcore.ebuild.keywording import (KeywordNoneLeft, KeywordNotSpecified,
+                                       PackageListDoneAlready,
+                                       PackageListEmpty,
+                                       PackageMatchException,
+                                       can_stabilize_allarches,
+                                       filter_prefix_keywords,
+                                       suggested_keywords)
 from pkgcore.ebuild.repository import UnconfiguredTree
 
 from nattka import __version__
-from nattka.bugzilla import (NattkaBugzilla, BugInfo, BugCategory,
-                             arches_from_cc, split_dependent_bugs)
+
+from nattka.bugzilla import SKIP_TAG, make_bugzilla, split_dependent_bugs
 from nattka.git import (GitCommitNoChanges, GitDirtyWorkTree,
                         GitWorkTree, git_commit)
-from nattka.package import (find_repository, match_package_list,
-                            add_keywords, check_dependencies,
-                            PackageMatchException, KeywordNotSpecified,
-                            PackageListEmpty, PackageListDoneAlready,
-                            KeywordNoneLeft, is_masked,
+from nattka.package import (find_repository, add_keywords,
+                            check_dependencies, is_masked,
                             package_list_to_json, merge_package_list,
-                            expand_package_list, ExpandImpossible,
-                            format_results, filter_prefix_keywords,
-                            PackageKeywordsDict, get_suggested_keywords,
-                            load_profiles, MaskReason,
-                            can_allarches_for_keywords)
+                            expand_package_list,
+                            format_results, PackageKeywordsDict,
+                            load_profiles, MaskReason)
 
 try:
     from nattka.depgraph import (get_ordered_nodes,
@@ -74,7 +79,7 @@ class NoChanges(Exception):
 
 class NattkaCommands(object):
     args: argparse.Namespace
-    bz: typing.Optional[NattkaBugzilla]
+    bz: typing.Optional[Bugzilla]
     repo: typing.Optional[UnconfiguredTree]
 
     def __init__(self,
@@ -108,45 +113,44 @@ class NattkaCommands(object):
 
     def get_bugzilla(self,
                      require_api_key: bool = False
-                     ) -> NattkaBugzilla:
+                     ) -> Bugzilla:
         """
         Initialize and return a bugzilla instance.  Caches the result.
         If @require_api_key is True, requires API key to be provided.
         """
 
         if self.bz is None:
-            self.bz = NattkaBugzilla(
-                self.get_api_key(require_api_key=require_api_key),
-                api_url=self.args.bugzilla_endpoint)
+            self.bz = make_bugzilla(
+                api_key=self.get_api_key(require_api_key=require_api_key),
+                endpoint=self.args.bugzilla_endpoint)
         return self.bz
 
     def find_bugs(self,
                   arch: typing.Optional[typing.List[str]] = [],
                   ) -> typing.Tuple[typing.List[int],
-                                    typing.Dict[int, BugInfo]]:
+                                    typing.Dict[int, Bug]]:
         """
         Find/get bugs according to command-line options
 
         Return a tuple of (bug numbers, dictionary of bug numbers
-        to BugInfo objects).
+        to Bug objects).
         """
 
         bz = self.get_bugzilla()
-        kwargs = {}
+        categories = getattr(self.args, 'category', [])
         if self.args.bug:
-            kwargs['bugs'] = self.args.bug
+            query = BugQuery.ids(self.args.bug)
+            if categories:
+                query &= BugQuery.category(*categories)
         else:
-            kwargs.update({
-                'category': [BugCategory.KEYWORDREQ,
-                             BugCategory.STABLEREQ],
-                'skip_tags': ['nattka:skip'],
-                'unresolved': True,
-            })
-        if getattr(self.args, 'category', []):
-            kwargs['category'] = self.args.category
+            if not categories:
+                categories = [BugCategory.KEYWORDREQ, BugCategory.STABLEREQ]
+            query = (BugQuery.category(*categories)
+                     & BugQuery.without_tags(SKIP_TAG)
+                     & BugQuery.unresolved())
         if arch:
-            kwargs['cc'] = sorted([f'{x}@gentoo.org' for x in arch])
-        bugs = bz.find_bugs(**kwargs)
+            query &= BugQuery.cc(*sorted(f'{x}@gentoo.org' for x in arch))
+        bugs = bz.search(query)
 
         # hack: Bugzilla seems to suffer from a race condition that can
         # result in closed bugs being returned when a bug is closed
@@ -269,8 +273,8 @@ class NattkaCommands(object):
                 continue
 
             try:
-                plist = dict(match_package_list(
-                    repo, b, only_new=True, filter_arch=arch,
+                plist = dict(b.match_packages(
+                    repo, only_new=True, filter_arch=arch,
                     permit_allarches=not self.args.ignore_allarches))
             except PackageMatchException as e:
                 print(f'# bug {bno}: {e}\n')
@@ -289,14 +293,14 @@ class NattkaCommands(object):
             all_keywords = frozenset(
                 itertools.chain.from_iterable(plist.values()))
             unresolved_deps = []
-            for depno in b.depends:
+            for depno in b.depends_on:
                 depb = bugs[depno]
                 if depb.resolved:
                     continue
                 if depb.category == b.category:
                     try:
-                        for depp, depkw in match_package_list(
-                                repo, depb, only_new=True,
+                        for depp, depkw in depb.match_packages(
+                                repo, only_new=True,
                                 filter_arch=all_keywords):
                             pass
                     except PackageListEmpty:
@@ -360,8 +364,8 @@ class NattkaCommands(object):
                 continue
 
             try:
-                plist = dict(match_package_list(
-                    repo, b, filter_arch=arch,
+                plist = dict(b.match_packages(
+                    repo, filter_arch=arch,
                     permit_allarches=not self.args.ignore_allarches))
             except PackageMatchException as e:
                 log.error(f'Bug {bno}: {e}')
@@ -420,9 +424,14 @@ class NattkaCommands(object):
             else:
                 bug_cat = BugCategory.KEYWORDREQ
                 pkg_attr = 'key'
+            product = bug_cat.product
+            component = bug_cat.component
 
-            b = BugInfo(bug_cat, f'{packages[0]} {initial_arches}\n')
-            plist = dict(match_package_list(repo, b, only_new=True))
+            b = Bug(product=product,
+                    component=component,
+                    package_list=PackageList(
+                        f'{packages[0]} {initial_arches}\n'))
+            plist = dict(b.match_packages(repo, only_new=True))
             assert len(plist) == 1
             cc_arches = sorted(
                 [f'{x}@gentoo.org' for x
@@ -431,8 +440,11 @@ class NattkaCommands(object):
 
             it = 1
             # prepare the initial set
-            b = BugInfo(bug_cat, '\n'.join(packages), cc=cc_arches)
-            new_plist = dict(match_package_list(repo, b, only_new=True))
+            b = Bug(product=product,
+                    component=component,
+                    package_list=PackageList('\n'.join(packages)),
+                    cc=tuple(cc_arches))
+            new_plist = dict(b.match_packages(repo, only_new=True))
             add_keywords(plist.items(),
                          b.category == BugCategory.STABLEREQ)
 
@@ -469,8 +481,10 @@ class NattkaCommands(object):
                     f'New packages: {" ".join(sorted(new_packages))}')
 
                 # apply on *new* packages
-                b = BugInfo(bug_cat, '\n'.join(new_packages), cc=cc_arches)
-                new_plist = dict(match_package_list(repo, b, only_new=True))
+                b = Bug(product=product, component=component,
+                        package_list=PackageList('\n'.join(new_packages)),
+                        cc=tuple(cc_arches))
+                new_plist = dict(b.match_packages(repo, only_new=True))
                 for p in list(new_packages):
                     if not any(getattr(x, pkg_attr) == p for x in new_plist):
                         log.info(f'Package {p} seems to be a red herring '
@@ -524,7 +538,7 @@ class NattkaCommands(object):
                 ret = 1
                 continue
 
-            current_arches = set(arches_from_cc(b.cc, repo.known_arches))
+            current_arches = set(b.arches(repo.known_arches))
             allarches = (not self.args.ignore_allarches
                          and 'ALLARCHES' in b.keywords)
             if allarches:
@@ -553,11 +567,13 @@ class NattkaCommands(object):
                            f'done')
                 if all_done:
                     comment += '\n\nall arches done'
-                bz.resolve_bug(
-                    bno,
-                    sorted([f'{x}@gentoo.org' for x in to_remove]),
-                    comment,
-                    to_close)
+                uncc = sorted(f'{x}@gentoo.org' for x in to_remove)
+                update = BugUpdate(
+                    status=Status.RESOLVED if to_close else Status.IN_PROGRESS,
+                    resolution=Resolution.FIXED if to_close else None,
+                    cc=ListChange.removing(*uncc),
+                    comment=NewComment(comment))
+                bz.update(bno, update)
                 log.info('Bug updated')
 
         return ret
@@ -628,11 +644,10 @@ class NattkaCommands(object):
                 need_security_kw = False
 
                 try:
-                    arches_cced = bool(
-                        arches_from_cc(b.cc, repo.known_arches))
+                    arches_cced = bool(b.arches(repo.known_arches))
                     try:
-                        for p, kw in match_package_list(repo, b,
-                                                        only_new=True):
+                        for p, kw in b.match_packages(repo,
+                                                      only_new=True):
                             masked, mask_kws = is_masked(repo, p, kw,
                                                          profiles)
                             if masked == MaskReason.REPOSITORY_MASK:
@@ -659,9 +674,10 @@ class NattkaCommands(object):
                         for p, kw in plist.items():
                             fkw = frozenset(kw)
                             if not fkw:
-                                fkw = get_suggested_keywords(
+                                fkw = suggested_keywords(
                                     repo, p,
-                                    b.category == BugCategory.STABLEREQ)
+                                    stable=(b.category
+                                            == BugCategory.STABLEREQ))
                             all_keywords.add(fkw)
                             # we can CC arches iff all packages have
                             # consistent (potential) keywords
@@ -674,8 +690,8 @@ class NattkaCommands(object):
                         try:
                             merge_package_list(
                                 plist,
-                                match_package_list(
-                                    repo, bugs[kw_dep], only_new=True))
+                                bugs[kw_dep].match_packages(
+                                    repo, only_new=True))
                         except (KeywordNotSpecified, KeywordNoneLeft):
                             raise DependentBugError(
                                 f'dependent bug #{kw_dep} is missing keywords')
@@ -703,7 +719,7 @@ class NattkaCommands(object):
                     # check if we have ALLARCHES to toggle
                     allarches = (b.category == BugCategory.STABLEREQ
                                  and all(x.stabilize_allarches for x in plist)
-                                 and can_allarches_for_keywords(
+                                 and can_stabilize_allarches(
                                      repo, check_packages.items()))
                     allarches_chg = (allarches != ('ALLARCHES' in b.keywords))
 
@@ -716,18 +732,18 @@ class NattkaCommands(object):
                                 blocked_bug = bugs[blocked_no]
                             except KeyError:
                                 blocked_bug = (
-                                    self.get_bugzilla()
-                                    .find_bugs(bugs=[blocked_no])[blocked_no])
+                                    self.get_bugzilla().get(blocked_no))
                             if blocked_bug.security:
                                 need_security_kw = True
                                 break
 
                     # check if keywords need expanding
-                    if (('*' in b.atoms or '^' in b.atoms)
+                    if (('*' in str(b.package_list)
+                         or '^' in str(b.package_list))
                             and (arches_cced or cc_arches)):
                         try:
                             expanded_plist = expand_package_list(repo, b)
-                        except ExpandImpossible:
+                        except PackageListError:
                             pass
 
                     plist_json = package_list_to_json(plist.items())
@@ -794,7 +810,7 @@ class NattkaCommands(object):
                     log.info('Skipping, no CC and probably no work to do')
                     continue
                 except KeywordNotSpecified as e:
-                    e_packages = '\n'.join(f'- {x}' for x in e.pkgs)
+                    e_packages = '\n'.join(f'- {x}' for x in e.packages)
                     log.info('Skipping because of incomplete keywords')
                     comment = (f'Keywords are not fully specified and '
                                f'arches are not CC-ed for the following '
@@ -843,7 +859,8 @@ class NattkaCommands(object):
                 # needs to change
                 if check_res is False and b.sanity_check is False:
                     assert comment is not None
-                    old_comment = bz.get_latest_comment(bno)
+                    old = bz.latest_comment(bno)
+                    old_comment = old.text if old is not None else None
                     # do not add a second identical comment
                     if (old_comment is not None
                             and comment.strip() == old_comment.strip()):
@@ -876,23 +893,26 @@ class NattkaCommands(object):
                     if not self.args.update_bugs:
                         log.info(f'New package list: {expanded_plist}')
                 if self.args.update_bugs:
-                    kwargs = {}
-                    if cc_arches:
-                        kwargs['cc_add'] = cc_arches + cc_maintainers
                     keywords_add = []
+                    keywords_remove = []
                     if allarches_chg:
                         if allarches:
                             keywords_add.append('ALLARCHES')
                         else:
-                            kwargs['keywords_remove'] = ['ALLARCHES']
+                            keywords_remove.append('ALLARCHES')
                     if need_security_kw:
                         keywords_add.append('SECURITY')
-                    if keywords_add:
-                        kwargs['keywords_add'] = keywords_add
-                    if expanded_plist:
-                        kwargs['new_package_list'] = [expanded_plist]
-                    bz.update_status(bno, check_res, comment,
-                                     **kwargs)
+                    update = BugUpdate.sanity_check(
+                        check_res,
+                        comment=comment,
+                        cc=ListChange.adding(*cc_arches, *cc_maintainers),
+                        keywords=ListChange(add=tuple(keywords_add),
+                                            remove=tuple(keywords_remove)),
+                        package_list=(PackageList(expanded_plist)
+                                      if expanded_plist else None))
+                    # obsolete first, so the new comment is not caught by it
+                    bz.mark_own_comments_obsolete(bno)
+                    bz.update(bno, update)
                     if cache_entry is not None:
                         cache_entry['updated'] = True
                     log.info('Bug status updated')

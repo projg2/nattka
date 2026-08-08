@@ -18,7 +18,10 @@ import pkgcore.ebuild.ebuild_src
 from pkgcore.ebuild.repository import UnconfiguredTree
 from pkgcore.util import parserestrict
 
-from nattka.bugzilla import BugCategory, BugInfo
+from pkgcore.bugzilla import BugCategory, BugQuery
+
+from test.bug import (mk_bug, mk_comment, resolve_update,
+                      sanity_check_update)
 from nattka.__main__ import main, have_nattka_depgraph
 
 from test.test_package import get_test_repo
@@ -60,7 +63,7 @@ class IntegrationTestCase(unittest.TestCase):
         self.repo = get_test_repo(tempdir_path).repo
 
         self.common_args = [
-            # we do not need an API key since we mock NattkaBugzilla
+            # we do not need an API key since we mock the bugzilla client
             # but the program refuses to run without it
             '--api-key', 'UNUSED',
             '--portage-conf', str(tempdir_path / 'conf'),
@@ -94,45 +97,44 @@ class IntegrationNoActionTests(IntegrationTestCase):
                    initial_status: typing.Optional[bool] = None
                    ) -> MagicMock:
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            '   \r\n'
-                            '\r\n',
-                            sanity_check=initial_status,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           '   \r\n'
+                           '\r\n',
+                           sanity_check=initial_status,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         return bugz_inst
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_empty_package_list(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
             1)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=FULL_CC)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc(*FULL_CC))
         add_keywords.assert_not_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_empty_package_list(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.update.assert_not_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_reset_n(self, bugz, add_keywords):
         """
         Test skipping a bug that needs sanity-check reset, with '-n'.
@@ -141,175 +143,179 @@ class IntegrationNoActionTests(IntegrationTestCase):
         self.assertEqual(
             main(self.common_args + ['sanity-check', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.update.assert_not_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_reset(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_called_with(
-            560322, None, self.reset_msg)
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                None, self.reset_msg))
 
     def empty_keywords_preset(self,
                               bugz: MagicMock
                               ) -> MagicMock:
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-testing-1 hppa\r\n'
-                            'test/alpha-amd64-hppa-testing-2\r\n',
-                            sanity_check=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/amd64-testing-1 hppa\r\n'
+                           'test/alpha-amd64-hppa-testing-2\r\n',
+                           sanity_check=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         return bugz_inst
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_empty_keywords(self, bugz, add_keywords):
         bugz_inst = self.empty_keywords_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
             1)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=FULL_CC)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc(*FULL_CC))
         add_keywords.assert_not_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_empty_keywords(self, bugz, add_keywords):
         bugz_inst = self.empty_keywords_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_called_with(
-            560322, None, 'Keywords are not fully specified and arches '
-            'are not CC-ed for the following packages:\n\n'
-            '- =test/alpha-amd64-hppa-testing-2')
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                None, 'Keywords are not fully specified and arches '
+                'are not CC-ed for the following packages:\n\n'
+                '- =test/alpha-amd64-hppa-testing-2'))
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_empty_keywords_cc_arches(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/mixed-keywords-3\r\n'
-                            'test/amd64-testing-1 amd64\r\n',
-                            keywords=['CC-ARCHES'],
-                            sanity_check=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/mixed-keywords-3\r\n'
+                           'test/amd64-testing-1 amd64\r\n',
+                           keywords=['CC-ARCHES'],
+                           sanity_check=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_called_with(
-            560322, None, 'Keywords are not fully specified and arches '
-            'are not CC-ed for the following packages:\n\n'
-            '- =test/mixed-keywords-3')
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                None, 'Keywords are not fully specified and arches '
+                'are not CC-ed for the following packages:\n\n'
+                '- =test/mixed-keywords-3'))
 
     def wrong_category_preset(self,
                               bugz: MagicMock
                               ) -> MagicMock:
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(None, '',
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(None, '',
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         return bugz_inst
 
-    @patch('nattka.__main__.match_package_list')
-    @patch('nattka.__main__.NattkaBugzilla')
-    def test_apply_wrong_category(self, bugz, match_package_list):
+    @patch('pkgcore.bugzilla.Bug.match_packages')
+    @patch('nattka.__main__.make_bugzilla')
+    def test_apply_wrong_category(self, bugz, match_packages):
         bugz_inst = self.wrong_category_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
             1)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=FULL_CC)
-        match_package_list.assert_not_called()
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc(*FULL_CC))
+        match_packages.assert_not_called()
 
-    @patch('nattka.__main__.match_package_list')
-    @patch('nattka.__main__.NattkaBugzilla')
-    def test_sanity_wrong_category(self, bugz, match_package_list):
+    @patch('pkgcore.bugzilla.Bug.match_packages')
+    @patch('nattka.__main__.make_bugzilla')
+    def test_sanity_wrong_category(self, bugz, match_packages):
         bugz_inst = self.wrong_category_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        match_package_list.assert_not_called()
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        match_packages.assert_not_called()
+        bugz_inst.update.assert_not_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_finished_package_list(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-stable-1 amd64',
-                            sanity_check=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/amd64-stable-1 amd64',
+                           sanity_check=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.update.assert_not_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_finished_package_no_keywords(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-stable-1',
-                            sanity_check=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/amd64-stable-1',
+                           sanity_check=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.update.assert_not_called()
 
 
 class IntegrationSuccessTests(IntegrationTestCase):
@@ -324,16 +330,16 @@ class IntegrationSuccessTests(IntegrationTestCase):
                    **kwargs
                    ) -> MagicMock:
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-testing-1 amd64\r\n'
-                            'test/alpha-amd64-hppa-testing-2 amd64 hppa\r\n',
-                            sanity_check=initial_status,
-                            last_change_time=last_change_time,
-                            **kwargs),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/amd64-testing-1 amd64\r\n'
+                           'test/alpha-amd64-hppa-testing-2 amd64 hppa\r\n',
+                           sanity_check=initial_status,
+                           last_change_time=last_change_time,
+                           **kwargs),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         return bugz_inst
 
     def post_verify(self):
@@ -349,15 +355,14 @@ class IntegrationSuccessTests(IntegrationTestCase):
             ('~alpha', '~amd64', '~hppa'))
 
     @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_stablereq(self, bugz, sout):
         bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=FULL_CC)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc(*FULL_CC))
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -373,22 +378,21 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/alpha-amd64-hppa-testing-2 ~amd64 ~hppa''')
 
     @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_keywordreq(self, bugz, sout):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 alpha ~hppa\r\n',
-                            sanity_check=True),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 alpha ~hppa\r\n',
+                           sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=FULL_CC)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc(*FULL_CC))
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -400,16 +404,15 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/amd64-testing-1 **  # -> ~alpha ~hppa''')
 
     @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_n(self, bugz, sout):
         """Test apply with '-n' option."""
         bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '-n', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=FULL_CC)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc(*FULL_CC))
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -425,15 +428,14 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/alpha-amd64-hppa-testing-2 ~amd64 ~hppa''')
 
     @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_filter_arch(self, bugz, sout):
         bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', 'amd64', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=['amd64@gentoo.org'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc('amd64@gentoo.org'))
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -449,15 +451,14 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/alpha-amd64-hppa-testing-2 ~amd64''')
 
     @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_filter_host_arch(self, bugz, sout):
         bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
             main(self.common_args + ['apply', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=['hppa@gentoo.org'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc('hppa@gentoo.org'))
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -472,38 +473,36 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/alpha-amd64-hppa-testing-2 ~hppa''')
 
     @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_filter_arch_to_empty(self, bugz, sout):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 hppa\r\n'
-                            'test/alpha-amd64-hppa-testing-2 hppa\r\n',
-                            ['amd64@gentoo.org', 'hppa@gentoo.org'],
-                            sanity_check=True),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 hppa\r\n'
+                           'test/alpha-amd64-hppa-testing-2 hppa\r\n',
+                           ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                           sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', 'amd64', '560322']),
             1)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=['amd64@gentoo.org'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc('amd64@gentoo.org'))
         self.assertEqual(
             sout.getvalue().strip(),
             '''# bug 560322: no packages match requested arch''')
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_skip_sanity_check(self, bugz):
         """Test that apply skips bug with failing sanity check"""
         bugz_inst = self.bug_preset(bugz, False)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
             1)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=FULL_CC)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc(*FULL_CC))
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -513,7 +512,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
             ('~alpha', '~amd64', '~hppa'))
 
     @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_ignore_sanity_check(self, bugz, sout):
         """Test that apply --ignore-sanity-check works"""
         bugz_inst = self.bug_preset(bugz, False)
@@ -521,9 +520,8 @@ class IntegrationSuccessTests(IntegrationTestCase):
             main(self.common_args + ['apply', '-a', '*', '560322',
                                      '--ignore-sanity-check']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=FULL_CC)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc(*FULL_CC))
 
         self.assertEqual(
             self.get_package('=test/amd64-testing-1').keywords,
@@ -538,28 +536,27 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/amd64-testing-1 ~amd64
 =test/alpha-amd64-hppa-testing-2 ~amd64 ~hppa''')
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_depend_unresolved(self, bugz):
         """Test that apply skips bug with unresolved dependencies"""
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
-                            depends=[560311], sanity_check=True),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha\r\n',
+                           depends=[560311], sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 ~alpha\r\n',
-                            blocks=[560322], sanity_check=True),
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 ~alpha\r\n',
+                           blocks=[560322], sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value.update(
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
             1)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=FULL_CC)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc(*FULL_CC))
         bugz_inst.resolve_dependencies.assert_called()
 
         self.assertEqual(
@@ -570,28 +567,27 @@ class IntegrationSuccessTests(IntegrationTestCase):
             ('~amd64',))
 
     @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_depend_resolved(self, bugz, sout):
         """Test that apply does not block on resolved dependencies"""
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
-                            depends=[560311], sanity_check=True),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha\r\n',
+                           depends=[560311], sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 ~alpha\r\n',
-                            blocks=[560322], resolved=True),
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 ~alpha\r\n',
+                           blocks=[560322], resolved=True),
         }
         bugz_inst.resolve_dependencies.return_value.update(
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=FULL_CC)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc(*FULL_CC))
         bugz_inst.resolve_dependencies.assert_called()
 
         self.assertEqual(
@@ -607,27 +603,26 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/amd64-testing-deps-1 **  # -> ~alpha''')
 
     @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_depend_empty(self, bugz, sout):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha ~hppa\r\n',
-                            depends=[560311], sanity_check=True),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha ~hppa\r\n',
+                           depends=[560311], sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            '',
-                            blocks=[560322]),
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           '',
+                           blocks=[560322]),
         }
         bugz_inst.resolve_dependencies.return_value.update(
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', 'hppa', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=['hppa@gentoo.org'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc('hppa@gentoo.org'))
         bugz_inst.resolve_dependencies.assert_called()
 
         self.assertEqual(
@@ -640,28 +635,27 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/amd64-testing-deps-1 **  # -> ~hppa''')
 
     @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_depend_irrelevant(self, bugz, sout):
         """Test that apply does not block on deps for other arches"""
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha ~hppa\r\n',
-                            depends=[560311], sanity_check=True),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha ~hppa\r\n',
+                           depends=[560311], sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 ~alpha\r\n',
-                            blocks=[560322]),
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 ~alpha\r\n',
+                           blocks=[560322]),
         }
         bugz_inst.resolve_dependencies.return_value.update(
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', 'hppa', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=['hppa@gentoo.org'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc('hppa@gentoo.org'))
         bugz_inst.resolve_dependencies.assert_called()
 
         self.assertEqual(
@@ -677,29 +671,28 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/amd64-testing-deps-1 **  # -> ~hppa''')
 
     @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_depend_ignore(self, bugz, sout):
         """Test that apply --ignore-dependencies works"""
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
-                            depends=[560311], sanity_check=True),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha\r\n',
+                           depends=[560311], sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 ~alpha\r\n',
-                            blocks=[560322], sanity_check=True),
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 ~alpha\r\n',
+                           blocks=[560322], sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value.update(
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322',
                                      '--ignore-dependencies']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=FULL_CC)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc(*FULL_CC))
         bugz_inst.resolve_dependencies.assert_called()
 
         self.assertEqual(
@@ -717,23 +710,22 @@ class IntegrationSuccessTests(IntegrationTestCase):
     @unittest.skipIf(not have_nattka_depgraph,
                      'networkx required for dep sorting')
     @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_dep_sorting(self, bugz, sout):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-testing-deps-1 amd64\r\n'
-                            'test/amd64-testing-1 amd64\r\n',
-                            sanity_check=True),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/amd64-testing-deps-1 amd64\r\n'
+                           'test/amd64-testing-1 amd64\r\n',
+                           sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '-n', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=FULL_CC)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc(*FULL_CC))
 
         self.assertEqual(
             sout.getvalue().strip(),
@@ -742,24 +734,23 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/amd64-testing-deps-1 ~amd64''')
 
     @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_allarches(self, bugz, sout):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/mixed-keywords-3 amd64 hppa\r\n'
-                            'test/mixed-keywords-4 amd64 hppa\r\n',
-                            sanity_check=True,
-                            keywords=['ALLARCHES']),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/mixed-keywords-3 amd64 hppa\r\n'
+                           'test/mixed-keywords-4 amd64 hppa\r\n',
+                           sanity_check=True,
+                           keywords=['ALLARCHES']),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', 'amd64', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=['amd64@gentoo.org'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc('amd64@gentoo.org'))
 
         self.assertEqual(
             self.get_package('=test/mixed-keywords-3').keywords,
@@ -775,25 +766,24 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/mixed-keywords-4 ~amd64''')
 
     @patch('nattka.__main__.sys.stdout', new_callable=io.StringIO)
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_apply_allarches_ignore(self, bugz, sout):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/mixed-keywords-3 amd64 hppa\r\n'
-                            'test/mixed-keywords-4 amd64 hppa\r\n',
-                            sanity_check=True,
-                            keywords=['ALLARCHES']),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/mixed-keywords-3 amd64 hppa\r\n'
+                           'test/mixed-keywords-4 amd64 hppa\r\n',
+                           sanity_check=True,
+                           keywords=['ALLARCHES']),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', 'amd64', '560322',
                                      '--ignore-allarches']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            bugs=[560322],
-            cc=['amd64@gentoo.org'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322])
+                                            & BugQuery.cc('amd64@gentoo.org'))
 
         self.assertEqual(
             self.get_package('=test/mixed-keywords-3').keywords,
@@ -808,53 +798,58 @@ class IntegrationSuccessTests(IntegrationTestCase):
 =test/mixed-keywords-3 ~amd64
 =test/mixed-keywords-4 ~amd64''')
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_n(self, bugz):
         """Test processing with '-n'"""
         bugz_inst = self.bug_preset(bugz, True)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_not_called()
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_from_none(self, bugz):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(560322, True, None)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_from_success(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_not_called()
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_from_failure(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, 'All sanity-check issues have been resolved')
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, 'All sanity-check issues have been resolved'))
         self.post_verify()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cache(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
@@ -862,9 +857,9 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.update.assert_not_called()
 
         add_keywords.reset_mock()
         self.assertEqual(
@@ -872,12 +867,12 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.update.assert_not_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cache_expired(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         last_check = (datetime.datetime.now(datetime.timezone.utc)
@@ -889,7 +884,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                          '560322', '--cache-file',
                                          self.cache_file]),
                 0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
 
         add_keywords.reset_mock()
@@ -898,11 +893,11 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cache_plist_changed(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
@@ -910,49 +905,49 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
 
         add_keywords.reset_mock()
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 ~alpha\r\n',
-                            sanity_check=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 ~alpha\r\n',
+                           sanity_check=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cache_keywords_from_cc(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1\r\n',
-                            ['alpha@gentoo.org', 'hppa@gentoo.org'],
-                            sanity_check=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1\r\n',
+                           ['alpha@gentoo.org', 'hppa@gentoo.org'],
+                           sanity_check=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
 
         add_keywords.reset_mock()
@@ -961,82 +956,82 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cache_keywords_from_cc_changed(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1\r\n',
-                            ['alpha@gentoo.org'],
-                            sanity_check=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1\r\n',
+                           ['alpha@gentoo.org'],
+                           sanity_check=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
 
         add_keywords.reset_mock()
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1\r\n',
-                            ['alpha@gentoo.org', 'hppa@gentoo.org'],
-                            sanity_check=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1\r\n',
+                           ['alpha@gentoo.org', 'hppa@gentoo.org'],
+                           sanity_check=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cache_depend(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
-                            depends=[560311],
-                            sanity_check=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha\r\n',
+                           depends=[560311],
+                           sanity_check=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 ~alpha\r\n',
-                            blocks=[560322],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 ~alpha\r\n',
+                           blocks=[560322],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value.update(
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
 
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
 
         add_keywords.reset_mock()
@@ -1045,111 +1040,111 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cache_depend_changed(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
-                            depends=[560311],
-                            sanity_check=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha\r\n',
+                           depends=[560311],
+                           sanity_check=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 ~alpha\r\n',
-                            blocks=[560322],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 ~alpha\r\n',
+                           blocks=[560322],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value.update(
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
 
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
 
         add_keywords.reset_mock()
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
-                            sanity_check=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha\r\n',
+                           sanity_check=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cache_dependent_bug_changed(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
-                            depends=[560311],
-                            sanity_check=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha\r\n',
+                           depends=[560311],
+                           sanity_check=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 ~alpha\r\n',
-                            blocks=[560322],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 ~alpha\r\n',
+                           blocks=[560322],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value.update(
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
 
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
 
         add_keywords.reset_mock()
         bugz_inst.resolve_dependencies.return_value.update({
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 ~alpha ~hppa\r\n',
-                            blocks=[560322],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 ~alpha ~hppa\r\n',
+                           blocks=[560322],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         })
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cache_result_changed(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
@@ -1157,7 +1152,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
 
         add_keywords.reset_mock()
@@ -1167,11 +1162,11 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cache_from_noupdate(self, bugz, add_keywords):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
         self.assertEqual(
@@ -1179,9 +1174,9 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.update.assert_not_called()
 
         add_keywords.reset_mock()
         self.assertEqual(
@@ -1189,222 +1184,241 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_called()
-        bugz_inst.update_status.assert_called()
+        bugz_inst.update.assert_called()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_depend_specified(self, bugz):
         """
         Test for depending on another bug when both bugs are listed
         """
 
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 ~alpha\r\n',
-                            blocks=[560322],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
-                            depends=[560311],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 ~alpha\r\n',
+                           blocks=[560322],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha\r\n',
+                           depends=[560311],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560311', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560311, 560322])
-        self.assertEqual(bugz_inst.update_status.call_count, 2)
-        bugz_inst.update_status.assert_has_calls(
-            [unittest.mock.call(560311, True, None),
-             unittest.mock.call(560322, True, None)])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560311, 560322]))
+        self.assertEqual(bugz_inst.update.call_count, 2)
+        bugz_inst.update.assert_has_calls(
+            [unittest.mock.call(560311,
+                                sanity_check_update(
+                                    True, None)),
+             unittest.mock.call(560322,
+             sanity_check_update(
+                 True, None))])
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_depend_auto(self, bugz):
         """
         Test for depending on another bug with autofetching
         """
 
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
-                            depends=[560311],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha\r\n',
+                           depends=[560311],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 ~alpha\r\n',
-                            blocks=[560322],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 ~alpha\r\n',
+                           blocks=[560322],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value.update(
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
 
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         bugz_inst.resolve_dependencies.assert_called()
-        self.assertEqual(bugz_inst.update_status.call_count, 1)
-        bugz_inst.update_status.assert_called_with(560322, True, None)
+        self.assertEqual(bugz_inst.update.call_count, 1)
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_depend_failing(self, bugz):
         """
         Test that dependent sanity-check failure is not reported
         """
 
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/mixed-keywords-4 ~alpha\r\n',
-                            depends=[560311],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/mixed-keywords-4 ~alpha\r\n',
+                           depends=[560311],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
-                            blocks=[560322],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha\r\n',
+                           blocks=[560322],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value.update(
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
 
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         bugz_inst.resolve_dependencies.assert_called()
-        self.assertEqual(bugz_inst.update_status.call_count, 1)
-        bugz_inst.update_status.assert_called_with(560322, True, None)
+        self.assertEqual(bugz_inst.update.call_count, 1)
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_depend_no_fetch_deps(self, bugz):
         """
         Test for depending on another bug with --no-fetch-dependencies
         """
 
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
-                            depends=[560311],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha\r\n',
+                           depends=[560311],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '--no-fetch-dependencies',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         bugz_inst.resolve_dependencies.assert_not_called()
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.update.assert_not_called()
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_keywordreq_relaxed_syntax(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing alpha\r\n',
-                            sanity_check=None,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing alpha\r\n',
+                           sanity_check=None,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(560322, True, None)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_keywords_above(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n'
-                            'test/amd64-testing-1 ^\r\n',
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha\r\n'
+                           'test/amd64-testing-1 ^\r\n',
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560311']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560311])
-        bugz_inst.update_status.assert_called_with(
-            560311, True, None)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560311]))
+        bugz_inst.update.assert_called_with(
+            560311,
+            sanity_check_update(
+                True, None))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_keywords_partial_cc_match(self, bugz):
         """Test package list where some of the packages do not match CC"""
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560311: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-testing-1 amd64 hppa\r\n'
-                            'test/amd64-testing-2 amd64\r\n',
-                            cc=['hppa@gentoo.org'],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560311: mk_bug(BugCategory.STABLEREQ,
+                           'test/amd64-testing-1 amd64 hppa\r\n'
+                           'test/amd64-testing-2 amd64\r\n',
+                           cc=['hppa@gentoo.org'],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560311']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560311])
-        bugz_inst.update_status.assert_called_with(
-            560311, True, None)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560311]))
+        bugz_inst.update.assert_called_with(
+            560311,
+            sanity_check_update(
+                True, None))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cc_from_none(self, bugz):
         bugz_inst = self.bug_preset(bugz, keywords=['CC-ARCHES'])
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, None,
-            cc_add=['amd64@gentoo.org', 'hppa@gentoo.org'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None,
+                cc_add=['amd64@gentoo.org', 'hppa@gentoo.org']))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cc_from_success(self, bugz):
         bugz_inst = self.bug_preset(bugz,
                                     keywords=['CC-ARCHES'],
@@ -1413,13 +1427,15 @@ class IntegrationSuccessTests(IntegrationTestCase):
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, None,
-            cc_add=['amd64@gentoo.org', 'hppa@gentoo.org'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None,
+                cc_add=['amd64@gentoo.org', 'hppa@gentoo.org']))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cc_from_success_cache(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=None)
         self.assertEqual(
@@ -1427,9 +1443,11 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                      '--cache-file', self.cache_file,
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, None)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None))
         self.post_verify()
 
         bugz_inst = self.bug_preset(bugz,
@@ -1440,303 +1458,328 @@ class IntegrationSuccessTests(IntegrationTestCase):
                                      '--cache-file', self.cache_file,
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, None,
-            cc_add=['amd64@gentoo.org', 'hppa@gentoo.org'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None,
+                cc_add=['amd64@gentoo.org', 'hppa@gentoo.org']))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cc_prefix(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 amd64 hppa amd64-linux '
-                            'x86-macos sparc-freebsd\r\n',
-                            keywords=['CC-ARCHES'],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 amd64 hppa amd64-linux '
+                           'x86-macos sparc-freebsd\r\n',
+                           keywords=['CC-ARCHES'],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, None,
-            cc_add=['hppa@gentoo.org'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None,
+                cc_add=['hppa@gentoo.org']))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_allarches_add(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/mixed-keywords-5 amd64 hppa\r\n',
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/mixed-keywords-5 amd64 hppa\r\n',
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, None,
-            keywords_add=['ALLARCHES'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None,
+                keywords_add=['ALLARCHES']))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_allarches_extra_keywords(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/mixed-keywords-5 amd64 hppa alpha\r\n',
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/mixed-keywords-5 amd64 hppa alpha\r\n',
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, None)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_allarches_remove(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-testing-1 amd64\r\n',
-                            keywords=['ALLARCHES'],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/amd64-testing-1 amd64\r\n',
+                           keywords=['ALLARCHES'],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, None,
-            keywords_remove=['ALLARCHES'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None,
+                keywords_remove=['ALLARCHES']))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_allarches_leave_false(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-stable-hppa-testing-1 hppa\r\n',
-                            sanity_check=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/amd64-stable-hppa-testing-1 hppa\r\n',
+                           sanity_check=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_not_called()
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_allarches_leave_true(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-testing-1 amd64\r\n',
-                            keywords=['ALLARCHES'],
-                            sanity_check=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/amd64-testing-1 amd64\r\n',
+                           keywords=['ALLARCHES'],
+                           sanity_check=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_not_called()
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_expand_plist(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/mixed-keywords-3 *\r\n'
-                            'test/amd64-testing-2 ^\r\n',
-                            ['amd64@gentoo.org'],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/mixed-keywords-3 *\r\n'
+                           'test/amd64-testing-2 ^\r\n',
+                           ['amd64@gentoo.org'],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, None,
-            new_package_list=['test/mixed-keywords-3 amd64 hppa\r\n'
-                              'test/amd64-testing-2 amd64 hppa\r\n'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None,
+                new_package_list=['test/mixed-keywords-3 amd64 hppa\r\n'
+                                  'test/amd64-testing-2 amd64 hppa\r\n']))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_expand_plist_cc_arches(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/mixed-keywords-3 *\r\n'
-                            'test/amd64-testing-2 ^\r\n',
-                            keywords=['CC-ARCHES'],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/mixed-keywords-3 *\r\n'
+                           'test/amd64-testing-2 ^\r\n',
+                           keywords=['CC-ARCHES'],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, None,
-            cc_add=['amd64@gentoo.org', 'hppa@gentoo.org', 'foo@example.com'],
-            new_package_list=['test/mixed-keywords-3 amd64 hppa\r\n'
-                              'test/amd64-testing-2 amd64 hppa\r\n'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None,
+                cc_add=[
+                    'amd64@gentoo.org', 'hppa@gentoo.org', 'foo@example.com'],
+                new_package_list=['test/mixed-keywords-3 amd64 hppa\r\n'
+                                  'test/amd64-testing-2 amd64 hppa\r\n']))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_expand_plist_after_cc(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/mixed-keywords-3 *\r\n'
-                            'test/amd64-testing-2 ^\r\n',
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/mixed-keywords-3 *\r\n'
+                           'test/amd64-testing-2 ^\r\n',
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '--cache-file', self.cache_file,
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, None)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None))
         self.post_verify()
 
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/mixed-keywords-3 *\r\n'
-                            'test/amd64-testing-2 ^\r\n',
-                            ['amd64@gentoo.org', 'hppa@gentoo.org'],
-                            sanity_check=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/mixed-keywords-3 *\r\n'
+                           'test/amd64-testing-2 ^\r\n',
+                           ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                           sanity_check=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '--cache-file', self.cache_file,
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, None,
-            new_package_list=['test/mixed-keywords-3 amd64 hppa\r\n'
-                              'test/amd64-testing-2 amd64 hppa\r\n'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None,
+                new_package_list=['test/mixed-keywords-3 amd64 hppa\r\n'
+                                  'test/amd64-testing-2 amd64 hppa\r\n']))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_expand_plist_impossible(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/mixed-keywords-3\r\n'
-                            'test/amd64-testing-2 ^ hppa\r\n',
-                            ['amd64@gentoo.org', 'hppa@gentoo.org'],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/mixed-keywords-3\r\n'
+                           'test/amd64-testing-2 ^ hppa\r\n',
+                           ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(560322, True, None)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cc_arches_with_empty_keywords(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/mixed-keywords-3\r\n',
-                            keywords=['CC-ARCHES'],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/mixed-keywords-3\r\n',
+                           keywords=['CC-ARCHES'],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, None,
-            cc_add=['amd64@gentoo.org', 'hppa@gentoo.org', 'foo@example.com'])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None,
+                cc_add=['amd64@gentoo.org', 'hppa@gentoo.org',
+                        'foo@example.com']))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cc_resolved_race(self, bugz):
         bugz_inst = self.bug_preset(bugz, keywords=['CC-ARCHES'],
                                     resolved=True)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ],
-            skip_tags=['nattka:skip'],
-            unresolved=True)
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.search.assert_called_with(
+            BugQuery.category(BugCategory.KEYWORDREQ, BugCategory.STABLEREQ)
+            & BugQuery.unresolved()
+            & BugQuery.without_tags('nattka:skip'))
+        bugz_inst.update.assert_not_called()
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cc_unassigned(self, bugz):
         bugz_inst = self.bug_preset(bugz, keywords=['CC-ARCHES'],
                                     assigned_to='bug-wranglers@gentoo.org')
@@ -1744,13 +1787,15 @@ class IntegrationSuccessTests(IntegrationTestCase):
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, True, None)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                True, None))
         self.post_verify()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_freshly_updated(self, bugz, add_keywords):
         """Test that freshly updated bugs are skipped"""
         bugz_inst = self.bug_preset(bugz,
@@ -1766,11 +1811,11 @@ class IntegrationSuccessTests(IntegrationTestCase):
                 main(self.common_args + ['sanity-check', '--update-bugs',
                                          '560322']),
                 0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.update.assert_not_called()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_commit(self, bugz):
         assert subprocess.Popen(
             ['git', 'config', '--local', 'user.name', 'test'],
@@ -1786,7 +1831,7 @@ class IntegrationSuccessTests(IntegrationTestCase):
         self.assertEqual(
             main(self.common_args + ['commit', '-a', '*', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
 
         s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%B',
                               '--name-only'],
@@ -1814,7 +1859,7 @@ test/amd64-testing/amd64-testing-1.ebuild
 
     @unittest.skipIf(not have_nattka_depgraph,
                      'networkx required for dep sorting')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_commit_dep_sorting(self, bugz):
         assert subprocess.Popen(
             ['git', 'config', '--local', 'user.name', 'test'],
@@ -1824,21 +1869,21 @@ test/amd64-testing/amd64-testing-1.ebuild
             cwd=self.repo.location).wait() == 0
 
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-testing-deps-1 amd64\r\n'
-                            'test/amd64-testing-1 amd64\r\n',
-                            sanity_check=True),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/amd64-testing-deps-1 amd64\r\n'
+                           'test/amd64-testing-1 amd64\r\n',
+                           sanity_check=True),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', '*', '560322']),
             0)
         self.assertEqual(
             main(self.common_args + ['commit', '-a', '*', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
 
         s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%B',
                               '--name-only'],
@@ -1864,7 +1909,7 @@ Signed-off-by: test <test@example.com>
 test/amd64-testing/amd64-testing-1.ebuild
 ''')
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_commit_allarches(self, bugz):
         assert subprocess.Popen(
             ['git', 'config', '--local', 'user.name', 'test'],
@@ -1874,22 +1919,22 @@ test/amd64-testing/amd64-testing-1.ebuild
             cwd=self.repo.location).wait() == 0
 
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/mixed-keywords-3 amd64 hppa\r\n'
-                            'test/mixed-keywords-4 amd64 hppa\r\n',
-                            sanity_check=True,
-                            keywords=['ALLARCHES']),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/mixed-keywords-3 amd64 hppa\r\n'
+                           'test/mixed-keywords-4 amd64 hppa\r\n',
+                           sanity_check=True,
+                           keywords=['ALLARCHES']),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', 'amd64', '560322']),
             0)
         self.assertEqual(
             main(self.common_args + ['commit', '-a', 'amd64', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
 
         s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%B',
                               '--name-only'],
@@ -1915,7 +1960,7 @@ Signed-off-by: test <test@example.com>
 test/mixed-keywords/mixed-keywords-3.ebuild
 ''')
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_commit_allarches_ignore(self, bugz):
         assert subprocess.Popen(
             ['git', 'config', '--local', 'user.name', 'test'],
@@ -1925,15 +1970,15 @@ test/mixed-keywords/mixed-keywords-3.ebuild
             cwd=self.repo.location).wait() == 0
 
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/mixed-keywords-3 amd64 hppa\r\n'
-                            'test/mixed-keywords-4 amd64 hppa\r\n',
-                            sanity_check=True,
-                            keywords=['ALLARCHES']),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/mixed-keywords-3 amd64 hppa\r\n'
+                           'test/mixed-keywords-4 amd64 hppa\r\n',
+                           sanity_check=True,
+                           keywords=['ALLARCHES']),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['apply', '-a', 'amd64', '560322',
                                      '--ignore-allarches']),
@@ -1942,7 +1987,7 @@ test/mixed-keywords/mixed-keywords-3.ebuild
             main(self.common_args + ['commit', '-a', 'amd64', '560322',
                                      '--ignore-allarches']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
 
         s = subprocess.Popen(['git', 'log', '--format=%an\n%ae\n%B',
                               '--name-only'],
@@ -1983,17 +2028,17 @@ class IntegrationFailureTests(IntegrationTestCase):
                    **kwargs
                    ) -> MagicMock:
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
-                            sanity_check=initial_status,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc),
-                            **kwargs),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha\r\n',
+                           sanity_check=initial_status,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc),
+                           **kwargs),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         return bugz_inst
 
     def post_verify(self) -> None:
@@ -2002,46 +2047,50 @@ class IntegrationFailureTests(IntegrationTestCase):
             self.get_package('=test/amd64-testing-deps-1').keywords,
             ('~amd64',))
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_n(self, bugz):
         """Test processing with -n"""
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_not_called()
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_from_none(self, bugz):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, False, self.fail_msg)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                False, self.fail_msg))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_from_fail_no_comment(self, bugz):
         bugz_inst = self.bug_preset(bugz)
-        bugz_inst.get_latest_comment.return_value = None
+        bugz_inst.latest_comment.return_value = None
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, False, self.fail_msg)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                False, self.fail_msg))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_from_fail_other(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
-        bugz_inst.get_latest_comment.return_value = (
+        bugz_inst.latest_comment.return_value = mk_comment(
             'Sanity check failed:\n\n> nonsolvable depset(rdepend) '
             'keyword(~alpha) stable profile (alpha) (1 total): '
             'solutions: [ test/frobnicate ]')
@@ -2049,36 +2098,40 @@ class IntegrationFailureTests(IntegrationTestCase):
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, False, self.fail_msg)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                False, self.fail_msg))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_from_fail(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=False)
-        bugz_inst.get_latest_comment.return_value = self.fail_msg
+        bugz_inst.latest_comment.return_value = mk_comment(self.fail_msg)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_not_called()
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_from_success(self, bugz):
         bugz_inst = self.bug_preset(bugz, initial_status=True)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, False, self.fail_msg)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                False, self.fail_msg))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cache(self, bugz):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
@@ -2086,46 +2139,48 @@ class IntegrationFailureTests(IntegrationTestCase):
                                      '560322', '--cache-file',
                                      self.cache_file]),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called()
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called()
 
         with patch('nattka.__main__.add_keywords') as add_keywords:
             bugz_inst = self.bug_preset(bugz, initial_status=False)
-            bugz_inst.update_status.reset_mock()
+            bugz_inst.update.reset_mock()
             self.assertEqual(
                 main(self.common_args + ['sanity-check', '--update-bugs',
                                          '560322', '--cache-file',
                                          self.cache_file]),
                 0)
-            bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+            bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
             add_keywords.assert_not_called()
-            bugz_inst.update_status.assert_not_called()
+            bugz_inst.update.assert_not_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_reason_malformed_plist(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            '<>amd64-testing-deps-1 ~alpha\r\n',
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           '<>amd64-testing-deps-1 ~alpha\r\n',
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_called_with(
-            560322, False, 'Unable to check for sanity:\n\n> invalid '
-            'package spec: <>amd64-testing-deps-1')
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                False, 'Unable to check for sanity:\n\n> line 1: invalid '
+                'package atom: \'<>amd64-testing-deps-1\''))
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_reason_malformed_plist_cache_empty_reported(
             self, bugz, add_keywords):
         """
@@ -2133,394 +2188,428 @@ class IntegrationFailureTests(IntegrationTestCase):
         is used and previous comment matches
         """
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            '<>amd64-testing-deps-1 ~alpha\r\n',
-                            sanity_check=False,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           '<>amd64-testing-deps-1 ~alpha\r\n',
+                           sanity_check=False,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
-        bugz_inst.get_latest_comment.return_value = (
-            'Unable to check for sanity:\n\n> invalid package spec: '
-            '<>amd64-testing-deps-1')
+            bugz_inst.search.return_value)
+        bugz_inst.latest_comment.return_value = mk_comment(
+            'Unable to check for sanity:\n\n> line 1: invalid package '
+            'atom: \'<>amd64-testing-deps-1\'')
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '--cache-file', self.cache_file,
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_not_called()
+        bugz_inst.update.assert_not_called()
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_reason_disallowed_plist(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            '>=test/amd64-testing-deps-1 ~alpha\r\n',
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           '>=test/amd64-testing-deps-1 ~alpha\r\n',
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_called_with(
-            560322, False, 'Unable to check for sanity:\n\n> disallowed '
-            'package spec (only = allowed): >=test/amd64-testing-deps-1')
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                False, 'Unable to check for sanity:\n\n> disallowed '
+                'package spec (only = allowed): >=test/amd64-testing-deps-1'))
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_reason_non_matched_plist(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/enoent-7 ~alpha\r\n',
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/enoent-7 ~alpha\r\n',
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_called_with(
-            560322, False, 'Unable to check for sanity:\n\n> no match '
-            'for package: test/enoent-7')
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                False, 'Unable to check for sanity:\n\n> no match '
+                'for package: =test/enoent-7'))
 
     @patch('nattka.__main__.add_keywords')
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_reason_non_matched_keywords(self, bugz, add_keywords):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 amd64 ~mysuperarch\r\n',
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 amd64 ~mysuperarch\r\n',
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         add_keywords.assert_not_called()
-        bugz_inst.update_status.assert_called_with(
-            560322, False, 'Unable to check for sanity:\n\n> incorrect '
-            'keywords: mysuperarch')
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                False, 'Unable to check for sanity:\n\n> incorrect '
+                'keywords: mysuperarch'))
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_reason_masked_package(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/masked-package-1 amd64\r\n',
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/masked-package-1 amd64\r\n',
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, False, 'Unable to check for sanity:\n\n> package '
-            'masked: test/masked-package-1')
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                False, 'Unable to check for sanity:\n\n> package '
+                'masked: test/masked-package-1'))
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_reason_masked_in_all_profiles(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/profile-masked-package-1 amd64\r\n',
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/profile-masked-package-1 amd64\r\n',
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, False, 'Unable to check for sanity:\n\n> package '
-            'masked: test/profile-masked-package-1, in all profiles '
-            'for arch: amd64')
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                False, 'Unable to check for sanity:\n\n> package '
+                'masked: test/profile-masked-package-1, in all profiles '
+                'for arch: amd64'))
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_reason_masked_in_one_profile(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/partially-masked-package-1 amd64\r\n',
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/partially-masked-package-1 amd64\r\n',
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = (
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, False, 'Sanity check failed:\n\n'
-                           '> test/partially-masked-package-1\n'
-                           '>   bdepend ~amd64 stable profile '
-                           'amd64-second (1 total)\n'
-                           '>     test/alpha-testing-deps')
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                False, 'Sanity check failed:\n\n'
+                '> test/partially-masked-package-1\n'
+                '>   bdepend ~amd64 stable profile '
+                'amd64-second (1 total)\n'
+                '>     test/alpha-testing-deps'))
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_depend_invalid(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
-                            depends=[560311],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha\r\n',
+                           depends=[560311],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/enoent-7 ~alpha\r\n',
-                            blocks=[560322],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/enoent-7 ~alpha\r\n',
+                           blocks=[560322],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value.update(
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
 
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         bugz_inst.resolve_dependencies.assert_called()
-        self.assertEqual(bugz_inst.update_status.call_count, 1)
-        bugz_inst.update_status.assert_called_with(
-            560322, False, 'Unable to check for sanity:\n\n'
-                           '> dependent bug #560311 has errors')
+        self.assertEqual(bugz_inst.update.call_count, 1)
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                False, 'Unable to check for sanity:\n\n'
+                '> dependent bug #560311 has errors'))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_depend_and_bug_invalid(self, bugz):
         """Verify that issues with current bug take precedence over deps"""
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/enoent-1 ~alpha\r\n',
-                            depends=[560311],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/enoent-1 ~alpha\r\n',
+                           depends=[560311],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/enoent-7 ~alpha\r\n',
-                            blocks=[560322],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/enoent-7 ~alpha\r\n',
+                           blocks=[560322],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value.update(
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
 
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         bugz_inst.resolve_dependencies.assert_called()
-        self.assertEqual(bugz_inst.update_status.call_count, 1)
-        bugz_inst.update_status.assert_called_with(
-            560322, False, 'Unable to check for sanity:\n\n'
-                           '> no match for package: test/enoent-1')
+        self.assertEqual(bugz_inst.update.call_count, 1)
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                False, 'Unable to check for sanity:\n\n'
+                '> no match for package: =test/enoent-1'))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_depend_missing_keywords(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-deps-1 ~alpha\r\n',
-                            depends=[560311],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-deps-1 ~alpha\r\n',
+                           depends=[560311],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value = {
-            560311: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1',
-                            blocks=[560322],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+            560311: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1',
+                           blocks=[560322],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
         bugz_inst.resolve_dependencies.return_value.update(
-            bugz_inst.find_bugs.return_value)
+            bugz_inst.search.return_value)
 
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
         bugz_inst.resolve_dependencies.assert_called()
-        self.assertEqual(bugz_inst.update_status.call_count, 1)
-        bugz_inst.update_status.assert_called_with(
-            560322, False, 'Unable to check for sanity:\n\n'
-                           '> dependent bug #560311 is missing keywords')
+        self.assertEqual(bugz_inst.update.call_count, 1)
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                False, 'Unable to check for sanity:\n\n'
+                '> dependent bug #560311 is missing keywords'))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_cc(self, bugz):
         bugz_inst = self.bug_preset(bugz, keywords=['CC-ARCHES'])
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.update_status.assert_called_with(
-            560322, False, self.fail_msg)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            sanity_check_update(
+                False, self.fail_msg))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_security(self, bugz):
         bugz_inst = bugz.return_value
         bugs = {
             # non-security bugs
-            560322: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 alpha ~hppa\r\n',
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
-            560324: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-testing-1 amd64\r\n',
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+            560322: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 alpha ~hppa\r\n',
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
+            560324: mk_bug(BugCategory.STABLEREQ,
+                           'test/amd64-testing-1 amd64\r\n',
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
             # security bugs
-            560332: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 alpha ~hppa\r\n',
-                            keywords=['SECURITY'],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
-            560334: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-testing-1 amd64\r\n',
-                            keywords=['SECURITY'],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
-            560336: BugInfo(BugCategory.STABLEREQ,
-                            'test/alpha-amd64-hppa-testing-2 amd64 hppa\r\n',
-                            security=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+            560332: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 alpha ~hppa\r\n',
+                           keywords=['SECURITY'],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
+            560334: mk_bug(BugCategory.STABLEREQ,
+                           'test/amd64-testing-1 amd64\r\n',
+                           keywords=['SECURITY'],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
+            # in the security product, so it has no category at all
+            560336: mk_bug(None,
+                           'test/alpha-amd64-hppa-testing-2 amd64 hppa\r\n',
+                           security=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
-        bugz_inst.find_bugs.return_value = bugs
+        bugz_inst.search.return_value = bugs
         bugz_inst.resolve_dependencies.return_value = bugs
 
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '--security']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ],
-            skip_tags=['nattka:skip'],
-            unresolved=True)
-        bugz_inst.update_status.assert_any_call(560332, True, None)
-        bugz_inst.update_status.assert_any_call(560334, True, None)
-        bugz_inst.update_status.assert_any_call(560336, True, None)
+        bugz_inst.search.assert_called_with(
+            BugQuery.category(BugCategory.KEYWORDREQ, BugCategory.STABLEREQ)
+            & BugQuery.unresolved()
+            & BugQuery.without_tags('nattka:skip'))
+        bugz_inst.update.assert_any_call(
+            560332,
+            sanity_check_update(
+                True, None))
+        bugz_inst.update.assert_any_call(
+            560334,
+            sanity_check_update(
+                True, None))
+        # matched by --security, but skipped for having no category
+        self.assertNotIn(
+            560336,
+            [c.args[0] for c in bugz_inst.update.call_args_list])
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_security_add_kw(self, bugz):
         bugz_inst = bugz.return_value
         bugs = {
             # a security bug without package list
-            560324: BugInfo(BugCategory.STABLEREQ,
-                            '',
-                            security=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+            560324: mk_bug(BugCategory.STABLEREQ,
+                           '',
+                           security=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
             # respective stablereq
-            560334: BugInfo(BugCategory.STABLEREQ,
-                            'test/amd64-testing-1 amd64\r\n',
-                            blocks=[560324],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+            560334: mk_bug(BugCategory.STABLEREQ,
+                           'test/amd64-testing-1 amd64\r\n',
+                           blocks=[560324],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
-        bugz_inst.find_bugs.return_value = bugs
+        bugz_inst.search.return_value = bugs
         bugz_inst.resolve_dependencies.return_value = bugs
 
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ],
-            skip_tags=['nattka:skip'],
-            unresolved=True)
-        bugz_inst.update_status.assert_called_with(
-            560334, True, None, keywords_add=['SECURITY'])
+        bugz_inst.search.assert_called_with(
+            BugQuery.category(BugCategory.KEYWORDREQ, BugCategory.STABLEREQ)
+            & BugQuery.unresolved()
+            & BugQuery.without_tags('nattka:skip'))
+        bugz_inst.update.assert_called_with(
+            560334,
+            sanity_check_update(
+                True, None, keywords_add=['SECURITY']))
         self.post_verify()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_sanity_security_add_kw_kwreq(self, bugz):
         bugz_inst = bugz.return_value
         bugs = {
             # a security bug without package list
-            560324: BugInfo(BugCategory.STABLEREQ,
-                            '',
-                            security=True,
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+            560324: mk_bug(BugCategory.STABLEREQ,
+                           '',
+                           security=True,
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
             # respective stablereq
-            560334: BugInfo(BugCategory.KEYWORDREQ,
-                            'test/amd64-testing-1 alpha ~hppa\r\n',
-                            blocks=[560324],
-                            last_change_time=datetime.datetime(
-                                2020, 1, 1, 12, 0, 0,
-                                tzinfo=datetime.timezone.utc)),
+            560334: mk_bug(BugCategory.KEYWORDREQ,
+                           'test/amd64-testing-1 alpha ~hppa\r\n',
+                           blocks=[560324],
+                           last_change_time=datetime.datetime(
+                               2020, 1, 1, 12, 0, 0,
+                               tzinfo=datetime.timezone.utc)),
         }
-        bugz_inst.find_bugs.return_value = bugs
+        bugz_inst.search.return_value = bugs
         bugz_inst.resolve_dependencies.return_value = bugs
 
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ],
-            skip_tags=['nattka:skip'],
-            unresolved=True)
-        bugz_inst.update_status.assert_called_with(
-            560334, True, None, keywords_add=['SECURITY'])
+        bugz_inst.search.assert_called_with(
+            BugQuery.category(BugCategory.KEYWORDREQ, BugCategory.STABLEREQ)
+            & BugQuery.unresolved()
+            & BugQuery.without_tags('nattka:skip'))
+        bugz_inst.update.assert_called_with(
+            560334,
+            sanity_check_update(
+                True, None, keywords_add=['SECURITY']))
         self.post_verify()
 
 
@@ -2534,35 +2623,45 @@ class IntegrationLimiterTests(IntegrationTestCase):
                    ) -> MagicMock:
         bugs = {}
         for i in range(10):
-            bugs[100000 + i] = BugInfo(BugCategory.STABLEREQ,
-                                       'test/amd64-testing-1 amd64\r\n',
-                                       last_change_time=datetime.datetime(
-                                           2020, 1, 1, 12, 0, 0,
-                                           tzinfo=datetime.timezone.utc))
+            bugs[100000 + i] = mk_bug(BugCategory.STABLEREQ,
+                                      'test/amd64-testing-1 amd64\r\n',
+                                      last_change_time=datetime.datetime(
+                                          2020, 1, 1, 12, 0, 0,
+                                          tzinfo=datetime.timezone.utc))
 
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = bugs
+        bugz_inst.search.return_value = bugs
         bugz_inst.resolve_dependencies.return_value = bugs
         return bugz_inst
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_bug_limit(self, bugz):
         bugz_inst = self.bug_preset(bugz)
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--update-bugs',
                                      '--bug-limit', '5']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            unresolved=True,
-            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ],
-            skip_tags=['nattka:skip'])
-        self.assertEqual(bugz_inst.update_status.call_count, 5)
-        bugz_inst.update_status.assert_has_calls(
-            [unittest.mock.call(100009, True, None),
-             unittest.mock.call(100008, True, None),
-             unittest.mock.call(100007, True, None),
-             unittest.mock.call(100006, True, None),
-             unittest.mock.call(100005, True, None)])
+        bugz_inst.search.assert_called_with(
+            BugQuery.category(BugCategory.KEYWORDREQ, BugCategory.STABLEREQ)
+            & BugQuery.unresolved()
+            & BugQuery.without_tags('nattka:skip'))
+        self.assertEqual(bugz_inst.update.call_count, 5)
+        bugz_inst.update.assert_has_calls(
+            [unittest.mock.call(100009,
+                                sanity_check_update(
+                                    True, None)),
+             unittest.mock.call(100008,
+             sanity_check_update(
+                 True, None)),
+             unittest.mock.call(100007,
+             sanity_check_update(
+                 True, None)),
+             unittest.mock.call(100006,
+             sanity_check_update(
+                 True, None)),
+             unittest.mock.call(100005,
+             sanity_check_update(
+                 True, None))])
 
 
 class SearchFilterTests(IntegrationTestCase):
@@ -2570,200 +2669,211 @@ class SearchFilterTests(IntegrationTestCase):
     Tests for passing search filters over to find_bugs().
     """
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_default(self, bugz):
         """Verify default search filters"""
         bugz_inst = bugz.return_value
         self.assertEqual(
             main(self.common_args + ['sanity-check']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            skip_tags=['nattka:skip'],
-            unresolved=True,
-            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ])
+        bugz_inst.search.assert_called_with(
+            BugQuery.category(BugCategory.KEYWORDREQ, BugCategory.STABLEREQ)
+            & BugQuery.unresolved()
+            & BugQuery.without_tags('nattka:skip'))
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_keywordreq(self, bugz):
         bugz_inst = bugz.return_value
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--keywordreq']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            skip_tags=['nattka:skip'],
-            unresolved=True,
-            category=[BugCategory.KEYWORDREQ])
+        bugz_inst.search.assert_called_with(
+            BugQuery.category(BugCategory.KEYWORDREQ)
+            & BugQuery.unresolved()
+            & BugQuery.without_tags('nattka:skip'))
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_stablereq(self, bugz):
         bugz_inst = bugz.return_value
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--stablereq']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            skip_tags=['nattka:skip'],
-            unresolved=True,
-            category=[BugCategory.STABLEREQ])
+        bugz_inst.search.assert_called_with(
+            BugQuery.category(BugCategory.STABLEREQ)
+            & BugQuery.unresolved()
+            & BugQuery.without_tags('nattka:skip'))
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_keywordreq_and_stablereq(self, bugz):
         bugz_inst = bugz.return_value
         self.assertEqual(
             main(self.common_args + ['sanity-check', '--keywordreq',
                                      '--stablereq']),
             0)
-        bugz_inst.find_bugs.assert_called_with(
-            skip_tags=['nattka:skip'],
-            unresolved=True,
-            category=[BugCategory.KEYWORDREQ, BugCategory.STABLEREQ])
+        bugz_inst.search.assert_called_with(
+            BugQuery.category(BugCategory.KEYWORDREQ, BugCategory.STABLEREQ)
+            & BugQuery.unresolved()
+            & BugQuery.without_tags('nattka:skip'))
 
 
 class ResolveTests(IntegrationTestCase):
     """Tests for resolve command"""
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_resolve_one_of_many(self, bugz):
         """Test resolve with one of many arches done"""
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/example-1\r\n',
-                            ['amd64@gentoo.org', 'hppa@gentoo.org']),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/example-1\r\n',
+                           ['amd64@gentoo.org', 'hppa@gentoo.org']),
         }
         self.assertEqual(
             main(self.common_args + ['resolve', '-a', 'hppa', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.resolve_bug.assert_called_with(
-            560322, ['hppa@gentoo.org'], 'hppa done', False)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            resolve_update(
+                ['hppa@gentoo.org'], 'hppa done', False))
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_resolve_all_of_many(self, bugz):
         """Test resolve with all of many arches done"""
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/example-1\r\n',
-                            ['amd64@gentoo.org', 'hppa@gentoo.org']),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/example-1\r\n',
+                           ['amd64@gentoo.org', 'hppa@gentoo.org']),
         }
         self.assertEqual(
             main(self.common_args + ['resolve', '-a', '*', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.resolve_bug.assert_called_with(
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
             560322,
-            ['amd64@gentoo.org', 'hppa@gentoo.org'],
-            'amd64 hppa done\n\nall arches done',
-            True)
+            resolve_update(
+                ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                'amd64 hppa done\n\nall arches done',
+                True))
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_resolve_security(self, bugz):
-        """Test that security bugs are not closed"""
+        """Test that bugs in the security product are refused
+
+        A bug carrying security=True lives in the Gentoo Security product,
+        which gives it no category, so resolve rejects it before it can be
+        closed.  The `not b.security` guard in to_close is therefore never
+        reached.
+        """
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/example-1\r\n',
-                            ['amd64@gentoo.org', 'hppa@gentoo.org'],
-                            security=True),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(None,
+                           'test/example-1\r\n',
+                           ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                           security=True),
         }
         self.assertEqual(
             main(self.common_args + ['resolve', '-a', '*', '560322']),
-            0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.resolve_bug.assert_called_with(
-            560322,
-            ['amd64@gentoo.org', 'hppa@gentoo.org'],
-            'amd64 hppa done\n\nall arches done',
-            False)
+            1)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_not_called()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_resolve_closed(self, bugz):
         """Test that closed bugs do not get their resolution changed"""
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/example-1\r\n',
-                            ['amd64@gentoo.org', 'hppa@gentoo.org'],
-                            resolved=True),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/example-1\r\n',
+                           ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                           resolved=True),
         }
         self.assertEqual(
             main(self.common_args + ['resolve', '-a', '*', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.resolve_bug.assert_called_with(
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
             560322,
-            ['amd64@gentoo.org', 'hppa@gentoo.org'],
-            'amd64 hppa done\n\nall arches done',
-            False)
+            resolve_update(
+                ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                'amd64 hppa done\n\nall arches done',
+                False))
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_resolve_no_resolve(self, bugz):
         """Test that --no-resolve inhibits resolving bugs"""
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/example-1\r\n',
-                            ['amd64@gentoo.org', 'hppa@gentoo.org']),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/example-1\r\n',
+                           ['amd64@gentoo.org', 'hppa@gentoo.org']),
         }
         self.assertEqual(
             main(self.common_args + ['resolve', '-a', '*', '560322',
                                      '--no-resolve']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.resolve_bug.assert_called_with(
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
             560322,
-            ['amd64@gentoo.org', 'hppa@gentoo.org'],
-            'amd64 hppa done\n\nall arches done',
-            False)
+            resolve_update(
+                ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                'amd64 hppa done\n\nall arches done',
+                False))
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_resolve_pretend(self, bugz):
         """Test that --pretend inhibits updates"""
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/example-1\r\n',
-                            ['amd64@gentoo.org', 'hppa@gentoo.org']),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/example-1\r\n',
+                           ['amd64@gentoo.org', 'hppa@gentoo.org']),
         }
         self.assertEqual(
             main(self.common_args + ['resolve', '-a', '*', '560322',
                                      '--pretend']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.resolve_bug.assert_not_called()
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_not_called()
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_resolve_allarches(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/example-1\r\n',
-                            ['amd64@gentoo.org', 'hppa@gentoo.org'],
-                            keywords=['ALLARCHES']),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/example-1\r\n',
+                           ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                           keywords=['ALLARCHES']),
         }
         self.assertEqual(
             main(self.common_args + ['resolve', '-a', 'hppa', '560322']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.resolve_bug.assert_called_with(
-            560322, ['amd64@gentoo.org', 'hppa@gentoo.org'],
-            'amd64 hppa (ALLARCHES) done\n\nall arches done', True)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            resolve_update(
+                ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                'amd64 hppa (ALLARCHES) done\n\nall arches done', True))
 
-    @patch('nattka.__main__.NattkaBugzilla')
+    @patch('nattka.__main__.make_bugzilla')
     def test_resolve_allarches_ignore(self, bugz):
         bugz_inst = bugz.return_value
-        bugz_inst.find_bugs.return_value = {
-            560322: BugInfo(BugCategory.STABLEREQ,
-                            'test/example-1\r\n',
-                            ['amd64@gentoo.org', 'hppa@gentoo.org'],
-                            keywords=['ALLARCHES']),
+        bugz_inst.search.return_value = {
+            560322: mk_bug(BugCategory.STABLEREQ,
+                           'test/example-1\r\n',
+                           ['amd64@gentoo.org', 'hppa@gentoo.org'],
+                           keywords=['ALLARCHES']),
         }
         self.assertEqual(
             main(self.common_args + ['resolve', '-a', 'hppa', '560322',
                                      '--ignore-allarches']),
             0)
-        bugz_inst.find_bugs.assert_called_with(bugs=[560322])
-        bugz_inst.resolve_bug.assert_called_with(
-            560322, ['hppa@gentoo.org'], 'hppa done', False)
+        bugz_inst.search.assert_called_with(BugQuery.ids([560322]))
+        bugz_inst.update.assert_called_with(
+            560322,
+            resolve_update(
+                ['hppa@gentoo.org'], 'hppa done', False))
 
 
 class MakePackageListTests(IntegrationTestCase):

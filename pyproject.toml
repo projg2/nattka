@@ -12,8 +12,7 @@ requires-python = ">=3.12"
 dependencies = [
     "lxml",
     "pkgcheck",
-    "pkgcore >=0.12.35",
-    "requests",
+    "pkgcore >=0.12.40",
     "snakeoil",
 ]
 classifiers = [
@@ -47,7 +46,7 @@ exclude = [
 depgraph = ["networkx"]
 test = [
     "pytest",
-    "vcrpy",
+    "PyYAML",
 ]
 
 [project.scripts]

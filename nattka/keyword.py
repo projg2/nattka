@@ -9,6 +9,7 @@ import typing
 from datetime import datetime, timezone
 from pathlib import Path
 
+from pkgcore.ebuild.misc import sort_keywords
 from snakeoil.fileutils import AtomicWriteFile
 
 
@@ -25,14 +26,6 @@ KEYWORDS_RE = re.compile(
 
 class KeywordsNotFound(Exception):
     pass
-
-
-def keyword_sort_key(kw: str
-                     ) -> typing.Tuple[str, ...]:
-    """
-    Return the keyword sorting key, i.e. sort by os, then arch name.
-    """
-    return tuple(reversed(kw.lstrip('-~').partition('-')))
 
 
 def update_copyright(copyright_line: str,
@@ -80,7 +73,7 @@ def update_keywords(keywords: typing.List[str],
         kw.discard(f'~{k}')
 
     if kw != orig_kw:
-        return sorted(kw, key=keyword_sort_key)
+        return sort_keywords(kw)
     return None
 
 
